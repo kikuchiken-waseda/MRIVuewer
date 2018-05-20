@@ -8,6 +8,9 @@
     <meta name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <style>
+      #waveform {
+        outline: none !important; 
+      }
       #wave-spectrogram canvas{
         left: 0;
       }
@@ -59,7 +62,7 @@
 
 
         <!-- ツールバー --> 
-        <v-toolbar color="indigo" dark fixed app>
+        <v-toolbar color="indigo" style="z-index: 10;" dark fixed app>
           <v-toolbar-title>Application</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
@@ -77,7 +80,7 @@
             </v-layout>
           </v-container>
         </v-content>
-        <v-footer color="indigo" app inset>
+        <v-footer justify-center align-center text-center color="indigo" app inset>
           <span class="white--text">&copy; 2018 qh73xe@waseda</span>
         </v-footer>
       </v-app>
@@ -88,14 +91,14 @@
     <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
 
     <!-- Wavesufer.js の読み込み --> 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/wavesurfer.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.spectrogram.min.js">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/wavesurfer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.spectrogram.min.js">
     </script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.minimap.min.js">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.minimap.min.js">
     </script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.timeline.min.js">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.timeline.min.js">
     </script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.regions.min.js">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.regions.min.js">
     </script>
 
     <!-- 本体の読み込み --> 
