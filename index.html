@@ -1,36 +1,62 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/2.3.54/css/materialdesignicons.min.css" media="all" rel="stylesheet" type="text/css" />
     <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
     <meta charset="utf-8"/>
     <meta name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <style>
+      #wave-spectrogram canvas{
+        left: 0;
+      }
+      #specLabels{
+        position: absolute!important;
+      }
+      .list--three-line .list__tile {
+        height: 100px!important;
+      }
+      .list__tile .input-group.input-group--solo label {
+        padding-left: 0px!important;
+      }
+      .list__tile .input-group.input-group--solo .input-group__input {
+        padding: 0px!important;
+      }
+      .list__tile__action .btn--icon{
+        margin: 4px!important;
+      }
+    </style>
   </head>
   <body>
     <div id="app">
       <v-app>
         <!-- サイドバー --> 
         <v-navigation-drawer right fixed v-model="drawer" app>
-          <v-list dense>
-            <v-list-tile @click="">
+            <v-list-tile>
               <v-list-tile-action>
-                <v-icon>home</v-icon>
+                <v-icon>folder_open</v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
-                <v-list-tile-title>Home</v-list-tile-title>
+                <v-list-tile-title>Files</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile @click="">
+            <v-divider></v-divider>
+            <v-list-tile
+              v-for="item in files" :key="item.url"
+              v-on:click="selectFile(item)">
               <v-list-tile-action>
-                <v-icon>contact_mail</v-icon>
+                <v-icon color="red" v-if="item.url===target.url">movie</v-icon>
+                <v-icon v-else>movie</v-icon>
               </v-list-tile-action>
               <v-list-tile-content>
-                <v-list-tile-title>Contact</v-list-tile-title>
+                <v-list-tile-title>{{item.url}}</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
+            <v-divider></v-divider>
           </v-list>
         </v-navigation-drawer>
+
 
         <!-- ツールバー --> 
         <v-toolbar color="indigo" dark fixed app>
@@ -41,24 +67,39 @@
 
         <!-- コンテンツ --> 
         <v-content>
-          <v-container fluid fill-height>
+          <v-container fluid fill-height v-if="target.url">
             <v-layout justify-center align-center>
-              <v-flex text-xs-center>
-                <video-player v-bind:url=url v-bind:fps=fps v-bind:by=by></video-player>
-              </v-flex>
+              <video-player
+                v-bind:url=target.url
+                v-bind:fps=target.fps
+                v-bind:by=target.by>
+              </video-player>
             </v-layout>
           </v-container>
         </v-content>
-
         <v-footer color="indigo" app inset>
           <span class="white--text">&copy; 2018 qh73xe@waseda</span>
         </v-footer>
       </v-app>
     </div>
 
+    <!-- vue 関係の読み込み --> 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
     <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
+
+    <!-- Wavesufer.js の読み込み --> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/wavesurfer.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.spectrogram.min.js">
+    </script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.minimap.min.js">
+    </script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.timeline.min.js">
+    </script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/plugin/wavesurfer.regions.min.js">
+    </script>
+
+    <!-- 本体の読み込み --> 
     <script src="src/main.js">
     </script>
-    </body>
+  </body>
 </html>
