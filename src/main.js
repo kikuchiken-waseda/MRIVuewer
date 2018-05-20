@@ -33,7 +33,6 @@ Vue.component(
         spectrogramSetting: {
           container: '#wave-spectrogram',
           fftSamples: 512,
-          pixelRatio: 1.5,
           labels: true
         },
         timelineSetting: {
@@ -416,19 +415,18 @@ Vue.component(
 
               <!-- 音声表示 --> 
               <v-container>
-                <div id="wave-spectrogram"></div>
                 <div id="wave-timeline"></div>
                 <div id="waveform" tabindex="1"
                   v-on:mouseup.exact="regionUpdate"
                   v-on:click="syncVideo"
                   @click.ctrl.exact="pointAdd"
                   @click.alt.exact="regionPlay"
-
                   @keyup.space="play"
                   @keyup.ctrl.space="reegionPlay"
                   @keyup.enter="pointAdd"
                   >
                 </div>
+                <div id="wave-spectrogram"></div>
               </v-container>
             </v-card>
           </v-container>
