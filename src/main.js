@@ -195,11 +195,12 @@ Vue.component(
           // 指定時刻の画像をキャンバスに追加
           const video = document.getElementById('nowVideo')
           const canvas = document.getElementById('video-canvas')
+          const scale = 3
           video.currentTime = item.data.time
-          canvas.width = video.offsetWidth * 5
-          canvas.height = video.offsetHeight * 5
+          canvas.width = video.offsetWidth * scale
+          canvas.height = video.offsetHeight * scale
           const ctx = canvas.getContext('2d')
-          ctx.drawImage(video, 0, 0, video.offsetWidth * 5, video.offsetHeight * 5)
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
           // wavesurfer に登録
           this.wavesurfer.addRegion(item)
           this.wavesurfer.fireEvent('region-updated', this.wavesurfer)
@@ -351,14 +352,14 @@ Vue.component(
               <v-card-title grid-list-md v-if="isReady">
                 <v-layout row justify-left align-left>
                   <v-layout row wrap>
-                    <v-flex xs2>
+                    <v-flex xs3>
                       <video id="preVideo" muted
                         v-bind:src=url
                         v-bind:style="videoCSS"
                         v-on:click="play">
                       </video>
                     </v-flex>
-                    <v-flex xs2>
+                    <v-flex xs3>
                       <video id="nowVideo" muted
                         v-bind:src=url
                         v-bind:style="videoCSS"
@@ -366,14 +367,14 @@ Vue.component(
                         v-on:timeupdate="getCurrentInfo">
                       </video>
                     </v-flex>
-                    <v-flex xs2>
+                    <v-flex xs3>
                       <video id="posVideo" muted
                         v-bind:src=url
                         v-bind:style="videoCSS"
                         v-on:click="play">
                       </video>
                     </v-flex>
-                    <v-flex xs6>
+                    <v-flex xs3>
                       <v-container>
                         <v-text-field label="minPx per sec"
                           v-model="wavesurferSettings.minPxPerSec"
@@ -396,22 +397,6 @@ Vue.component(
                 </v-container>
               </v-card-title>
 
-              <!-- 操作ボタン --> 
-              <v-card-actions v-if="isReady">
-                <v-btn icon color="accent" v-on:click=play>
-                  <v-tooltip bottom>
-                    <v-icon slot="activator">{{playBtnIcon}}</v-icon>
-                    <span>Play or Pause</span>
-                  </v-tooltip>
-                </v-btn>
-                <v-btn icon color="accent" v-on:click="reRender">
-                  <v-tooltip bottom>
-                    <v-icon slot="activator">mdi-autorenew</v-icon>
-                    <span>Redraw Sound</span>
-                  </v-tooltip>
-                </v-btn>
-              </v-card-actions>
-
               <!-- 音声表示 --> 
               <v-container>
                 <div id="wave-spectrogram"></div>
@@ -428,6 +413,24 @@ Vue.component(
                   >
                 </div>
               </v-container>
+
+              <!-- 操作ボタン --> 
+              <v-card-actions v-if="isReady">
+                <v-btn icon color="accent" v-on:click=play>
+                  <v-tooltip bottom>
+                    <v-icon slot="activator">{{playBtnIcon}}</v-icon>
+                    <span>Play or Pause</span>
+                  </v-tooltip>
+                </v-btn>
+                <v-btn icon color="accent" v-on:click="reRender">
+                  <v-tooltip bottom>
+                    <v-icon slot="activator">mdi-autorenew</v-icon>
+                    <span>Redraw Sound</span>
+                  </v-tooltip>
+                </v-btn>
+              </v-card-actions>
+
+
             </v-card>
           </v-container>
         </v-flex>
