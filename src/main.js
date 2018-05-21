@@ -12,7 +12,7 @@ Vue.component(
           height: 'auto'
         },
         wavesurferSettings: {
-          container: '#waveform',
+          container: '#wave-form',
           waveColor: 'violet',
           progressColor: 'purple',
           minPxPerSec: 200,
@@ -169,11 +169,10 @@ Vue.component(
       // point 操作
       pointAdd: function (event) {
         /**
-         * HTML: id="waveform" 要素を ctrl+click した場合に
-         * waveform の現在値の情報を取得し, this.points に追加します.
+         * HTML: id="wave-form" 要素を ctrl+click した場合に
+         * wave-form の現在値の情報を取得し, this.points に追加します.
          */
-
-        const range = 0.005
+        const range = 1 / this.wavesurferSettings.minPxPerSec
         const currentTime = this.wavesurfer.getCurrentTime()
         const currentFrame = Math.floor(currentTime * this.fps)
         if (currentTime !== 0) {
@@ -222,25 +221,39 @@ Vue.component(
         ctx.fill()
       },
       // region 操作
-      regionPlay: function (event) {
-        let currentTime = null
-        currentTime = this.wavesurfer.getCurrentTime()
-        for (const key in this.wavesurfer.regions.list) {
-          const region = this.wavesurfer.regions.list[key]
-          if (currentTime > region.start && currentTime < region.end) {
-            console.log(region)
+      regionPlay: function (region) {
+        console.log('REGION: PLAY')
+        const video = document.getElementById('nowVideo')
+        const duration = this.wavesurfer.getDuration()
+
+        // 時刻合わせ
+        video.currentTime = region.start
+        this.currentTime = region.start
+        this.wavesurfer.seekAndCenter(region.start / duration)
+
+        // 再生
+        video.play()
+        for (const i in this.wavesurfer.regions.list) {
+          if (this.wavesurfer.regions.list[i].id === region.id) {
+            this.wavesurfer.regions.list[i].play()
           }
         }
+        // 停止
+        const stop = function () {
+          const video = document.getElementById('nowVideo')
+          video.pause()
+        }
+        setTimeout(stop, 1000)
       },
       regionUpdate: function (event) {
         /**
          * レギオン作成時にアノテーションリストを更新
          *
          * detail:
-         *   waveform にある regions をすべて確認し,
+         *   wave-form にある regions をすべて確認し,
          *   this.regionSettiong.regions を更新します.
          * event: mouseup
-         * target: id=waveform
+         * target: id=wave-form
          */
         const regionList = this.regionSettiong.regions
         const registeredIds = []
@@ -416,13 +429,10 @@ Vue.component(
               <!-- 音声表示 --> 
               <v-container>
                 <div id="wave-timeline"></div>
-                <div id="waveform" tabindex="1"
+                <div id="wave-form"
                   v-on:mouseup.exact="regionUpdate"
                   v-on:click="syncVideo"
                   @click.ctrl.exact="pointAdd"
-                  @click.alt.exact="regionPlay"
-                  @keyup.space="play"
-                  @keyup.ctrl.space="reegionPlay"
                   @keyup.enter="pointAdd"
                   >
                 </div>
@@ -463,7 +473,7 @@ Vue.component(
                       </v-list-tile-sub-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
-                      <v-btn outline small icon color="indigo">
+                      <v-btn outline small icon color="indigo" @click="regionPlay(item)">
                         <v-icon>play_arrow</v-icon>
                       </v-btn>
                       <v-btn outline small icon color="indigo">
