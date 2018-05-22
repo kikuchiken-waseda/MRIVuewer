@@ -32,7 +32,8 @@ Vue.component(
         },
         spectrogramSetting: {
           container: '#wave-spectrogram',
-          fftSamples: 512,
+          fftSamples: 256,
+          brightness: 1,
           labels: true
         },
         timelineSetting: {
@@ -389,6 +390,10 @@ Vue.component(
                     </v-flex>
                     <v-flex xs3>
                       <v-container>
+                        <v-text-field label="brightness"
+                          v-model="spectrogramSetting.brightness"
+                          suffix="RGB">
+                        </v-text-field>
                         <v-text-field label="minPx per sec"
                           v-model="wavesurferSettings.minPxPerSec"
                           suffix="per sec">
