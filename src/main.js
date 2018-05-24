@@ -244,7 +244,22 @@ Vue.component(
           const video = document.getElementById('nowVideo')
           video.pause()
         }
-        setTimeout(stop, 1000)
+        setTimeout(stop, (region.end - region.start) * 1000)
+      },
+      regionDelete: function (region) {
+        console.log('REGION: DELETE')
+        // LIST から削除
+        this.regionSettiong.regions = this.regionSettiong.regions.filter(
+          x => x.id !== region.id
+        )
+        // wave-form から削除
+        const regions = this.wavesurfer.regions.list
+        for (const i in regions) {
+          if (region.id === regions[i].id) {
+            regions[i].remove()
+            break
+          }
+        }
       },
       regionUpdate: function (event) {
         /**
@@ -481,7 +496,7 @@ Vue.component(
                       <v-btn outline small icon color="indigo" @click="regionPlay(item)">
                         <v-icon>play_arrow</v-icon>
                       </v-btn>
-                      <v-btn outline small icon color="indigo">
+                      <v-btn outline small icon color="indigo" @click="regionDelete(item)">
                         <v-icon>delete_outline</v-icon>
                       </v-btn>
                     </v-list-tile-action>
