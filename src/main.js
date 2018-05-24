@@ -133,7 +133,7 @@ Vue.component(
           posVideo.currentTime = video.currentTime + by
         }
         if (this.currentTime === video.duration) {
-          this.playBtnIcon = 'pause'
+          this.playBtnIcon = 'play_arrow'
         }
       },
       // canvas 操作
@@ -198,10 +198,13 @@ Vue.component(
               data: {
                 time: currentTime,
                 frame: currentFrame,
-                type: 'point',
-                contents: null
+                type: 'point'
               },
-              attributes: { label: 'abc', 'highlight': true },
+              attributes: {
+                label: null,
+                type: 'point',
+                highlight: false
+              },
               color: 'rgba(103, 58, 183, 0.5)',
               resize: false,
               id: 'point_' + (this.points.length + 1)
@@ -354,8 +357,12 @@ Vue.component(
                 color: region.color,
                 data: {
                   type: 'region',
-                  duration: duration,
-                  contents: null
+                  duration: duration
+                },
+                attributes: {
+                  label: null,
+                  type: 'region',
+                  highlight: false
                 },
                 id: region.id
               }
@@ -367,6 +374,7 @@ Vue.component(
               if (oldRegion.start !== region.start || oldRegion.end !== region.end) {
                 regionList[index].start = region.start
                 regionList[index].end = region.end
+                regionList[index].data.duration = region.end - region.start
               }
             }
           }
@@ -375,6 +383,20 @@ Vue.component(
           if (a.start < b.start) return -1
           if (a.start > b.start) return 1
           return 0
+        })
+      },
+      // region, point の共通操作
+      labelUpdate: function (item) {
+        /**
+         * @desc ラベル属性を決定します
+         */
+        this.$nextTick(() => {
+          const regions = this.wavesurfer.regions.list
+          for (const i in regions) {
+            if (regions[i].id === item.id) {
+              regions[i].update(item)
+            }
+          }
         })
       },
       waveformUpdate (event) {
@@ -453,41 +475,69 @@ Vue.component(
                 <v-layout row justify-left align-left>
                   <v-layout row wrap>
                     <v-flex xs3>
-                      <video id="preVideo" muted
-                        v-bind:src=url
-                        v-bind:style="videoCSS"
-                        v-on:click="play">
-                      </video>
+                      <v-tooltip bottom>
+                        <video slot="activator" id="preVideo" muted
+                          v-bind:src=url
+                          v-bind:style="videoCSS"
+                          v-on:click="play">
+                        </video>
+                        <span>{{by}} sec 前の画像</span>
+                      </v-tooltip>
                     </v-flex>
                     <v-flex xs3>
-                      <video id="nowVideo" muted
-                        v-bind:src=url
-                        v-bind:style="videoCSS"
-                        v-on:click="play"
-                        v-on:timeupdate="getCurrentInfo">
-                      </video>
+                      <v-tooltip bottom>
+                        <video slot="activator" id="nowVideo" muted
+                          v-bind:src=url
+                          v-bind:style="videoCSS"
+                          v-on:click="play"
+                          v-on:timeupdate="getCurrentInfo">
+                        </video>
+                        <span>現在の画像</span>
+                      </v-tooltip>
                     </v-flex>
                     <v-flex xs3>
-                      <video id="posVideo" muted
-                        v-bind:src=url
-                        v-bind:style="videoCSS"
-                        v-on:click="play">
-                      </video>
+                      <v-tooltip bottom>
+                        <video slot="activator" id="posVideo" muted
+                          v-bind:src=url
+                          v-bind:style="videoCSS"
+                          v-on:click="play">
+                        </video>
+                        <span>{{by}} sec 後の画像</span>
+                      </v-tooltip>
                     </v-flex>
                     <v-flex xs3>
                       <v-container>
-                        <v-text-field label="brightness"
-                          v-model="spectrogramSetting.brightness"
-                          suffix="RGB">
-                        </v-text-field>
-                        <v-text-field label="minPx per sec"
-                          v-model="wavesurferSettings.minPxPerSec"
-                          suffix="per sec">
-                        </v-text-field>
-                        <v-text-field label="fft sample"
-                          v-model="spectrogramSetting.fftSamples"
-                          suffix="sample">
-                        </v-text-field>
+                        <v-tooltip bottom>
+                          <v-text-field slot="activator" label="brightness"
+                            v-model="spectrogramSetting.brightness"
+                            suffix="RGB">
+                          </v-text-field>
+                          <span>
+                            スペクトルグラムの明るさを調整します.
+                            この値は 0 以上の数字で, 1 より大きくすると明るくなり,
+                            0 以上 1 未満にすると暗くなります.
+                          </span>
+                        </v-tooltip>
+                        <v-tooltip bottom>
+                          <v-text-field slot="activator" label="minPx per sec"
+                            v-model="wavesurferSettings.minPxPerSec"
+                            suffix="per sec">
+                          </v-text-field>
+                          <span>
+                            1 秒を何ピクセルで表現するのかを決定します.
+                            この値が大きいほど波形は拡大されます.
+                          </span>
+                        </v-tooltip>
+                        <v-tooltip bottom>
+                          <v-text-field  slot="activator" label="fft sample"
+                            v-model="spectrogramSetting.fftSamples"
+                            suffix="sample">
+                          </v-text-field>
+                          <span>
+                            FFT サンプリングレートです.
+                            現在は動的に変更するとうまく動かないです.
+                          </span>
+                        </v-tooltip>
                       </v-container>
                     </v-flex>
                   </v-layout>
@@ -522,8 +572,8 @@ Vue.component(
                 <div id="wave-spectrogram"></div>
                 <div id="wave-timeline"></div>
                 <div id="wave-form"
-                  v-on:mouseup.exact="waveformUpdate"
-                  v-on:click="syncVideo"
+                  @mouseup.exact="waveformUpdate"
+                  @click="syncVideo"
                   @click.ctrl.exact="pointAdd"
                   @keyup.enter="pointAdd"
                   >
@@ -552,7 +602,8 @@ Vue.component(
                       <v-list-tile-sub-title>
                         <v-text-field
                           label="contents"
-                          v-model="item.data.contents"
+                          v-model="item.attributes.label"
+                          @keyup.enter="labelUpdate(item)"
                           flat solo>
                         </v-text-field>
                       </v-list-tile-sub-title>
@@ -602,7 +653,8 @@ Vue.component(
                       <v-list-tile-sub-title>
                         <v-text-field
                           label="contents"
-                          v-model="item.data.contents"
+                          v-model="item.attributes.label"
+                          @keyup.enter="labelUpdate(item)"
                           flat solo>
                         </v-text-field>
                       </v-list-tile-sub-title>
@@ -665,7 +717,7 @@ new Vue({
       {
         url: './misc/10.mp4',
         fps: 13.84,
-        by: 0.1
+        by: 0.1384
       },
       {
         url: './misc/17.mp4',

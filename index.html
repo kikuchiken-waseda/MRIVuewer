@@ -13,11 +13,18 @@
       }
       region.wavesurfer-region::after {
         content: attr(data-region-label);
-        color: gray;
+        white-space: nowrap;
         margin-left: 2px;
       }
+      region.wavesurfer-region[data-region-type=point] {
+        padding-top: 12px;
+        color: #01579b
+      }
+      region.wavesurfer-region[data-region-type=region] {
+        color: #827717
+      }
+
       region.wavesurfer-region[data-region-highlight] {
-        border: 1px solid rgb(86, 180, 239);
         box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.05) inset, 0px 0px 8px rgba(82, 168, 236, 0.6);
       }
       #wave-spectrogram canvas{
