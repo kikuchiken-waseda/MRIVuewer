@@ -174,6 +174,8 @@ Vue.component(
           const setting = Object.assign({}, this.wavesurferSettings)
           setting.plugins = [
             WaveSurfer.regions.create(this.regionSettiong),
+            WaveSurfer.minimap.create(this.minimapSetting),
+            WaveSurfer.timeline.create(this.timelineSetting),
             WaveSurfer.spectrogram.create(this.spectrogramSetting)
           ]
           this.wavesurfer = WaveSurfer.create(setting)
@@ -510,7 +512,8 @@ Vue.component(
                         <v-tooltip bottom>
                           <v-text-field slot="activator" label="brightness"
                             v-model="spectrogramSetting.brightness"
-                            suffix="RGB">
+                            @keyup.enter="reRender"
+                            suffix="times">
                           </v-text-field>
                           <span>
                             スペクトルグラムの明るさを調整します.
@@ -520,6 +523,7 @@ Vue.component(
                         </v-tooltip>
                         <v-tooltip bottom>
                           <v-text-field slot="activator" label="minPx per sec"
+                            @keyup.enter="reRender"
                             v-model="wavesurferSettings.minPxPerSec"
                             suffix="per sec">
                           </v-text-field>
@@ -531,6 +535,7 @@ Vue.component(
                         <v-tooltip bottom>
                           <v-text-field  slot="activator" label="fft sample"
                             v-model="spectrogramSetting.fftSamples"
+                            @keyup.enter="reRender"
                             suffix="sample">
                           </v-text-field>
                           <span>
