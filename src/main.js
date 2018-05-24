@@ -136,6 +136,20 @@ Vue.component(
           this.playBtnIcon = 'pause'
         }
       },
+      // canvas 操作
+      markAdd: function (event) {
+        const canvas = document.getElementById('video-canvas')
+        const ctx = canvas.getContext('2d')
+        const rect = canvas.getBoundingClientRect()
+        const x = event.clientX - rect.left
+        const y = event.clientY - rect.top
+        const color = 'rgba(244,81,30 ,1)'
+        const pointSize = 5
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(x, y, pointSize, 0, Math.PI * 2, false)
+        ctx.fill()
+      },
       // 音声波形操作
       syncVideo: function (event) {
         const by = parseFloat(this.by)
@@ -173,53 +187,102 @@ Vue.component(
          * HTML: id="wave-form" 要素を ctrl+click した場合に
          * wave-form の現在値の情報を取得し, this.points に追加します.
          */
-        const range = 1 / this.wavesurferSettings.minPxPerSec
-        const currentTime = this.wavesurfer.getCurrentTime()
-        const currentFrame = Math.floor(currentTime * this.fps)
-        if (currentTime !== 0) {
-          const item = {
-            start: currentTime - range,
-            end: currentTime - range,
-            data: {
-              time: currentTime,
-              frame: currentFrame,
-              type: 'point',
-              contents: null
-            },
-            color: 'rgba(103, 58, 183, 0.5)',
-            resize: false,
-            id: 'point_' + (this.points.length + 1)
+        this.$nextTick(() => {
+          const range = 1 / this.wavesurferSettings.minPxPerSec
+          const currentTime = this.wavesurfer.getCurrentTime()
+          const currentFrame = Math.floor(currentTime * this.fps)
+          if (currentTime !== 0) {
+            const item = {
+              start: currentTime - range,
+              end: currentTime + range,
+              data: {
+                time: currentTime,
+                frame: currentFrame,
+                type: 'point',
+                contents: null
+              },
+              attributes: { label: 'abc', 'highlight': true },
+              color: 'rgba(103, 58, 183, 0.5)',
+              resize: false,
+              id: 'point_' + (this.points.length + 1)
+            }
+            this.points.push(item)
+
+            // 指定時刻の画像をキャンバスに追加
+            const video = document.getElementById('nowVideo')
+            const canvas = document.getElementById('video-canvas')
+            const scale = 3
+            video.currentTime = item.data.time
+            canvas.width = video.offsetWidth * scale
+            canvas.height = video.offsetHeight * scale
+            const ctx = canvas.getContext('2d')
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+            // wavesurfer に登録
+            this.wavesurfer.addRegion(item)
+            this.wavesurfer.fireEvent('region-updated', this.wavesurfer)
           }
-          this.points.push(item)
-
-          // 指定時刻の画像をキャンバスに追加
-          const video = document.getElementById('nowVideo')
-          const canvas = document.getElementById('video-canvas')
-          const scale = 3
-          video.currentTime = item.data.time
-          canvas.width = video.offsetWidth * scale
-          canvas.height = video.offsetHeight * scale
-          const ctx = canvas.getContext('2d')
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-          // wavesurfer に登録
-          this.wavesurfer.addRegion(item)
-          this.wavesurfer.fireEvent('region-updated', this.wavesurfer)
-        }
+        })
       },
-      // canvas 操作
-      markAdd: function (event) {
-        const canvas = document.getElementById('video-canvas')
-        const ctx = canvas.getContext('2d')
-        const rect = canvas.getBoundingClientRect()
-        const x = event.clientX - rect.left
-        const y = event.clientY - rect.top
-        const color = 'rgba(244,81,30 ,1)'
-        const pointSize = 5
+      pointUpdate: function (event) {
+        /**
+         * point 移動時に this.points に反映
+         *
+         * detail:
+         *   wave-form にある regions をすべて確認し,
+         *   this.points を更新します.
+         * event: mouseup
+         * target: id=wave-form
+         */
+        console.info('point: update')
+        const range = 1 / this.wavesurferSettings.minPxPerSec
+        const pointList = this.points
+        const registeredIds = []
 
-        ctx.fillStyle = color
-        ctx.beginPath()
-        ctx.arc(x, y, pointSize, 0, Math.PI * 2, false)
-        ctx.fill()
+        // 現状の id 一覧を取得
+        for (const i in pointList) {
+          registeredIds.push(pointList[i].id)
+        }
+        const regions = this.wavesurfer.regions.list
+        for (const key in regions) {
+          const region = regions[key]
+          if (region.data.type !== undefined && region.data.type === 'point') {
+            // 開始, 終了時刻は異なる場合は反映
+            const index = registeredIds.indexOf(region.id)
+            const oldPoint = pointList[index]
+            if (oldPoint.start !== region.start || oldPoint.end !== region.end) {
+              pointList[index].start = region.start
+              pointList[index].end = region.end
+              pointList[index].data = {
+                time: region.start + range,
+                frame: Math.floor((region.start + range) * this.fps)
+              }
+            }
+          }
+        }
+        pointList.sort(function (a, b) {
+          if (a.start < b.start) return -1
+          if (a.start > b.start) return 1
+          return 0
+        })
+      },
+      pointDelete (point) {
+        /**
+         * point の削除
+         *
+         */
+        console.info('point: delete')
+        this.points = this.points.filter(
+          x => x.id !== point.id
+        )
+        // wave-form から削除
+        const regions = this.wavesurfer.regions.list
+        for (const i in regions) {
+          if (point.id === regions[i].id) {
+            regions[i].remove()
+            break
+          }
+        }
       },
       // region 操作
       regionPlay: function (region) {
@@ -271,6 +334,7 @@ Vue.component(
          * event: mouseup
          * target: id=wave-form
          */
+        console.info('region: update')
         const regionList = this.regionSettiong.regions
         const registeredIds = []
         for (const i in regionList) {
@@ -312,6 +376,13 @@ Vue.component(
           if (a.start > b.start) return 1
           return 0
         })
+      },
+      waveformUpdate (event) {
+        /**
+         * @desc 音声波形のラベル情報と, LIST 情報を一致させる.
+         */
+        this.regionUpdate(event)
+        this.pointUpdate(event)
       }
     },
     template: `
@@ -448,15 +519,15 @@ Vue.component(
 
               <!-- 音声表示 --> 
               <v-container>
+                <div id="wave-spectrogram"></div>
                 <div id="wave-timeline"></div>
                 <div id="wave-form"
-                  v-on:mouseup.exact="regionUpdate"
+                  v-on:mouseup.exact="waveformUpdate"
                   v-on:click="syncVideo"
                   @click.ctrl.exact="pointAdd"
                   @keyup.enter="pointAdd"
                   >
                 </div>
-                <div id="wave-spectrogram"></div>
               </v-container>
             </v-card>
           </v-container>
@@ -546,7 +617,7 @@ Vue.component(
                       <v-btn outline small icon color="indigo">
                         <v-icon>edit</v-icon>
                       </v-btn>
-                      <v-btn outline small icon color="indigo">
+                      <v-btn outline small icon color="indigo" @click="pointDelete(item)">
                         <v-icon>delete_outline</v-icon>
                       </v-btn>
                     </v-list-tile-action>

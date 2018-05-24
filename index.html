@@ -11,8 +11,10 @@
       #waveform {
         outline: none !important; 
       }
-      region.wavesurfer-region {
+      region.wavesurfer-region::after {
         content: attr(data-region-label);
+        color: gray;
+        margin-left: 2px;
       }
       region.wavesurfer-region[data-region-highlight] {
         border: 1px solid rgb(86, 180, 239);
