@@ -20,8 +20,7 @@ Vue.component(
           minimap: true,
           normalize: true
         },
-        regionSettiong: {
-          regions: [],
+        regionSetting: {
           dragSelection: {
             slop: 5
           },
@@ -46,6 +45,7 @@ Vue.component(
           cursorColor: '#999'
         },
         points: [],
+        regions: [],
         wavesurfer: null // wavesurfer クラス
       }
     },
@@ -66,39 +66,39 @@ Vue.component(
     },
     watch: {
       'url': function () {
-        this.regionSettiong.regions = []
+        const url = this.url
+        this.wavesurfer.destroy()
+        this.load(url)
+      }
+    },
+    mounted () {
+      const url = this.url
+      this.load(url)
+    },
+    methods: {
+      load: function (url) {
+        /**
+         * url で指定されたファイルの音声波形データを作成します.
+         *
+         * wavesurfer のレンダーは直接の DOM 操作が必要であるため
+         * 操作は nextTick 内に記述します.
+         */
+        this.regions = []
+        this.regionSetting.regions = this.regions
+
         this.$nextTick(() => {
-          // WaveSurfer の初期設定
-          this.wavesurfer.destroy()
           const setting = Object.assign({}, this.wavesurferSettings)
           setting.plugins = [
-            WaveSurfer.regions.create(this.regionSettiong),
+            WaveSurfer.regions.create(this.regionSetting),
             WaveSurfer.minimap.create(this.minimapSetting),
             WaveSurfer.timeline.create(this.timelineSetting),
             WaveSurfer.spectrogram.create(this.spectrogramSetting)
           ]
           this.wavesurfer = WaveSurfer.create(setting)
-          this.wavesurfer.load(this.url)
-          this.playBtnIcon = 'play_arrow'
+          this.wavesurfer.load(url)
         })
-      }
-    },
-    mounted () {
-      this.$nextTick(() => {
-        // WaveSurfer の初期設定
-        const setting = Object.assign({}, this.wavesurferSettings)
-        setting.plugins = [
-          WaveSurfer.regions.create(this.regionSettiong),
-          WaveSurfer.minimap.create(this.minimapSetting),
-          WaveSurfer.timeline.create(this.timelineSetting),
-          WaveSurfer.spectrogram.create(this.spectrogramSetting)
-        ]
-        this.wavesurfer = WaveSurfer.create(setting)
-        this.wavesurfer.load(this.url)
         this.playBtnIcon = 'play_arrow'
-      })
-    },
-    methods: {
+      },
       play: function (event) {
         if (event.type === 'keyup') {
           event.preventDefault()
@@ -168,19 +168,11 @@ Vue.component(
         }
       },
       reRender: function () {
+        const url = this.url
         this.$nextTick(() => {
           // WaveSurfer の初期設定
           this.wavesurfer.destroy()
-          const setting = Object.assign({}, this.wavesurferSettings)
-          setting.plugins = [
-            WaveSurfer.regions.create(this.regionSettiong),
-            WaveSurfer.minimap.create(this.minimapSetting),
-            WaveSurfer.timeline.create(this.timelineSetting),
-            WaveSurfer.spectrogram.create(this.spectrogramSetting)
-          ]
-          this.wavesurfer = WaveSurfer.create(setting)
-          this.wavesurfer.load(this.url)
-          this.playBtnIcon = 'play_arrow'
+          this.load(url)
         })
       },
       // point 操作
@@ -317,7 +309,7 @@ Vue.component(
       regionDelete: function (region) {
         console.log('REGION: DELETE')
         // LIST から削除
-        this.regionSettiong.regions = this.regionSettiong.regions.filter(
+        this.regions = this.regions.filter(
           x => x.id !== region.id
         )
         // wave-form から削除
@@ -335,12 +327,12 @@ Vue.component(
          *
          * detail:
          *   wave-form にある regions をすべて確認し,
-         *   this.regionSettiong.regions を更新します.
+         *   this.regions を更新します.
          * event: mouseup
          * target: id=wave-form
          */
         console.info('region: update')
-        const regionList = this.regionSettiong.regions
+        const regionList = this.regions
         const registeredIds = []
         for (const i in regionList) {
           // 現状の  id 一覧を取得
@@ -566,12 +558,11 @@ Vue.component(
                 </v-btn>
                 <v-btn icon color="accent" v-on:click="reRender">
                   <v-tooltip bottom>
-                    <v-icon slot="activator">mdi-autorenew</v-icon>
+                    <v-icon slot="activator">refresh</v-icon>
                     <span>Redraw Sound</span>
                   </v-tooltip>
                 </v-btn>
               </v-card-actions>
-
               <!-- 音声表示 --> 
               <v-container>
                 <div id="wave-spectrogram"></div>
@@ -600,8 +591,8 @@ Vue.component(
                   <v-icon>view_module</v-icon>
                 </v-btn>
               </v-toolbar>
-              <v-list three-line subheader v-if="regionSettiong.regions.length !== 0">
-                <template v-for="(item, index) in regionSettiong.regions">
+              <v-list three-line subheader v-if="regions.length !== 0">
+                <template v-for="(item, index) in regions">
                   <v-list-tile :key="item.id">
                     <v-list-tile-content>
                       <v-list-tile-sub-title>
