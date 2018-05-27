@@ -47,6 +47,7 @@ Vue.component(
         points: [],
         regions: [],
         cache: {},
+        dialog: false,
         wavesurfer: null // wavesurfer クラス
       }
     },
@@ -197,6 +198,21 @@ Vue.component(
         })
       },
       // canvas 操作
+      edit: function (point) {
+        this.dialog = true
+        // 指定時刻の画像をキャンバスに追加
+        const time = point.data.time
+        const video = this.$refs.nowVideo
+        const canvas = document.getElementById('video-canvas')
+        const scale = 3
+        video.currentTime = time
+
+        this.$nextTick(() => {
+          canvas.width = video.offsetWidth * scale
+          canvas.height = video.offsetHeight * scale
+          canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
+        })
+      },
       markAdd: function (event) {
         const canvas = document.getElementById('video-canvas')
         const ctx = canvas.getContext('2d')
@@ -239,17 +255,6 @@ Vue.component(
               id: 'point_' + (this.points.length + 1)
             }
             this.points.push(item)
-
-            // 指定時刻の画像をキャンバスに追加
-            const video = this.$refs.nowVideo
-            const canvas = document.getElementById('video-canvas')
-            const scale = 3
-            video.currentTime = item.data.time
-            canvas.width = video.offsetWidth * scale
-            canvas.height = video.offsetHeight * scale
-            const ctx = canvas.getContext('2d')
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-
             // wavesurfer に登録
             this.wavesurfer.addRegion(item)
             this.wavesurfer.fireEvent('region-updated', this.wavesurfer)
@@ -740,7 +745,7 @@ Vue.component(
                       </v-list-tile-sub-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
-                      <v-btn outline small icon color="indigo">
+                      <v-btn outline small icon color="indigo" @click="edit(item)">
                         <v-icon>edit</v-icon>
                       </v-btn>
                       <v-btn outline small icon color="indigo" @click="pointDelete(item)">
@@ -761,23 +766,23 @@ Vue.component(
             </v-card>
           </v-container>
         </v-flex>
-
-        <v-flex xs8 v-if="isReady">
-          <v-container>
-            <v-card>
-              <v-toolbar color="accent" dark>
-                <v-toolbar-title>Canvas</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-btn icon>
-                  <v-icon>view_module</v-icon>
-                </v-btn>
-              </v-toolbar>
-              <v-card-media>
-                <canvas id="video-canvas" @click="markAdd"></canvas>
-              </v-card-media>
-            </v-card>
-          </v-container>
-        </v-flex>
+        <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+          <v-card>
+            <v-toolbar dark color="primary">
+              <v-btn icon dark @click.native="dialog = false">
+                <v-icon>close</v-icon>
+              </v-btn>
+              <v-toolbar-title>Settings</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-toolbar-items>
+                <v-btn dark flat @click.native="dialog = false">Save</v-btn>
+              </v-toolbar-items>
+            </v-toolbar>
+            <v-card-media>
+              <canvas id="video-canvas" @click="markAdd"></canvas>
+            </v-card-media>
+          </v-card>
+        </v-dialog>
       </v-layout>
     `
   }
