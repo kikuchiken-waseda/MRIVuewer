@@ -46,15 +46,22 @@ Vue.component(
         },
         points: [],
         regions: [],
+        cache: {},
         wavesurfer: null // wavesurfer クラス
       }
     },
     props: [
-      'url',
-      'fps',
-      'by'
+      'url', 'fps', 'by'
     ],
     computed: {
+      basename: function () {
+        const pathes = this.url.split('/')
+        const fname = pathes[pathes.length - 1]
+        return fname.split('.')[0]
+      },
+      cachename: function () {
+        return 'cache_' + this.basename
+      },
       isReady: function () {
         // 音声の読み込みが終了したか否かを判定します.
         if (this.wavesurfer !== null) {
@@ -67,15 +74,44 @@ Vue.component(
     watch: {
       'url': function () {
         const url = this.url
+
+        // 種々初期化
+        const cache = JSON.parse(localStorage.getItem(this.cachename))
+        if (cache === null) {
+          this.cache = {}
+          this.regions = []
+          this.points = []
+        } else {
+          this.cache = cache
+          this.points = this.cache.points
+          this.regions = this.cache.regions
+        }
         this.wavesurfer.destroy()
+        // リロード
         this.load(url)
+      },
+      'points': function (val) {
+        this.cache.points = val
+        localStorage.setItem(this.cachename, JSON.stringify(this.cache))
+      },
+      'regions': function (val) {
+        this.cache.regions = val
+        localStorage.setItem(this.cachename, JSON.stringify(this.cache))
       }
     },
     mounted () {
       const url = this.url
+      const cache = JSON.parse(localStorage.getItem(this.cachename))
+      if (cache !== null) {
+        console.log(cache)
+        this.cache = cache
+        this.points = this.cache.points
+        this.regions = this.cache.regions
+      }
       this.load(url)
     },
     methods: {
+      // 基本操作
       load: function (url) {
         /**
          * url で指定されたファイルの音声波形データを作成します.
@@ -83,9 +119,7 @@ Vue.component(
          * wavesurfer のレンダーは直接の DOM 操作が必要であるため
          * 操作は nextTick 内に記述します.
          */
-        this.regions = []
-        this.regionSetting.regions = this.regions
-
+        this.regionSetting.regions = this.regions.concat(this.points)
         this.$nextTick(() => {
           const setting = Object.assign({}, this.wavesurferSettings)
           setting.plugins = [
@@ -103,13 +137,14 @@ Vue.component(
         if (event.type === 'keyup') {
           event.preventDefault()
         }
-        const video = document.getElementById('nowVideo')
-        this.wavesurfer.playPause()
+        const video = this.$refs.nowVideo
         if (video.paused) {
           video.play()
+          this.wavesurfer.play()
           this.playBtnIcon = 'pause'
         } else {
           video.pause()
+          this.wavesurfer.pause()
           this.currentTime = video.currentTime
           this.playBtnIcon = 'play_arrow'
         }
@@ -118,7 +153,7 @@ Vue.component(
       // 動画再生時の挙動
       getCurrentInfo: function (event) {
         const by = parseFloat(this.by)
-        const video = document.getElementById('nowVideo')
+        const video = this.$refs.nowVideo
         const preVideo = document.getElementById('preVideo')
         const posVideo = document.getElementById('posVideo')
 
@@ -136,27 +171,13 @@ Vue.component(
           this.playBtnIcon = 'play_arrow'
         }
       },
-      // canvas 操作
-      markAdd: function (event) {
-        const canvas = document.getElementById('video-canvas')
-        const ctx = canvas.getContext('2d')
-        const rect = canvas.getBoundingClientRect()
-        const x = event.clientX - rect.left
-        const y = event.clientY - rect.top
-        const color = 'rgba(244,81,30 ,1)'
-        const pointSize = 5
-        ctx.fillStyle = color
-        ctx.beginPath()
-        ctx.arc(x, y, pointSize, 0, Math.PI * 2, false)
-        ctx.fill()
-      },
       // 音声波形操作
       syncVideo: function (event) {
         const by = parseFloat(this.by)
         this.currentTime = this.wavesurfer.getCurrentTime()
         this.currentFrame = Math.floor(this.currentTime * this.fps)
 
-        const video = document.getElementById('nowVideo')
+        const video = this.$refs.nowVideo
         const preVideo = document.getElementById('preVideo')
         const posVideo = document.getElementById('posVideo')
         video.currentTime = this.currentTime
@@ -174,6 +195,20 @@ Vue.component(
           this.wavesurfer.destroy()
           this.load(url)
         })
+      },
+      // canvas 操作
+      markAdd: function (event) {
+        const canvas = document.getElementById('video-canvas')
+        const ctx = canvas.getContext('2d')
+        const rect = canvas.getBoundingClientRect()
+        const x = event.clientX - rect.left
+        const y = event.clientY - rect.top
+        const color = 'rgba(244,81,30 ,1)'
+        const pointSize = 5
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(x, y, pointSize, 0, Math.PI * 2, false)
+        ctx.fill()
       },
       // point 操作
       pointAdd: function (event) {
@@ -206,7 +241,7 @@ Vue.component(
             this.points.push(item)
 
             // 指定時刻の画像をキャンバスに追加
-            const video = document.getElementById('nowVideo')
+            const video = this.$refs.nowVideo
             const canvas = document.getElementById('video-canvas')
             const scale = 3
             video.currentTime = item.data.time
@@ -281,10 +316,31 @@ Vue.component(
           }
         }
       },
+      pointDownload () {
+        /**
+         * point として記述した内容を CSV に変換し, ダウンロードします.
+         *
+         */
+        console.log('Point: Download')
+        let csv = 'time,frame,text\n'
+        this.points.forEach(item => {
+          const line = item.data.time + ',' + item.data.frame + ',' + item.attributes.label + '\n'
+          csv += line
+        })
+        const bom = new Uint8Array([0xEF, 0xBB, 0xBF])
+        const blob = new Blob([bom, csv], { type: 'text/csv' })
+        const link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.target = '_blank'
+        link.download = this.basename + '_point.csv'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      },
       // region 操作
       regionPlay: function (region) {
         console.log('REGION: PLAY')
-        const video = document.getElementById('nowVideo')
+        const video = this.$refs.nowVideo
         const duration = this.wavesurfer.getDuration()
 
         // 時刻合わせ
@@ -379,6 +435,28 @@ Vue.component(
           return 0
         })
       },
+      regionDownload () {
+        /**
+         * region として記述した内容を CSV に変換し, ダウンロードします.
+         *
+         */
+        console.log('Region: Download')
+        let csv = 'strat,end,text\n'
+        this.regions.forEach(item => {
+          const line = item.start + ',' + item.end + ',' + item.attributes.label + '\n'
+          csv += line
+        })
+        const bom = new Uint8Array([0xEF, 0xBB, 0xBF])
+        const blob = new Blob([bom, csv], { type: 'text/csv' })
+        const link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.target = '_blank'
+        link.download = this.basename + '_region.csv'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      },
+
       // region, point の共通操作
       labelUpdate: function (item) {
         /**
@@ -470,7 +548,7 @@ Vue.component(
                   <v-layout row wrap>
                     <v-flex xs3>
                       <v-tooltip bottom>
-                        <video slot="activator" id="preVideo" muted
+                        <video slot="activator" id="preVideo" ref="preVideo" muted
                           v-bind:src=url
                           v-bind:style="videoCSS"
                           v-on:click="play">
@@ -480,7 +558,7 @@ Vue.component(
                     </v-flex>
                     <v-flex xs3>
                       <v-tooltip bottom>
-                        <video slot="activator" id="nowVideo" muted
+                        <video slot="activator" id="nowVideo" ref="nowVideo" muted
                           v-bind:src=url
                           v-bind:style="videoCSS"
                           v-on:click="play"
@@ -491,7 +569,7 @@ Vue.component(
                     </v-flex>
                     <v-flex xs3>
                       <v-tooltip bottom>
-                        <video slot="activator" id="posVideo" muted
+                        <video slot="activator" id="posVideo" ref="posVideo" muted
                           v-bind:src=url
                           v-bind:style="videoCSS"
                           v-on:click="play">
@@ -587,8 +665,8 @@ Vue.component(
               <v-toolbar color="accent" dark>
                 <v-toolbar-title>Region</v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-btn icon>
-                  <v-icon>view_module</v-icon>
+                <v-btn icon @click="regionDownload">
+                  <v-icon>cloud_download</v-icon>
                 </v-btn>
               </v-toolbar>
               <v-list three-line subheader v-if="regions.length !== 0">
@@ -638,8 +716,8 @@ Vue.component(
               <v-toolbar color="accent" dark>
                 <v-toolbar-title>Point</v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-btn icon>
-                  <v-icon>view_module</v-icon>
+                <v-btn icon @click="pointDownload">
+                  <v-icon>cloud_download</v-icon>
                 </v-btn>
               </v-toolbar>
               <v-list three-line subheader v-if="points.length !== 0">
@@ -718,13 +796,11 @@ new Vue({
       {
         url: './misc/17.mp4',
         fps: 13.84,
-        by: 0.1
+        by: 0.1384
       }
     ],
     target: {
-      url: null,
-      fps: null,
-      by: null
+      url: null, fps: null, by: null
     },
     drawer: false
   },
