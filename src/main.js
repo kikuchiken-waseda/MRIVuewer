@@ -4,7 +4,10 @@ const files = [
     url: './misc/10.mp4', fps: 13.84
   },
   {
-    url: './misc/17.mp4', fps: 13.84
+    url: './misc/11.mp4', fps: 13.84
+  },
+  {
+    url: './misc/28.mp4', fps: 13.84
   }
 ]
 
@@ -55,8 +58,17 @@ Vue.component(
         },
         points: [],
         regions: [],
+        marks: [],
         cache: {},
         dialog: false,
+        canvasSetting: {
+          target: null,
+          width: null,
+          height: null,
+          scale: 3,
+          color: 'rgba(244,81,30 ,1)',
+          pointSize: 5
+        },
         wavesurfer: null // wavesurfer クラス
       }
     },
@@ -221,16 +233,17 @@ Vue.component(
       // canvas 操作
       edit: function (point) {
         this.dialog = true
-        // 指定時刻の画像をキャンバスに追加
-        const time = point.data.time
         const video = this.$refs.nowVideo
-        const canvas = this.$refs['video-canvas']
-        const scale = 3
-        video.currentTime = time
+        this.canvasSetting.target = point
+        this.canvasSetting.width = video.offsetWidth * this.canvasSetting.scale
+        this.canvasSetting.height = video.offsetHeight * this.canvasSetting.scale
+        this.marks = []
+        video.currentTime = this.canvasSetting.target.data.time
 
         this.$nextTick(() => {
-          canvas.width = video.offsetWidth * scale
-          canvas.height = video.offsetHeight * scale
+          const canvas = this.$refs['video-canvas']
+          canvas.width = this.canvasSetting.width
+          canvas.height = this.canvasSetting.height
           canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
         })
       },
@@ -240,12 +253,39 @@ Vue.component(
         const rect = canvas.getBoundingClientRect()
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
-        const color = 'rgba(244,81,30 ,1)'
-        const pointSize = 5
-        ctx.fillStyle = color
+        this.marks.push({
+          id: generateUuid(),
+          x: x, y: y
+        })
+        ctx.fillStyle = this.canvasSetting.color
         ctx.beginPath()
-        ctx.arc(x, y, pointSize, 0, Math.PI * 2, false)
+        ctx.arc(x, y, this.canvasSetting.pointSize, 0, Math.PI * 2, false)
         ctx.fill()
+      },
+      markDownload () {
+        /**
+         * point として記述した内容を CSV に変換し, ダウンロードします.
+         *
+         */
+        console.log('Mark: Download')
+        let csv = 'basename,time,frame,x,y,width,height\n'
+        this.marks.forEach(item => {
+          const line = [
+            this.basename,
+            this.canvasSetting.target.data.time,
+            this.canvasSetting.target.data.frame,
+            item.x, item.y,
+            this.canvasSetting.width,
+            this.canvasSetting.height
+          ].join(',') + '\n'
+          csv += line
+        })
+        const filename = [
+          this.basename,
+          this.currentFrame,
+          'mark.csv'
+        ].join('_')
+        downloadCsv(csv, filename)
       },
       // point 操作
       pointAdd: function (event) {
@@ -355,15 +395,8 @@ Vue.component(
           const line = item.data.time + ',' + item.data.frame + ',' + item.attributes.label + '\n'
           csv += line
         })
-        const bom = new Uint8Array([0xEF, 0xBB, 0xBF])
-        const blob = new Blob([bom, csv], { type: 'text/csv' })
-        const link = document.createElement('a')
-        link.href = window.URL.createObjectURL(blob)
-        link.target = '_blank'
-        link.download = this.basename + '_point.csv'
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+        const filename = [this.basename, 'point.csv'].join('_')
+        downloadCsv(csv, filename)
       },
       // region 操作
       regionPlay: function (region) {
@@ -474,17 +507,9 @@ Vue.component(
           const line = item.start + ',' + item.end + ',' + item.attributes.label + '\n'
           csv += line
         })
-        const bom = new Uint8Array([0xEF, 0xBB, 0xBF])
-        const blob = new Blob([bom, csv], { type: 'text/csv' })
-        const link = document.createElement('a')
-        link.href = window.URL.createObjectURL(blob)
-        link.target = '_blank'
-        link.download = this.basename + '_region.csv'
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+        const filename = [this.basename, 'region.csv'].join('_')
+        downloadCsv(csv, filename)
       },
-
       // region, point の共通操作
       labelUpdate: function (item) {
         /**
@@ -795,14 +820,17 @@ Vue.component(
         <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
           <v-card>
             <v-toolbar dark color="primary">
+              <v-toolbar-title>{{url}}</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-toolbar-title v-if="canvasSetting.target">
+                Time: {{canvasSetting.target.data.time}} sec
+              </v-toolbar-title>
+              <v-btn icon @click="markDownload">
+                <v-icon>cloud_download</v-icon>
+              </v-btn>
               <v-btn icon dark @click.native="dialog = false">
                 <v-icon>close</v-icon>
               </v-btn>
-              <v-toolbar-title>Settings</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-toolbar-items>
-                <v-btn dark flat @click.native="dialog = false">Save</v-btn>
-              </v-toolbar-items>
             </v-toolbar>
             <v-card-media>
               <canvas ref="video-canvas" id="video-canvas" @click="markAdd"></canvas>
@@ -838,3 +866,31 @@ new Vue({
     }
   }
 })
+
+/* 汎用関数 */
+function generateUuid () {
+  const chars = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.split('')
+  for (let i = 0, len = chars.length; i < len; i++) {
+    switch (chars[i]) {
+      case 'x':
+        chars[i] = Math.floor(Math.random() * 16).toString(16)
+        break
+      case 'y':
+        chars[i] = (Math.floor(Math.random() * 4) + 8).toString(16)
+        break
+    }
+  }
+  return chars.join('')
+}
+
+function downloadCsv (csv, filename) {
+  const bom = new Uint8Array([0xEF, 0xBB, 0xBF])
+  const blob = new Blob([bom, csv], { type: 'text/csv' })
+  const link = document.createElement('a')
+  link.href = window.URL.createObjectURL(blob)
+  link.target = '_blank'
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
