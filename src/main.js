@@ -1,3 +1,12 @@
+// 編集用設定
+const files = [
+  {
+    url: './misc/10.mp4', fps: 13.84
+  },
+  {
+    url: './misc/17.mp4', fps: 13.84
+  }
+]
 
 /* 動画用コンポーネント */
 Vue.component(
@@ -52,7 +61,7 @@ Vue.component(
       }
     },
     props: [
-      'url', 'fps', 'by'
+      'url', 'fps'
     ],
     computed: {
       basename: function () {
@@ -62,6 +71,10 @@ Vue.component(
       },
       cachename: function () {
         return 'cache_' + this.basename
+      },
+      skipLength: function () {
+        const len = 1 / this.fps
+        return parseFloat(len.toFixed(4))
       },
       isReady: function () {
         // 音声の読み込みが終了したか否かを判定します.
@@ -123,6 +136,7 @@ Vue.component(
         this.regionSetting.regions = this.regions.concat(this.points)
         this.$nextTick(() => {
           const setting = Object.assign({}, this.wavesurferSettings)
+          setting.skipLength = this.skipLength
           setting.plugins = [
             WaveSurfer.regions.create(this.regionSetting),
             WaveSurfer.minimap.create(this.minimapSetting),
@@ -151,22 +165,38 @@ Vue.component(
         }
         this.playing = video.paused
       },
+      skipForward: function (event) {
+        this.wavesurfer.skipForward()
+        this.syncVideo(event)
+      },
+      skipBackward: function (event) {
+        this.wavesurfer.skipBackward()
+        this.syncVideo(event)
+      },
+      startTo: function (event) {
+        this.wavesurfer.seekAndCenter(0)
+        this.syncVideo(event)
+      },
+      endTo: function (event) {
+        this.wavesurfer.seekAndCenter(1)
+        this.syncVideo(event)
+      },
       // 動画再生時の挙動
-      getCurrentInfo: function (event) {
-        const by = parseFloat(this.by)
+      syncVideos: function (event) {
         const video = this.$refs.nowVideo
-        const preVideo = document.getElementById('preVideo')
-        const posVideo = document.getElementById('posVideo')
-
-        // 現在時刻の取得
-        this.currentTime = video.currentTime
+        const preVideo = this.$refs.preVideo
+        const posVideo = this.$refs.posVideo
+        this.currentTime = parseFloat(video.currentTime)
         this.currentFrame = Math.floor(video.currentTime * this.fps)
-
-        if (this.currentTime > by) {
-          preVideo.currentTime = video.currentTime - by
+        if (this.currentTime > this.skipLength) {
+          preVideo.currentTime = this.currentTime - this.skipLength
+        } else {
+          preVideo.currentTime = 0
         }
-        if (this.currentTime <= video.duration - by) {
-          posVideo.currentTime = video.currentTime + by
+        if (this.currentTime + this.skipLength <= video.duration) {
+          posVideo.currentTime = this.currentTime + this.skipLength
+        } else {
+          posVideo.currentTime = video.duration
         }
         if (this.currentTime === video.duration) {
           this.playBtnIcon = 'play_arrow'
@@ -174,20 +204,11 @@ Vue.component(
       },
       // 音声波形操作
       syncVideo: function (event) {
-        const by = parseFloat(this.by)
-        this.currentTime = this.wavesurfer.getCurrentTime()
-        this.currentFrame = Math.floor(this.currentTime * this.fps)
-
-        const video = this.$refs.nowVideo
-        const preVideo = document.getElementById('preVideo')
-        const posVideo = document.getElementById('posVideo')
-        video.currentTime = this.currentTime
-        if (this.currentTime > by) {
-          preVideo.currentTime = this.currentTime - by
-        }
-        if (this.currentTime <= video.duration - by) {
-          posVideo.currentTime = this.currentTime + by
-        }
+        setTimeout(() => {
+          const video = this.$refs.nowVideo
+          const currentTime = parseFloat(this.wavesurfer.getCurrentTime())
+          video.currentTime = currentTime
+        }, 0.1)
       },
       reRender: function () {
         const url = this.url
@@ -203,7 +224,7 @@ Vue.component(
         // 指定時刻の画像をキャンバスに追加
         const time = point.data.time
         const video = this.$refs.nowVideo
-        const canvas = document.getElementById('video-canvas')
+        const canvas = this.$refs['video-canvas']
         const scale = 3
         video.currentTime = time
 
@@ -214,7 +235,7 @@ Vue.component(
         })
       },
       markAdd: function (event) {
-        const canvas = document.getElementById('video-canvas')
+        const canvas = this.$refs['video-canvas']
         const ctx = canvas.getContext('2d')
         const rect = canvas.getBoundingClientRect()
         const x = event.clientX - rect.left
@@ -233,32 +254,34 @@ Vue.component(
          * wave-form の現在値の情報を取得し, this.points に追加します.
          */
         this.$nextTick(() => {
-          const range = 1 / this.wavesurferSettings.minPxPerSec
-          const currentTime = this.wavesurfer.getCurrentTime()
-          const currentFrame = Math.floor(currentTime * this.fps)
-          if (currentTime !== 0) {
-            const item = {
-              start: currentTime - range,
-              end: currentTime + range,
-              data: {
-                time: currentTime,
-                frame: currentFrame,
-                type: 'point'
-              },
-              attributes: {
-                label: null,
-                type: 'point',
-                highlight: false
-              },
-              color: 'rgba(103, 58, 183, 0.5)',
-              resize: false,
-              id: 'point_' + (this.points.length + 1)
+          setTimeout(() => {
+            const range = 1 / this.wavesurferSettings.minPxPerSec
+            const currentTime = this.wavesurfer.getCurrentTime()
+            const currentFrame = Math.floor(currentTime * this.fps)
+            if (currentTime !== 0) {
+              const item = {
+                start: currentTime - range,
+                end: currentTime + range,
+                data: {
+                  time: currentTime,
+                  frame: currentFrame,
+                  type: 'point'
+                },
+                attributes: {
+                  label: null,
+                  type: 'point',
+                  highlight: false
+                },
+                color: 'rgba(103, 58, 183, 0.5)',
+                resize: false,
+                id: 'point_' + (this.points.length + 1)
+              }
+              this.points.push(item)
+              // wavesurfer に登録
+              this.wavesurfer.addRegion(item)
+              this.wavesurfer.fireEvent('region-updated', this.wavesurfer)
             }
-            this.points.push(item)
-            // wavesurfer に登録
-            this.wavesurfer.addRegion(item)
-            this.wavesurfer.fireEvent('region-updated', this.wavesurfer)
-          }
+          }, 0.2)
         })
       },
       pointUpdate: function (event) {
@@ -497,25 +520,22 @@ Vue.component(
                 <menuitem label="Play or Pause" v-on:click="play"
                   icon="icons/baseline-play_circle_outline-24px.svg">
                 </menuitem>
-                <menuitem label="Loop now selected" v-on:click="alert('こんにちは')"
-                  icon="icons/baseline-repeat-24px.svg">
-                </menuitem>
                 <menu label="Move to...">
-                  <menuitem label="Skip next (1sec)"
+                  <menuitem label="Skip next (1 frame)"
                     icon="icons/baseline-skip_next-24px.svg"
-                    onclick="window.open('//twitter.com/intent/tweet?text=' + window.location.href);">
+                    @click="skipForward">
                   </menuitem>
-                  <menuitem label="Skip next (1sec)"
+                  <menuitem label="Skip back (1 frame)"
                     icon="icons/baseline-skip_previous-24px.svg"
-                    onclick="window.open('//facebook.com/sharer/sharer.php?u=' + window.location.href);">
+                    @click="skipBackward">
                   </menuitem>
                   <menuitem label="Move strat of video"
                     icon="icons/baseline-fast_rewind-24px.svg"
-                    onclick="window.open('//twitter.com/intent/tweet?text=' + window.location.href);">
+                    @click="startTo">
                   </menuitem>
                   <menuitem label="Move end of video"
                     icon="icons/baseline-fast_forward-24px.svg"
-                    onclick="window.open('//facebook.com/sharer/sharer.php?u=' + window.location.href);">
+                    @click="endTo">
                   </menuitem>
                 </menu>
                 <menu label="Edio region...">
@@ -558,7 +578,7 @@ Vue.component(
                           v-bind:style="videoCSS"
                           v-on:click="play">
                         </video>
-                        <span>{{by}} sec 前の画像</span>
+                        <span>{{skipLength}} sec 前の画像</span>
                       </v-tooltip>
                     </v-flex>
                     <v-flex xs3>
@@ -567,7 +587,7 @@ Vue.component(
                           v-bind:src=url
                           v-bind:style="videoCSS"
                           v-on:click="play"
-                          v-on:timeupdate="getCurrentInfo">
+                          v-on:timeupdate="syncVideos">
                         </video>
                         <span>現在の画像</span>
                       </v-tooltip>
@@ -579,7 +599,7 @@ Vue.component(
                           v-bind:style="videoCSS"
                           v-on:click="play">
                         </video>
-                        <span>{{by}} sec 後の画像</span>
+                        <span>{{skipLength}} sec 後の画像</span>
                       </v-tooltip>
                     </v-flex>
                     <v-flex xs3>
@@ -633,6 +653,19 @@ Vue.component(
 
               <!-- 操作ボタン --> 
               <v-card-actions v-if="isReady">
+                <v-btn icon color="accent" v-on:click=startTo>
+                  <v-tooltip bottom>
+                    <v-icon slot="activator">fast_rewind</v-icon>
+                    <span>move to start...</span>
+                  </v-tooltip>
+                </v-btn>
+                <v-btn icon color="accent" v-on:click=skipBackward>
+                  <v-tooltip bottom>
+                    <v-icon slot="activator">skip_previous</v-icon>
+                    <span>move to previous frame...</span>
+                  </v-tooltip>
+                </v-btn>
+                <v-spacer></v-spacer>
                 <v-btn icon color="accent" v-on:click=play>
                   <v-tooltip bottom>
                     <v-icon slot="activator">{{playBtnIcon}}</v-icon>
@@ -643,6 +676,19 @@ Vue.component(
                   <v-tooltip bottom>
                     <v-icon slot="activator">refresh</v-icon>
                     <span>Redraw Sound</span>
+                  </v-tooltip>
+                </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn icon color="accent" v-on:click=skipForward>
+                  <v-tooltip bottom>
+                    <v-icon slot="activator">skip_next</v-icon>
+                    <span>move to next frame...</span>
+                  </v-tooltip>
+                </v-btn>
+                <v-btn icon color="accent" v-on:click=endTo>
+                  <v-tooltip bottom>
+                    <v-icon slot="activator">fast_forward</v-icon>
+                    <span>move to end...</span>
                   </v-tooltip>
                 </v-btn>
               </v-card-actions>
@@ -779,7 +825,7 @@ Vue.component(
               </v-toolbar-items>
             </v-toolbar>
             <v-card-media>
-              <canvas id="video-canvas" @click="markAdd"></canvas>
+              <canvas ref="video-canvas" id="video-canvas" @click="markAdd"></canvas>
             </v-card-media>
           </v-card>
         </v-dialog>
@@ -792,20 +838,9 @@ Vue.component(
 new Vue({
   el: '#app',
   data: {
-    files: [
-      {
-        url: './misc/10.mp4',
-        fps: 13.84,
-        by: 0.1384
-      },
-      {
-        url: './misc/17.mp4',
-        fps: 13.84,
-        by: 0.1384
-      }
-    ],
+    files: files,
     target: {
-      url: null, fps: null, by: null
+      url: null, fps: null
     },
     drawer: false
   },
