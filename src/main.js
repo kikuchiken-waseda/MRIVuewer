@@ -538,26 +538,6 @@ Vue.component(
                     @click="endTo">
                   </menuitem>
                 </menu>
-                <menu label="Edio region...">
-                  <menuitem label="Add ..."
-                    icon="icons/baseline-add_circle_outline-24px.svg"
-                    onclick="window.open('//twitter.com/intent/tweet?text=' + window.location.href);">
-                  </menuitem>
-                  <menuitem label="Remove ..."
-                    icon="icons/baseline-remove_circle_outline-24px.svg"
-                    onclick="window.open('//facebook.com/sharer/sharer.php?u=' + window.location.href);">
-                  </menuitem>
-                </menu>
-                <menu label="Spectorum settings...">
-                  <menuitem label="Zoom in ..."
-                    icon="icons/baseline-zoom_in-24px.svg"
-                    onclick="window.open('//twitter.com/intent/tweet?text=' + window.location.href);">
-                  </menuitem>
-                  <menuitem label="Zoom out ..."
-                    icon="icons/baseline-zoom_out-24px.svg"
-                    onclick="window.open('//facebook.com/sharer/sharer.php?u=' + window.location.href);">
-                  </menuitem>
-                </menu>
               </menu>
 
               <v-toolbar color="accent" dark>
