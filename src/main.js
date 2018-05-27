@@ -816,6 +816,10 @@ new Vue({
     selectFile: function (target) {
       this.target = target
       this.drawer = false
+    },
+    clear: function () {
+      localStorage.clear()
+      this.drawer = false
     }
   }
 })
