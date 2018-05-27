@@ -653,44 +653,44 @@ Vue.component(
 
               <!-- 操作ボタン --> 
               <v-card-actions v-if="isReady">
-                <v-btn icon color="accent" v-on:click=startTo>
-                  <v-tooltip bottom>
-                    <v-icon slot="activator">fast_rewind</v-icon>
-                    <span>move to start...</span>
-                  </v-tooltip>
-                </v-btn>
-                <v-btn icon color="accent" v-on:click=skipBackward>
-                  <v-tooltip bottom>
-                    <v-icon slot="activator">skip_previous</v-icon>
-                    <span>move to previous frame...</span>
-                  </v-tooltip>
-                </v-btn>
+                <v-tooltip bottom>
+                  <v-btn icon slot="activator" color="accent" @click=startTo>
+                    <v-icon>fast_rewind</v-icon>
+                  </v-btn>
+                  <span>move to start...</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                  <v-btn icon slot="activator" color="accent" @click=skipBackward>
+                    <v-icon>skip_previous</v-icon>
+                  </v-btn>
+                  <span>move to previous frame...</span>
+                </v-tooltip>
                 <v-spacer></v-spacer>
-                <v-btn icon color="accent" v-on:click=play>
-                  <v-tooltip bottom>
-                    <v-icon slot="activator">{{playBtnIcon}}</v-icon>
-                    <span>Play or Pause</span>
-                  </v-tooltip>
-                </v-btn>
-                <v-btn icon color="accent" v-on:click="reRender">
-                  <v-tooltip bottom>
-                    <v-icon slot="activator">refresh</v-icon>
-                    <span>Redraw Sound</span>
-                  </v-tooltip>
-                </v-btn>
+                <v-tooltip bottom>
+                  <v-btn icon slot="activator" color="accent" @click=play>
+                    <v-icon>{{playBtnIcon}}</v-icon>
+                  </v-btn>
+                  <span>Play or Pause</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                  <v-btn icon slot="activator" color="accent" @click="reRender">
+                    <v-icon>refresh</v-icon>
+                  </v-btn>
+                  <span>Redraw Sound</span>
+                </v-tooltip>
                 <v-spacer></v-spacer>
-                <v-btn icon color="accent" v-on:click=skipForward>
-                  <v-tooltip bottom>
-                    <v-icon slot="activator">skip_next</v-icon>
-                    <span>move to next frame...</span>
-                  </v-tooltip>
-                </v-btn>
-                <v-btn icon color="accent" v-on:click=endTo>
-                  <v-tooltip bottom>
-                    <v-icon slot="activator">fast_forward</v-icon>
-                    <span>move to end...</span>
-                  </v-tooltip>
-                </v-btn>
+                <v-tooltip bottom>
+                  <v-btn icon slot="activator" color="accent" @click=skipForward>
+                    <v-icon>skip_next</v-icon>
+                  </v-btn>
+                  <span>move to next frame...</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                  <v-btn icon slot="activator" color="accent" @click=endTo>
+                    <v-icon>fast_forward</v-icon>
+                  </v-btn>
+                  <span>move to end...</span>
+                </v-tooltip>
               </v-card-actions>
               <!-- 音声表示 --> 
               <v-container>
