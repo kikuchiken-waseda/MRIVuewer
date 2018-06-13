@@ -1,13 +1,17 @@
 // 編集用設定
 const files = [
   {
-    url: './misc/10.mp4', fps: 13.84
-  },
-  {
-    url: './misc/11.mp4', fps: 13.84
-  },
-  {
-    url: './misc/28.mp4', fps: 13.84
+    url: './misc/35_iframerate.mp4', fps: 13.83
+  }, {
+    url: './misc/35_r.mp4', fps: 13.83
+  }, {
+    url: './misc/35_fps.mp4', fps: 13.83
+  }, {
+    url: './misc/35_framerate.mp4', fps: 13.83
+  }, {
+    url: './misc/35_minterpolate.mp4', fps: 13.83
+  }, {
+    url: './misc/35.mp4', fps: 13.83
   }
 ]
 
