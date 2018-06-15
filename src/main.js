@@ -2,16 +2,6 @@
 const files = [
   {
     url: './misc/35_iframerate.mp4', fps: 13.83
-  }, {
-    url: './misc/35_r.mp4', fps: 13.83
-  }, {
-    url: './misc/35_fps.mp4', fps: 13.83
-  }, {
-    url: './misc/35_framerate.mp4', fps: 13.83
-  }, {
-    url: './misc/35_minterpolate.mp4', fps: 13.83
-  }, {
-    url: './misc/35.mp4', fps: 13.83
   }
 ]
 
