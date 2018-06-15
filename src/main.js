@@ -1,8 +1,17 @@
 // 編集用設定
 const files = [
   {
-    url: './misc/35_iframerate.mp4', fps: 13.83
-  }
+    url: './misc/28.mp4', fps: 13.83
+  },
+  {
+    url: './misc/28_JM.mp4', fps: 13.83
+  },
+  {
+    url: './misc/28_SS.mp4', fps: 13.83
+  },
+  {
+    url: './misc/M28_JM.mp4', fps: 13.83
+  },
 ]
 
 /* 動画用コンポーネント */
