@@ -17,6 +17,11 @@ Vue.component(
           width: '100%',
           height: 'auto'
         },
+        dropZone: {
+          border: '5px solid blue',
+          width:  '200px',
+          height: '100px'
+        },
         wavesurferSettings: {
           container: '#wave-form',
           waveColor: 'violet',
@@ -54,6 +59,7 @@ Vue.component(
         regions: [],
         marks: [],
         cache: {},
+        cache_upload_dialog: false,
         dialog: false,
         canvasSetting: {
           target: null,
@@ -96,7 +102,9 @@ Vue.component(
         const url = this.url
 
         // 種々初期化
-        const cache = JSON.parse(localStorage.getItem(this.cachename))
+        const cache = JSON.parse(
+          localStorage.getItem(this.cachename)
+        )
         if (cache === null) {
           this.cache = {}
           this.regions = []
@@ -112,16 +120,22 @@ Vue.component(
       },
       'points': function (val) {
         this.cache.points = val
-        localStorage.setItem(this.cachename, JSON.stringify(this.cache))
+        localStorage.setItem(
+          this.cachename, JSON.stringify(this.cache)
+        )
       },
       'regions': function (val) {
         this.cache.regions = val
-        localStorage.setItem(this.cachename, JSON.stringify(this.cache))
+        localStorage.setItem(
+          this.cachename, JSON.stringify(this.cache)
+        )
       }
     },
     mounted () {
       const url = this.url
-      const cache = JSON.parse(localStorage.getItem(this.cachename))
+      const cache = JSON.parse(
+        localStorage.getItem(this.cachename)
+      )
       if (cache !== null) {
         console.log(cache)
         this.cache = cache
@@ -134,20 +148,27 @@ Vue.component(
       // 基本操作
       load: function (url) {
         /**
-         * url で指定されたファイルの音声波形データを作成します.
+         * url で指定されたファイルの音声波形データを
+         * 作成します.
          *
-         * wavesurfer のレンダーは直接の DOM 操作が必要であるため
-         * 操作は nextTick 内に記述します.
+         * wavesurfer のレンダーは直接の DOM 操作が
+         * 必要であるため操作は nextTick 内に記述します.
          */
-        this.regionSetting.regions = this.regions.concat(this.points)
+        this.regionSetting.regions = this.regions.concat(
+          this.points
+        )
         this.$nextTick(() => {
-          const setting = Object.assign({}, this.wavesurferSettings)
+          const setting = Object.assign(
+            {}, this.wavesurferSettings
+          )
           setting.skipLength = this.skipLength
           setting.plugins = [
             WaveSurfer.regions.create(this.regionSetting),
             WaveSurfer.minimap.create(this.minimapSetting),
             WaveSurfer.timeline.create(this.timelineSetting),
-            WaveSurfer.spectrogram.create(this.spectrogramSetting)
+            WaveSurfer.spectrogram.create(
+              this.spectrogramSetting
+            )
           ]
           this.wavesurfer = WaveSurfer.create(setting)
           this.wavesurfer.load(url)
@@ -193,7 +214,9 @@ Vue.component(
         const preVideo = this.$refs.preVideo
         const posVideo = this.$refs.posVideo
         this.currentTime = parseFloat(video.currentTime)
-        this.currentFrame = Math.floor(video.currentTime * this.fps)
+        this.currentFrame = Math.floor(
+          video.currentTime * this.fps
+        )
         if (this.currentTime > this.skipLength) {
           preVideo.currentTime = this.currentTime - this.skipLength
         } else {
@@ -212,7 +235,9 @@ Vue.component(
       syncVideo: function (event) {
         setTimeout(() => {
           const video = this.$refs.nowVideo
-          const currentTime = parseFloat(this.wavesurfer.getCurrentTime())
+          const currentTime = parseFloat(
+            this.wavesurfer.getCurrentTime()
+          )
           video.currentTime = currentTime
         }, 0.1)
       },
@@ -238,7 +263,9 @@ Vue.component(
           const canvas = this.$refs['video-canvas']
           canvas.width = this.canvasSetting.width
           canvas.height = this.canvasSetting.height
-          canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
+          canvas.getContext('2d').drawImage(
+            video, 0, 0, canvas.width, canvas.height
+          )
         })
       },
       markAdd: function (event) {
@@ -253,12 +280,16 @@ Vue.component(
         })
         ctx.fillStyle = this.canvasSetting.color
         ctx.beginPath()
-        ctx.arc(x, y, this.canvasSetting.pointSize, 0, Math.PI * 2, false)
+        ctx.arc(
+          x, y, this.canvasSetting.pointSize, 0,
+          Math.PI * 2, false
+        )
         ctx.fill()
       },
       markDownload () {
         /**
-         * point として記述した内容を CSV に変換し, ダウンロードします.
+         * point として記述した内容を CSV に変換し
+         * ダウンロードします.
          *
          */
         console.log('Mark: Download')
@@ -285,13 +316,16 @@ Vue.component(
       pointAdd: function (event) {
         /**
          * HTML: id="wave-form" 要素を ctrl+click した場合に
-         * wave-form の現在値の情報を取得し, this.points に追加します.
+         * wave-form の現在値の情報を取得し,
+         * this.points に追加します.
          */
         this.$nextTick(() => {
           setTimeout(() => {
             const range = 1 / this.wavesurferSettings.minPxPerSec
             const currentTime = this.wavesurfer.getCurrentTime()
-            const currentFrame = Math.floor(currentTime * this.fps)
+            const currentFrame = Math.floor(
+              currentTime * this.fps
+            )
             if (currentTime !== 0) {
               const item = {
                 start: currentTime - range,
@@ -313,7 +347,9 @@ Vue.component(
               this.points.push(item)
               // wavesurfer に登録
               this.wavesurfer.addRegion(item)
-              this.wavesurfer.fireEvent('region-updated', this.wavesurfer)
+              this.wavesurfer.fireEvent(
+                'region-updated', this.wavesurfer
+              )
             }
           }, 0.2)
         })
@@ -340,16 +376,24 @@ Vue.component(
         const regions = this.wavesurfer.regions.list
         for (const key in regions) {
           const region = regions[key]
-          if (region.data.type !== undefined && region.data.type === 'point') {
+          if (
+            region.data.type !== undefined &&
+            region.data.type === 'point'
+          ) {
             // 開始, 終了時刻は異なる場合は反映
             const index = registeredIds.indexOf(region.id)
             const oldPoint = pointList[index]
-            if (oldPoint.start !== region.start || oldPoint.end !== region.end) {
+            if (
+              oldPoint.start !== region.start ||
+              oldPoint.end !== region.end
+            ) {
               pointList[index].start = region.start
               pointList[index].end = region.end
               pointList[index].data = {
                 time: region.start + range,
-                frame: Math.floor((region.start + range) * this.fps)
+                frame: Math.floor(
+                  (region.start + range) * this.fps
+                )
               }
             }
           }
@@ -380,7 +424,8 @@ Vue.component(
       },
       pointDownload () {
         /**
-         * point として記述した内容を CSV に変換し, ダウンロードします.
+         * point として記述した内容を CSV に変換し
+         * ダウンロードします.
          *
          */
         console.log('Point: Download')
@@ -389,7 +434,9 @@ Vue.component(
           const line = item.data.time + ',' + item.data.frame + ',' + item.attributes.label + '\n'
           csv += line
         })
-        const filename = [this.basename, 'point.csv'].join('_')
+        const filename = [this.basename, 'point.csv'].join(
+          '_'
+        )
         downloadCsv(csv, filename)
       },
       // region 操作
@@ -406,7 +453,9 @@ Vue.component(
         // 再生
         video.play()
         for (const i in this.wavesurfer.regions.list) {
-          if (this.wavesurfer.regions.list[i].id === region.id) {
+          if (
+            this.wavesurfer.regions.list[i].id === region.id
+          ) {
             this.wavesurfer.regions.list[i].play()
           }
         }
@@ -446,7 +495,7 @@ Vue.component(
         const regionList = this.regions
         const registeredIds = []
         for (const i in regionList) {
-          // 現状の  id 一覧を取得
+          // 現状の id 一覧を取得
           registeredIds.push(regionList[i].id)
         }
         const regions = this.wavesurfer.regions.list
@@ -524,46 +573,114 @@ Vue.component(
          */
         this.regionUpdate(event)
         this.pointUpdate(event)
+      },
+      cacheDownload (event) {
+        /**
+         * @desc 現在のキャシュを JSON でダウンロード
+         */
+        const filename = this.basename + '.json'
+        downloadJson(this.cache, filename)
+      },
+      cacheImportOnFocus (){
+        this.$refs.fileInput.click();
+      },
+      cacheImport (event) {
+        /**
+         * @desc Upload された Json で現状を上書き
+         */
+        const files = event.target.files
+        const file = files[0]
+        const fname = file.name
+        const vm = this
+        const fr = new FileReader()
+        fr.onload = function(e) {
+          const cache = JSON.parse(e.target.result);
+          vm.regions = cache.regions
+          vm.points = cache.points
+          console.log(vm.cache);
+        }
+        fr.readAsText(file)
+        this.cache_upload_dialog = false
       }
     },
     template: `
       <v-layout row wrap>
         <v-flex xs8>
           <v-container>
+            <!-- 右クリック時のオリジナルメニュー --> 
+            <menu type="context" id="player-menu">
+              <menuitem label="Play or Pause"
+                v-on:click="play"
+                icon="icons/baseline-play_circle_outline-24px.svg">
+              </menuitem>
+              <menuitem label="Export cache"
+                v-on:click="cacheDownload">
+              </menuitem>
+              <menuitem label="Import cache"
+                v-on:click="cache_upload_dialog = true">
+              </menuitem>
+              <menu label="Move to...">
+                <menuitem label="Skip next (1 frame)"
+                  icon="icons/baseline-skip_next-24px.svg"
+                  @click="skipForward">
+                </menuitem>
+                <menuitem label="Skip back (1 frame)"
+                  icon="icons/baseline-skip_previous-24px.svg"
+                  @click="skipBackward">
+                </menuitem>
+                <menuitem label="Move strat of video"
+                  icon="icons/baseline-fast_rewind-24px.svg"
+                  @click="startTo">
+                </menuitem>
+                <menuitem label="Move end of video"
+                  icon="icons/baseline-fast_forward-24px.svg"
+                  @click="endTo">
+                </menuitem>
+              </menu>
+            </menu>
+
+            <v-dialog v-model="cache_upload_dialog"
+              persistent max-width="500px">
+              <v-card>
+                <v-card-title>
+                  <span class="headline">
+                    Import Cache
+                  </span>
+                </v-card-title>
+                <v-card-text>
+                  <v-container grid-list-md>
+                    <v-layout wrap>
+                      <v-flex>
+                        <v-text-field
+                          prepend-icon="attach_file"
+                          single-line
+                          @click.native="cacheImportOnFocus"
+                          ref="fileTextField">
+                        </v-text-field>
+                        <input type="file"
+                          :multiple="false"
+                          ref="fileInput"
+                          style="display:none;"
+                          @change="cacheImport">
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
+
             <v-card text-xs-center
               class="scroll-y"
-              style="min-height:85vh; max-height:85vh;"
               contextmenu="player-menu">
-              <!-- 右クリック時のオリジナルメニュー: 現状 firefox のみ対応 --> 
-              <menu type="context" id="player-menu">
-                <menuitem label="Play or Pause" v-on:click="play"
-                  icon="icons/baseline-play_circle_outline-24px.svg">
-                </menuitem>
-                <menu label="Move to...">
-                  <menuitem label="Skip next (1 frame)"
-                    icon="icons/baseline-skip_next-24px.svg"
-                    @click="skipForward">
-                  </menuitem>
-                  <menuitem label="Skip back (1 frame)"
-                    icon="icons/baseline-skip_previous-24px.svg"
-                    @click="skipBackward">
-                  </menuitem>
-                  <menuitem label="Move strat of video"
-                    icon="icons/baseline-fast_rewind-24px.svg"
-                    @click="startTo">
-                  </menuitem>
-                  <menuitem label="Move end of video"
-                    icon="icons/baseline-fast_forward-24px.svg"
-                    @click="endTo">
-                  </menuitem>
-                </menu>
-              </menu>
-
               <v-toolbar color="accent" dark>
                 <v-toolbar-title>{{url}}</v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-toolbar-title>時刻: {{currentTime}}</v-toolbar-title>
-                <v-toolbar-title>フレーム数: {{currentFrame}}</v-toolbar-title>
+                <v-toolbar-title>
+                  時刻: {{currentTime}}
+                </v-toolbar-title>
+                <v-toolbar-title>
+                  フレーム数: {{currentFrame}}
+                </v-toolbar-title>
               </v-toolbar>
 
               <!-- 動画表示 --> 
@@ -572,17 +689,24 @@ Vue.component(
                   <v-layout row wrap>
                     <v-flex xs3>
                       <v-tooltip bottom>
-                        <video slot="activator" id="preVideo" ref="preVideo" muted
+                        <video slot="activator"
+                          id="preVideo"
+                          ref="preVideo" muted
                           v-bind:src=url
                           v-bind:style="videoCSS"
                           v-on:click="play">
                         </video>
-                        <span>{{skipLength}} sec 前の画像</span>
+                        <span>
+                          {{skipLength}} sec 前の画像
+                        </span>
                       </v-tooltip>
                     </v-flex>
                     <v-flex xs3>
                       <v-tooltip bottom>
-                        <video slot="activator" id="nowVideo" ref="nowVideo" muted
+                        <video slot="activator"
+                          id="nowVideo"
+                          ref="nowVideo"
+                          muted
                           v-bind:src=url
                           v-bind:style="videoCSS"
                           v-on:click="play"
@@ -653,39 +777,45 @@ Vue.component(
               <!-- 操作ボタン --> 
               <v-card-actions v-if="isReady">
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator" color="accent" @click=startTo>
+                  <v-btn icon slot="activator"
+                    color="accent" @click=startTo>
                     <v-icon>fast_rewind</v-icon>
                   </v-btn>
                   <span>move to start...</span>
                 </v-tooltip>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator" color="accent" @click=skipBackward>
+                  <v-btn icon slot="activator"
+                    color="accent" @click=skipBackward>
                     <v-icon>skip_previous</v-icon>
                   </v-btn>
                   <span>move to previous frame...</span>
                 </v-tooltip>
                 <v-spacer></v-spacer>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator" color="accent" @click=play>
+                  <v-btn icon slot="activator"
+                    color="accent" @click=play>
                     <v-icon>{{playBtnIcon}}</v-icon>
                   </v-btn>
                   <span>Play or Pause</span>
                 </v-tooltip>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator" color="accent" @click="reRender">
+                  <v-btn icon slot="activator"
+                    color="accent" @click="reRender">
                     <v-icon>refresh</v-icon>
                   </v-btn>
                   <span>Redraw Sound</span>
                 </v-tooltip>
                 <v-spacer></v-spacer>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator" color="accent" @click=skipForward>
+                  <v-btn icon slot="activator"
+                    color="accent" @click=skipForward>
                     <v-icon>skip_next</v-icon>
                   </v-btn>
                   <span>move to next frame...</span>
                 </v-tooltip>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator" color="accent" @click=endTo>
+                  <v-btn icon slot="activator"
+                    color="accent" @click=endTo>
                     <v-icon>fast_forward</v-icon>
                   </v-btn>
                   <span>move to end...</span>
@@ -703,6 +833,16 @@ Vue.component(
                   >
                 </div>
               </v-container>
+              <v-card-actions>
+                <v-btn flat color="orange"
+                  v-on:click="cacheDownload">
+                  Export Cache
+                </v-btn>
+                <v-btn flat color="orange"
+                  v-on:click="cache_upload_dialog = true">
+                  Import Cache
+                </v-btn>
+              </v-card-actions>
             </v-card>
           </v-container>
         </v-flex>
@@ -719,7 +859,8 @@ Vue.component(
                   <v-icon>cloud_download</v-icon>
                 </v-btn>
               </v-toolbar>
-              <v-list three-line subheader v-if="regions.length !== 0">
+              <v-list three-line subheader
+                v-if="regions.length !== 0">
                 <template v-for="(item, index) in regions">
                   <v-list-tile :key="item.id">
                     <v-list-tile-content>
@@ -739,10 +880,14 @@ Vue.component(
                       </v-list-tile-sub-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
-                      <v-btn outline small icon color="indigo" @click="regionPlay(item)">
+                      <v-btn outline small
+                        icon color="indigo"
+                        @click="regionPlay(item)">
                         <v-icon>play_arrow</v-icon>
                       </v-btn>
-                      <v-btn outline small icon color="indigo" @click="regionDelete(item)">
+                      <v-btn outline small icon
+                        color="indigo"
+                        @click="regionDelete(item)">
                         <v-icon>delete_outline</v-icon>
                       </v-btn>
                     </v-list-tile-action>
@@ -761,7 +906,7 @@ Vue.component(
           </v-container>
           <v-container>
             <v-card
-              style="min-height:41vh; max-height:41vh;"
+              style="min-height:36vh; max-height:36vh;"
               class="scroll-y">
               <v-toolbar color="accent" dark>
                 <v-toolbar-title>Point</v-toolbar-title>
@@ -770,7 +915,8 @@ Vue.component(
                   <v-icon>cloud_download</v-icon>
                 </v-btn>
               </v-toolbar>
-              <v-list three-line subheader v-if="points.length !== 0">
+              <v-list three-line subheader
+                v-if="points.length !== 0">
                 <template v-for="(item, index) in points">
                   <v-list-tile :key="item.id">
                     <v-list-tile-content>
@@ -880,6 +1026,20 @@ function generateUuid () {
 function downloadCsv (csv, filename) {
   const bom = new Uint8Array([0xEF, 0xBB, 0xBF])
   const blob = new Blob([bom, csv], { type: 'text/csv' })
+  const link = document.createElement('a')
+  link.href = window.URL.createObjectURL(blob)
+  link.target = '_blank'
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+function downloadJson (obj, filename) {
+  const blob = new Blob(
+    [JSON.stringify(obj, null, '  ')],
+    {type: 'application/json'}
+  )
   const link = document.createElement('a')
   link.href = window.URL.createObjectURL(blob)
   link.target = '_blank'
