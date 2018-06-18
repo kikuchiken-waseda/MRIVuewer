@@ -1,17 +1,9 @@
 // 編集用設定
 const files = [
-  {
-    url: './misc/28.mp4', fps: 13.83
-  },
-  {
-    url: './misc/28_JM.mp4', fps: 13.83
-  },
-  {
-    url: './misc/28_SS.mp4', fps: 13.83
-  },
-  {
-    url: './misc/M28_JM.mp4', fps: 13.83
-  },
+    {'url': './misc/20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.78310345},
+    {'url': './misc/20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345},
+    {'url': './misc/20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345},
+    {'url': './misc/20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.78310345}
 ]
 
 /* 動画用コンポーネント */
