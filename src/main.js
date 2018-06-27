@@ -1,14 +1,130 @@
 // 編集用設定
 const files = [
-    {'url': './misc/20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.78310345},
-    {'url': './misc/20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345},
-    {'url': './misc/20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345},
-    {'url': './misc/20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.78310345}
+    {url: './misc/20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.78310345},
+    {url: './misc/origin_20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.83},
+    {url: './misc/20171110_Masaki_MP4_luminance_numbered_split_35.mp4', 'fps': 13.78310345},
+    {url: './misc/origin_20171110_Masaki_MP4_luminance_numbered_split_35.mp4', 'fps': 13.83},
+    {url: './misc/20171110_Masaki_MP4_luminance_numbered_JM_35.mp4', 'fps': 13.78310345},
+    {url: './misc/origin_20171110_Masaki_MP4_luminance_numbered_JM_35.mp4', 'fps': 13.83},
+    {url: './misc/20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345},
+    {url: './misc/origin_20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.83},
+    {url: './misc/20171110_Nota_MP4_luminance_numbered_split_32.mp4', 'fps': 13.78310345},
+    {url: './misc/origin_20171110_Nota_MP4_luminance_numbered_split_32.mp4', 'fps': 13.83},
+    {url: './misc/20171110_Nota_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.78310345},
+    {url: './misc/origin_20171110_Nota_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.83},
+    {url: './misc/20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345},
+    {url: './misc/origin_20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.83},
+    {url: './misc/20171225_Kagomiya_MP4_luminance_numbered_split_32.mp4', 'fps': 13.78310345},
+    {url: './misc/origin_20171225_Kagomiya_MP4_luminance_numbered_split_32.mp4', 'fps': 13.83},
+    {url: './misc/20171225_Kagomiya_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.78310345},
+    {url: './misc/origin_20171225_Kagomiya_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.83},
+    {url: './misc/20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.78310345},
+    {url: './misc/origin_20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.83},
+    {url: './misc/20170714_Kikuchi_MP4_luminance_numbered_split_28.mp4', 'fps': 13.78310345},
+    {url: './misc/origin_20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.83},
+    {url: './misc/20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.78310345},
+    {url: './misc/origin_20170714_Kikuchi_MP4_luminance_numbered_split_28.mp4', 'fps': 13.83}
 ]
 
 /* 動画用コンポーネント */
+videoEditor = Vue.component(
+  'video-editor', {
+    data: function () {
+        return {
+          dialog: false
+        }
+    },
+    props: [
+      'canvasSetting', 'marks'
+    ],
+    methods: {
+      edit: function (video) {
+        this.dialog = true
+        this.marks = []
+        video.currentTime = this.canvasSetting.target.data.time
+
+        this.$nextTick(() => {
+          const canvas = this.$refs['video-canvas']
+          canvas.width = this.canvasSetting.width
+          canvas.height = this.canvasSetting.height
+          canvas.getContext('2d').drawImage(
+            video, 0, 0, canvas.width, canvas.height
+          )
+        })
+      },
+      markAdd: function (event) {
+        const canvas = this.$refs['video-canvas']
+        const ctx = canvas.getContext('2d')
+        const rect = canvas.getBoundingClientRect()
+        const x = event.clientX - rect.left
+        const y = event.clientY - rect.top
+        this.marks.push({
+          id: generateUuid(),
+          x: x, y: y
+        })
+        ctx.fillStyle = this.canvasSetting.color
+        ctx.beginPath()
+        ctx.arc(
+          x, y, this.canvasSetting.pointSize, 0,
+          Math.PI * 2, false
+        )
+        ctx.fill()
+      },
+      markDownload () {
+        /**
+         * point として記述した内容を CSV に変換し
+         * ダウンロードします.
+         *
+         */
+        console.log('Mark: Download')
+        let csv = 'basename,time,frame,x,y,width,height\n'
+        this.marks.forEach(item => {
+          const line = [
+            this.basename,
+            this.canvasSetting.target.data.time,
+            this.canvasSetting.target.data.frame,
+            item.x, item.y,
+            this.canvasSetting.width,
+            this.canvasSetting.height
+          ].join(',') + '\n'
+          csv += line
+        })
+        const filename = [
+          // this.basename,
+          // this.currentFrame,
+          'mark.csv'
+        ].join('_')
+        downloadCsv(csv, filename)
+      }
+    },
+    template: `
+      <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+        <v-card>
+          <v-toolbar dark color="primary">
+            <v-toolbar-title v-if="canvasSetting.target">
+              Time: {{canvasSetting.target.data.time}} sec
+            </v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn icon @click="markDownload">
+              <v-icon>cloud_download</v-icon>
+            </v-btn>
+            <v-btn icon dark @click.native="dialog = false">
+              <v-icon>close</v-icon>
+            </v-btn>
+          </v-toolbar>
+          <v-card-media>
+            <canvas ref="video-canvas" id="video-canvas" @click="markAdd"></canvas>
+          </v-card-media>
+        </v-card>
+      </v-dialog>
+    `
+})
+
 Vue.component(
   'video-player', {
+    components: {
+        'videoEditor': videoEditor
+    },
     data: function () {
       return {
         currentTime: 0,
@@ -252,68 +368,13 @@ Vue.component(
       },
       // canvas 操作
       edit: function (point) {
-        this.dialog = true
         const video = this.$refs.nowVideo
         this.canvasSetting.target = point
         this.canvasSetting.width = video.offsetWidth * this.canvasSetting.scale
         this.canvasSetting.height = video.offsetHeight * this.canvasSetting.scale
-        this.marks = []
-        video.currentTime = this.canvasSetting.target.data.time
-
-        this.$nextTick(() => {
-          const canvas = this.$refs['video-canvas']
-          canvas.width = this.canvasSetting.width
-          canvas.height = this.canvasSetting.height
-          canvas.getContext('2d').drawImage(
-            video, 0, 0, canvas.width, canvas.height
-          )
-        })
+        this.$refs['video-editor'].edit(video)
       },
-      markAdd: function (event) {
-        const canvas = this.$refs['video-canvas']
-        const ctx = canvas.getContext('2d')
-        const rect = canvas.getBoundingClientRect()
-        const x = event.clientX - rect.left
-        const y = event.clientY - rect.top
-        this.marks.push({
-          id: generateUuid(),
-          x: x, y: y
-        })
-        ctx.fillStyle = this.canvasSetting.color
-        ctx.beginPath()
-        ctx.arc(
-          x, y, this.canvasSetting.pointSize, 0,
-          Math.PI * 2, false
-        )
-        ctx.fill()
-      },
-      markDownload () {
-        /**
-         * point として記述した内容を CSV に変換し
-         * ダウンロードします.
-         *
-         */
-        console.log('Mark: Download')
-        let csv = 'basename,time,frame,x,y,width,height\n'
-        this.marks.forEach(item => {
-          const line = [
-            this.basename,
-            this.canvasSetting.target.data.time,
-            this.canvasSetting.target.data.frame,
-            item.x, item.y,
-            this.canvasSetting.width,
-            this.canvasSetting.height
-          ].join(',') + '\n'
-          csv += line
-        })
-        const filename = [
-          this.basename,
-          this.currentFrame,
-          'mark.csv'
-        ].join('_')
-        downloadCsv(csv, filename)
-      },
-      // point 操作
+        // point 操作
       pointAdd: function (event) {
         /**
          * HTML: id="wave-form" 要素を ctrl+click した場合に
@@ -958,26 +1019,11 @@ Vue.component(
             </v-card>
           </v-container>
         </v-flex>
-        <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
-          <v-card>
-            <v-toolbar dark color="primary">
-              <v-toolbar-title>{{url}}</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-toolbar-title v-if="canvasSetting.target">
-                Time: {{canvasSetting.target.data.time}} sec
-              </v-toolbar-title>
-              <v-btn icon @click="markDownload">
-                <v-icon>cloud_download</v-icon>
-              </v-btn>
-              <v-btn icon dark @click.native="dialog = false">
-                <v-icon>close</v-icon>
-              </v-btn>
-            </v-toolbar>
-            <v-card-media>
-              <canvas ref="video-canvas" id="video-canvas" @click="markAdd"></canvas>
-            </v-card-media>
-          </v-card>
-        </v-dialog>
+        <video-editor
+          ref="video-editor"
+          v-bind:marks=marks
+          v-bind:canvasSetting=canvasSetting>
+        </video-editor>
       </v-layout>
     `
   }
