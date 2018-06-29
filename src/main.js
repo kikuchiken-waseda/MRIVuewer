@@ -26,49 +26,67 @@ const files = [
     {url: './misc/origin_20170714_Kikuchi_MP4_luminance_numbered_split_28.mp4', 'fps': 13.83}
 ]
 
-/* 動画用コンポーネント */
+/* 動画マーク用コンポーネント */
 videoEditor = Vue.component(
   'video-editor', {
     data: function () {
         return {
-          dialog: false
+          dialog: false,
+          marks: [],
+          markSetting: {
+            color: 'rgba(244,81,30 ,1)',
+            pointSize: 5,
+            maxSize: 68
+          },
+          canvasWrapperStyle: {
+            position: 'relative'
+          },
+          canvasStyle: {
+            position: 'absolute',
+            top: 0,
+            left: 0
+          }
         }
     },
     props: [
-      'canvasSetting', 'marks'
+      'canvas'
     ],
     methods: {
       edit: function (video) {
-        this.dialog = true
+        const canvas = this.$refs['video-canvas']
+        const markCanvas = this.$refs['mark-canvas']
+        canvas.width = video.offsetWidth * this.canvas.scale
+        canvas.height = video.offsetHeight * this.canvas.scale
+        markCanvas.width = canvas.width
+        markCanvas.height = canvas.height
+        video.currentTime = this.canvas.target.data.time
         this.marks = []
-        video.currentTime = this.canvasSetting.target.data.time
-
-        this.$nextTick(() => {
-          const canvas = this.$refs['video-canvas']
-          canvas.width = this.canvasSetting.width
-          canvas.height = this.canvasSetting.height
+        setTimeout(() => {
           canvas.getContext('2d').drawImage(
             video, 0, 0, canvas.width, canvas.height
           )
-        })
+        }, 100)
+        this.dialog = true
       },
       markAdd: function (event) {
-        const canvas = this.$refs['video-canvas']
+        const canvas = this.$refs['mark-canvas']
         const ctx = canvas.getContext('2d')
         const rect = canvas.getBoundingClientRect()
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
-        this.marks.push({
-          id: generateUuid(),
-          x: x, y: y
-        })
-        ctx.fillStyle = this.canvasSetting.color
-        ctx.beginPath()
-        ctx.arc(
-          x, y, this.canvasSetting.pointSize, 0,
-          Math.PI * 2, false
-        )
-        ctx.fill()
+        if (this.marks.length < this.markSetting.maxSize){
+            this.marks.push({
+              id: generateUuid(),
+              x: x, y: y
+            })
+            ctx.fillStyle = this.markSetting.color
+            ctx.beginPath()
+            ctx.arc(
+              x, y, this.markSetting.pointSize, 0,
+              Math.PI * 2, false
+            )
+            ctx.fill()
+        }
       },
       markDownload () {
         /**
@@ -81,11 +99,11 @@ videoEditor = Vue.component(
         this.marks.forEach(item => {
           const line = [
             this.basename,
-            this.canvasSetting.target.data.time,
-            this.canvasSetting.target.data.frame,
+            this.canvas.target.data.time,
+            this.canvas.target.data.frame,
             item.x, item.y,
-            this.canvasSetting.width,
-            this.canvasSetting.height
+            this.canvas.width,
+            this.canvas.height
           ].join(',') + '\n'
           csv += line
         })
@@ -101,8 +119,8 @@ videoEditor = Vue.component(
       <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
         <v-card>
           <v-toolbar dark color="primary">
-            <v-toolbar-title v-if="canvasSetting.target">
-              Time: {{canvasSetting.target.data.time}} sec
+            <v-toolbar-title v-if="canvas.target">
+              Time: {{canvas.target.data.time}} sec
             </v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn icon @click="markDownload">
@@ -112,14 +130,19 @@ videoEditor = Vue.component(
               <v-icon>close</v-icon>
             </v-btn>
           </v-toolbar>
-          <v-card-media>
-            <canvas ref="video-canvas" id="video-canvas" @click="markAdd"></canvas>
-          </v-card-media>
+          <v-card-title>
+            <div v-bind:style="canvasWrapperStyle">
+              <canvas v-bind:style="canvasStyle" ref="video-canvas" id="video-canvas"></canvas>
+              <canvas v-bind:style="canvasStyle" ref="mark-canvas" id="mark-canvas" @click="markAdd"></canvas>
+            </div>
+            <p>{{marks.length}}/{{markSetting.maxSize}}</p>
+          </v-card-title>
         </v-card>
       </v-dialog>
     `
 })
 
+/* 動画用コンポーネント */
 Vue.component(
   'video-player', {
     components: {
@@ -178,13 +201,9 @@ Vue.component(
         cache: {},
         cache_upload_dialog: false,
         dialog: false,
-        canvasSetting: {
+        canvas: {
           target: null,
-          width: null,
-          height: null,
           scale: 3,
-          color: 'rgba(244,81,30 ,1)',
-          pointSize: 5
         },
         wavesurfer: null // wavesurfer クラス
       }
@@ -325,6 +344,12 @@ Vue.component(
         this.wavesurfer.seekAndCenter(1)
         this.syncVideo(event)
       },
+      moveTo: function (time){
+        const video = this.$refs.nowVideo
+        const duration = this.wavesurfer.getDuration()
+        this.wavesurfer.seekAndCenter(time / duration)
+        video.currentTime = time
+      },
       // 動画再生時の挙動
       syncVideos: function (event) {
         const video = this.$refs.nowVideo
@@ -369,10 +394,9 @@ Vue.component(
       // canvas 操作
       edit: function (point) {
         const video = this.$refs.nowVideo
-        this.canvasSetting.target = point
-        this.canvasSetting.width = video.offsetWidth * this.canvasSetting.scale
-        this.canvasSetting.height = video.offsetHeight * this.canvasSetting.scale
+        this.canvas.target = point
         this.$refs['video-editor'].edit(video)
+        this.moveTo(point.data.time)
       },
         // point 操作
       pointAdd: function (event) {
@@ -1021,8 +1045,7 @@ Vue.component(
         </v-flex>
         <video-editor
           ref="video-editor"
-          v-bind:marks=marks
-          v-bind:canvasSetting=canvasSetting>
+          v-bind:canvas=canvas>
         </video-editor>
       </v-layout>
     `
