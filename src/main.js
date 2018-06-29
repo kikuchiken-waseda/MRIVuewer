@@ -38,19 +38,44 @@ videoEditor = Vue.component(
             pointSize: 5,
             maxSize: 68
           },
+          backgroundToggle: true,
+          colors: [
+            {text: 'red', val: 'rgba(244,81,30 ,1)'},
+            {text: 'blue', val: 'rgba(41,128,185 ,1)'},
+            {text: 'yellow', val: 'rgba(241,196,15 ,1)'},
+            {text: 'green', val: 'rgba(46,204,113 ,1)'}
+          ],
+          video: null,
           canvasWrapperStyle: {
-            position: 'relative'
+            position: 'relative',
+            "min-height": '90vh'
           },
           canvasStyle: {
             position: 'absolute',
             top: 0,
-            left: 0
+            left: 0,
           }
         }
     },
     props: [
       'canvas'
     ],
+    watch:{
+        backgroundToggle: function (val) {
+          const canvas = this.$refs['video-canvas']
+          canvas.width = this.video.offsetWidth * this.canvas.scale
+          canvas.height = this.video.offsetHeight * this.canvas.scale
+          if (val === false) {
+            canvas.getContext('2d').clearRect(
+              0, 0, canvas.width, canvas.height
+            )
+          } else {
+            canvas.getContext('2d').drawImage(
+              this.video, 0, 0, canvas.width, canvas.height
+            )
+          }
+        }
+    },
     methods: {
       edit: function (video) {
         const canvas = this.$refs['video-canvas']
@@ -67,6 +92,7 @@ videoEditor = Vue.component(
           )
         }, 100)
         this.dialog = true
+        this.video = video
       },
       markAdd: function (event) {
         const canvas = this.$refs['mark-canvas']
@@ -117,26 +143,72 @@ videoEditor = Vue.component(
     },
     template: `
       <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+        <v-toolbar dark color="primary">
+          <v-toolbar-title v-if="canvas.target">
+            Time: {{canvas.target.data.time}} sec
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="markDownload">
+            <v-icon>cloud_download</v-icon>
+          </v-btn>
+          <v-btn icon dark @click.native="dialog = false">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </v-toolbar>
         <v-card>
-          <v-toolbar dark color="primary">
-            <v-toolbar-title v-if="canvas.target">
-              Time: {{canvas.target.data.time}} sec
-            </v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn icon @click="markDownload">
-              <v-icon>cloud_download</v-icon>
-            </v-btn>
-            <v-btn icon dark @click.native="dialog = false">
-              <v-icon>close</v-icon>
-            </v-btn>
-          </v-toolbar>
-          <v-card-title>
-            <div v-bind:style="canvasWrapperStyle">
-              <canvas v-bind:style="canvasStyle" ref="video-canvas" id="video-canvas"></canvas>
-              <canvas v-bind:style="canvasStyle" ref="mark-canvas" id="mark-canvas" @click="markAdd"></canvas>
-            </div>
-            <p>{{marks.length}}/{{markSetting.maxSize}}</p>
-          </v-card-title>
+          <v-container fluid grid-list-md>
+            <v-layout row wrap>
+              <v-flex xs6>
+                <v-card>
+                  <v-card-title>
+                    <div v-bind:style="canvasWrapperStyle">
+                      <canvas v-bind:style="canvasStyle" ref="video-canvas" id="video-canvas"></canvas>
+                      <canvas v-bind:style="canvasStyle" ref="mark-canvas" id="mark-canvas" @click="markAdd"></canvas>
+                    </div>
+                  </v-card-title>
+                </v-card>
+              </v-flex>
+              <v-flex v-if="dialog">
+                <v-card>
+                  <v-card-title primary-title>
+                    <v-flex xs12>
+                      <h3 class="headline mb-0">Settings</h3>
+                      <v-form>
+                        <v-select
+                          :items="colors"
+                          v-model="markSetting.color"
+                          label="Color"
+                          item-text="text"
+                          item-value="val"
+                          single-line>
+                        </v-select>
+                        <v-text-field
+                          v-model="markSetting.pointSize"
+                          label="Point Size"
+                          required>
+                        </v-text-field>
+                        <v-text-field
+                          v-model="markSetting.maxSize"
+                          label="Max(n)"
+                          required>
+                        </v-text-field>
+                        <v-switch
+                          label="show backgroud"
+                          v-model="backgroundToggle">
+                        </v-switch>
+                      </v-form>
+                    </v-flex>
+                  </v-card-title>
+                  <v-card-title>
+                    <div>
+                      <h3 class="headline mb-0">Detail</h3>
+                      <div class="title">特徴点: {{marks.length}}/{{markSetting.maxSize}}</div>
+                    </div>
+                  </v-card-title>
+                </v-card>
+              </v-flex>
+            </v-layout>
+          </v-container>
         </v-card>
       </v-dialog>
     `
@@ -201,10 +273,6 @@ Vue.component(
         cache: {},
         cache_upload_dialog: false,
         dialog: false,
-        canvas: {
-          target: null,
-          scale: 3,
-        },
         wavesurfer: null // wavesurfer クラス
       }
     },
@@ -212,6 +280,13 @@ Vue.component(
       'url', 'fps'
     ],
     computed: {
+      canvas: function () {
+          scale = 3
+          return {
+            target: null,
+            scale: scale
+          }
+      },
       basename: function () {
         const pathes = this.url.split('/')
         const fname = pathes[pathes.length - 1]
