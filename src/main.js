@@ -71,7 +71,7 @@ const canvasEditor = Vue.component(
       }
     },
     props: [
-      'canvas'
+      'canvas', 'basename'
     ],
     watch: {
       backgroundToggle: function (val) {
@@ -93,6 +93,15 @@ const canvasEditor = Vue.component(
           this.canvasStyle.cursor = 'move'
         } else {
           this.canvasStyle.cursor = 'default'
+        }
+      }
+    },
+    computed: {
+      cachename: function () {
+        if (this.canvas.target !== undefined) {
+          return 'cache_' + this.basename + this.canvas.target.data.frame
+        } else {
+          return null
         }
       }
     },
@@ -166,10 +175,8 @@ const canvasEditor = Vue.component(
         if (this.markon !== null) {
           this.isDrag = true
           this.markRemove(this.markon.id)
-          console.log('drag:', this.markon)
         } else {
           this.isDrag = false
-          console.log('drag:', 'no')
         }
       },
       markCange: function (event) {
@@ -454,13 +461,6 @@ Vue.component(
       'url', 'fps'
     ],
     computed: {
-      canvas: function () {
-        const scale = 3
-        return {
-          target: null,
-          scale: scale
-        }
-      },
       basename: function () {
         const pathes = this.url.split('/')
         const fname = pathes[pathes.length - 1]
@@ -468,6 +468,13 @@ Vue.component(
       },
       cachename: function () {
         return 'cache_' + this.basename
+      },
+      canvas: function () {
+        const scale = 3
+        return {
+          target: null,
+          scale: scale
+        }
       },
       skipLength: function () {
         const len = 1 / this.fps
@@ -1293,7 +1300,8 @@ Vue.component(
         </v-flex>
         <canvas-editor
           ref="canvas-editor"
-          v-bind:canvas=canvas>
+          v-bind:canvas=canvas
+          v-bind:basename=basename>
         </canvas-editor>
       </v-layout>
     `
