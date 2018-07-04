@@ -49,6 +49,8 @@ const videoEditor = Vue.component(
             { text: 'y', value: 'y' }
           ]
         },
+        markon: null,
+        isDrag: false,
         backgroundToggle: true,
         colors: [
           { text: 'red', val: 'rgba(244,81,30 ,1)' },
@@ -61,6 +63,7 @@ const videoEditor = Vue.component(
           'min-height': '90vh'
         },
         canvasStyle: {
+          cursor: 'default',
           position: 'absolute',
           top: 0,
           left: 0
@@ -84,10 +87,20 @@ const videoEditor = Vue.component(
             this.video, 0, 0, canvas.width, canvas.height
           )
         }
+      },
+      isDrag: function (val) {
+        if (val === true) {
+          this.canvasStyle.cursor = 'move'
+        } else {
+          this.canvasStyle.cursor = 'default'
+        }
       }
     },
     methods: {
       edit: function (video) {
+        /**
+         * 画像領域の初期化を行います
+         */
         const canvas = this.$refs['video-canvas']
         const markCanvas = this.$refs['mark-canvas']
         canvas.width = video.offsetWidth * this.canvas.scale
@@ -105,6 +118,11 @@ const videoEditor = Vue.component(
         this.video = video
       },
       renderMark: function (x, y, color) {
+        /**
+         * mark-canvas に point を描画します.
+         *
+         * この関数が画像領域の描画に注力することに注意してください.
+         */
         const canvas = this.$refs['mark-canvas']
         const ctx = canvas.getContext('2d')
         ctx.fillStyle = color
@@ -115,7 +133,53 @@ const videoEditor = Vue.component(
         )
         ctx.fill()
       },
+      isMarked: function (event) {
+        /**
+         * 画像領域ホバー中に, 既に描画が行われているか否かを判定します.
+         */
+        if (this.isDrag === false) {
+          let isMarked = false
+          let markon = null
+          const rect = this.$refs['mark-canvas'].getBoundingClientRect()
+          const x = event.clientX - rect.left
+          const y = event.clientY - rect.top
+          for (const index in this.marks) {
+            const item = this.marks[index]
+            const diffx = Math.abs(x - item.x)
+            const diffy = Math.abs(y - item.y)
+            if (diffx < 3 && diffy < 3) {
+              isMarked = true
+              markon = item
+            }
+          }
+          if (isMarked === true) {
+            this.canvasStyle.cursor = 'move'
+            this.markon = markon
+          } else {
+            this.canvasStyle.cursor = 'default'
+            this.isDrag = false
+            this.markon = null
+          }
+        }
+      },
+      markDrag: function (event) {
+        if (this.markon !== null) {
+          this.isDrag = true
+          this.markRemove(this.markon.id)
+          console.log('drag:', this.markon)
+        } else {
+          this.isDrag = false
+          console.log('drag:', 'no')
+        }
+      },
+      markCange: function (event) {
+        this.isDrag = false
+        this.markon = null
+      },
       markAdd: function (event) {
+        /**
+         * 画像領域クリック時に point をレンダーし, その情報を記録します.
+         */
         const rect = this.$refs['mark-canvas'].getBoundingClientRect()
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
@@ -136,6 +200,8 @@ const videoEditor = Vue.component(
           })
           this.renderMark(x, y, this.markSetting.color)
         }
+        this.isDrag = false
+        this.markon = null
       },
       markDescription: function (id) {
         const color = 'rgba(241,196,15 ,1)'
@@ -225,7 +291,12 @@ const videoEditor = Vue.component(
                   <v-card-title>
                     <div v-bind:style="canvasWrapperStyle">
                       <canvas v-bind:style="canvasStyle" ref="video-canvas" id="video-canvas"></canvas>
-                      <canvas v-bind:style="canvasStyle" ref="mark-canvas" id="mark-canvas" @click="markAdd"></canvas>
+                      <canvas v-bind:style="canvasStyle" ref="mark-canvas" id="mark-canvas"
+                        @mousemove="isMarked"
+                        @mousedown="markDrag"
+                        @mouseup="markCange"
+                        @click="markAdd">
+                      </canvas>
                       <canvas v-bind:style="canvasStyle" ref="region-canvas" id="region-canvas" @click.ctrl="regionAdd"></canvas>
                     </div>
                   </v-card-title>
