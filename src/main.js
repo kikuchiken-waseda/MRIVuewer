@@ -32,6 +32,7 @@ const canvasEditor = Vue.component(
     data: function () {
       return {
         dialog: false,
+        redy: false,
         marks: [],
         regions: [],
         markSetting: {
@@ -60,11 +61,12 @@ const canvasEditor = Vue.component(
         video: null,
         canvasWrapperStyle: {
           position: 'relative',
-          'min-height': '90vh'
+          'min-height': '80vh'
         },
         canvasStyle: {
           cursor: 'default',
           position: 'absolute',
+          border: 'solid 3px #000000',
           top: 0,
           left: 0
         }
@@ -94,6 +96,11 @@ const canvasEditor = Vue.component(
         } else {
           this.canvasStyle.cursor = 'default'
         }
+      },
+      marks: function (val) {
+        localStorage.setItem(
+          this.cachename, JSON.stringify(this.marks)
+        )
       }
     },
     computed: {
@@ -117,13 +124,27 @@ const canvasEditor = Vue.component(
         markCanvas.width = canvas.width
         markCanvas.height = canvas.height
         video.currentTime = this.canvas.target.data.time
+        const cache = JSON.parse(
+          localStorage.getItem(this.cachename)
+        )
         this.marks = []
+        if (cache.length > 0) {
+          this.marks = cache
+        }
         setTimeout(() => {
+          if (cache.length > 0) {
+            for (const index in this.cache) {
+              const item = this.marks[index]
+              this.renderMark(item.x, item.y, this.markSetting.color)
+            }
+          }
           canvas.getContext('2d').drawImage(
             video, 0, 0, canvas.width, canvas.height
           )
-        }, 100)
+          this.redy = true
+        }, 1000)
         this.dialog = true
+        this.redy = false
         this.video = video
       },
       renderMark: function (x, y, color) {
@@ -296,7 +317,7 @@ const canvasEditor = Vue.component(
               <v-flex xs6>
                 <v-card>
                   <v-card-title>
-                    <div v-bind:style="canvasWrapperStyle">
+                    <div v-bind:style="canvasWrapperStyle" v-show="redy">
                       <canvas v-bind:style="canvasStyle" ref="video-canvas" id="video-canvas"></canvas>
                       <canvas v-bind:style="canvasStyle" ref="mark-canvas" id="mark-canvas"
                         @mousemove="isMarked"
@@ -304,8 +325,12 @@ const canvasEditor = Vue.component(
                         @mouseup="markCange"
                         @click="markAdd">
                       </canvas>
-                      <canvas v-bind:style="canvasStyle" ref="region-canvas" id="region-canvas" @click.ctrl="regionAdd"></canvas>
                     </div>
+                    <v-container text-xs-center v-if="!redy">
+                      <v-progress-circular :size="100" :width="7" indeterminate color="purple">
+                      </v-progress-circular>
+                      <p>Now loading...</p>
+                    </v-container>
                   </v-card-title>
                 </v-card>
               </v-flex>
