@@ -27,8 +27,8 @@ const files = [
 ]
 
 /* 動画マーク用コンポーネント */
-const videoEditor = Vue.component(
-  'video-editor', {
+const canvasEditor = Vue.component(
+  'canvas-editor', {
     data: function () {
       return {
         dialog: false,
@@ -392,7 +392,7 @@ const videoEditor = Vue.component(
 Vue.component(
   'video-player', {
     components: {
-      'videoEditor': videoEditor
+      'canvasEditor': canvasEditor
     },
     data: function () {
       return {
@@ -644,7 +644,7 @@ Vue.component(
       edit: function (point) {
         const video = this.$refs.nowVideo
         this.canvas.target = point
-        this.$refs['video-editor'].edit(video)
+        this.$refs['canvas-editor'].edit(video)
         this.moveTo(point.data.time)
       },
       // point 操作
@@ -1291,10 +1291,10 @@ Vue.component(
             </v-card>
           </v-container>
         </v-flex>
-        <video-editor
-          ref="video-editor"
+        <canvas-editor
+          ref="canvas-editor"
           v-bind:canvas=canvas>
-        </video-editor>
+        </canvas-editor>
       </v-layout>
     `
   }
