@@ -1,80 +1,80 @@
 // 編集用設定
 const files = [
-    {url: './misc/20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.78310345},
-    {url: './misc/origin_20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.83},
-    {url: './misc/20171110_Masaki_MP4_luminance_numbered_split_35.mp4', 'fps': 13.78310345},
-    {url: './misc/origin_20171110_Masaki_MP4_luminance_numbered_split_35.mp4', 'fps': 13.83},
-    {url: './misc/20171110_Masaki_MP4_luminance_numbered_JM_35.mp4', 'fps': 13.78310345},
-    {url: './misc/origin_20171110_Masaki_MP4_luminance_numbered_JM_35.mp4', 'fps': 13.83},
-    {url: './misc/20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345},
-    {url: './misc/origin_20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.83},
-    {url: './misc/20171110_Nota_MP4_luminance_numbered_split_32.mp4', 'fps': 13.78310345},
-    {url: './misc/origin_20171110_Nota_MP4_luminance_numbered_split_32.mp4', 'fps': 13.83},
-    {url: './misc/20171110_Nota_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.78310345},
-    {url: './misc/origin_20171110_Nota_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.83},
-    {url: './misc/20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345},
-    {url: './misc/origin_20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.83},
-    {url: './misc/20171225_Kagomiya_MP4_luminance_numbered_split_32.mp4', 'fps': 13.78310345},
-    {url: './misc/origin_20171225_Kagomiya_MP4_luminance_numbered_split_32.mp4', 'fps': 13.83},
-    {url: './misc/20171225_Kagomiya_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.78310345},
-    {url: './misc/origin_20171225_Kagomiya_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.83},
-    {url: './misc/20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.78310345},
-    {url: './misc/origin_20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.83},
-    {url: './misc/20170714_Kikuchi_MP4_luminance_numbered_split_28.mp4', 'fps': 13.78310345},
-    {url: './misc/origin_20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.83},
-    {url: './misc/20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.78310345},
-    {url: './misc/origin_20170714_Kikuchi_MP4_luminance_numbered_split_28.mp4', 'fps': 13.83}
+  { url: './misc/20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.78310345 },
+  { url: './misc/origin_20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.83 },
+  { url: './misc/20171110_Masaki_MP4_luminance_numbered_split_35.mp4', 'fps': 13.78310345 },
+  { url: './misc/origin_20171110_Masaki_MP4_luminance_numbered_split_35.mp4', 'fps': 13.83 },
+  { url: './misc/20171110_Masaki_MP4_luminance_numbered_JM_35.mp4', 'fps': 13.78310345 },
+  { url: './misc/origin_20171110_Masaki_MP4_luminance_numbered_JM_35.mp4', 'fps': 13.83 },
+  { url: './misc/20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345 },
+  { url: './misc/origin_20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.83 },
+  { url: './misc/20171110_Nota_MP4_luminance_numbered_split_32.mp4', 'fps': 13.78310345 },
+  { url: './misc/origin_20171110_Nota_MP4_luminance_numbered_split_32.mp4', 'fps': 13.83 },
+  { url: './misc/20171110_Nota_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.78310345 },
+  { url: './misc/origin_20171110_Nota_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.83 },
+  { url: './misc/20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345 },
+  { url: './misc/origin_20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.83 },
+  { url: './misc/20171225_Kagomiya_MP4_luminance_numbered_split_32.mp4', 'fps': 13.78310345 },
+  { url: './misc/origin_20171225_Kagomiya_MP4_luminance_numbered_split_32.mp4', 'fps': 13.83 },
+  { url: './misc/20171225_Kagomiya_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.78310345 },
+  { url: './misc/origin_20171225_Kagomiya_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.83 },
+  { url: './misc/20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.78310345 },
+  { url: './misc/origin_20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.83 },
+  { url: './misc/20170714_Kikuchi_MP4_luminance_numbered_split_28.mp4', 'fps': 13.78310345 },
+  { url: './misc/origin_20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.83 },
+  { url: './misc/20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.78310345 },
+  { url: './misc/origin_20170714_Kikuchi_MP4_luminance_numbered_split_28.mp4', 'fps': 13.83 }
 ]
 
 /* 動画マーク用コンポーネント */
-videoEditor = Vue.component(
+const videoEditor = Vue.component(
   'video-editor', {
     data: function () {
-        return {
-          dialog: false,
-          marks: [],
-          markSetting: {
-            color: 'rgba(244,81,30 ,1)',
-            pointSize: 5,
-            maxSize: 68
-          },
-          backgroundToggle: true,
-          colors: [
-            {text: 'red', val: 'rgba(244,81,30 ,1)'},
-            {text: 'blue', val: 'rgba(41,128,185 ,1)'},
-            {text: 'yellow', val: 'rgba(241,196,15 ,1)'},
-            {text: 'green', val: 'rgba(46,204,113 ,1)'}
-          ],
-          video: null,
-          canvasWrapperStyle: {
-            position: 'relative',
-            "min-height": '90vh'
-          },
-          canvasStyle: {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-          }
+      return {
+        dialog: false,
+        marks: [],
+        markSetting: {
+          color: 'rgba(244,81,30 ,1)',
+          pointSize: 5,
+          maxSize: 68
+        },
+        backgroundToggle: true,
+        colors: [
+          { text: 'red', val: 'rgba(244,81,30 ,1)' },
+          { text: 'blue', val: 'rgba(41,128,185 ,1)' },
+          { text: 'yellow', val: 'rgba(241,196,15 ,1)' },
+          { text: 'green', val: 'rgba(46,204,113 ,1)' }
+        ],
+        video: null,
+        canvasWrapperStyle: {
+          position: 'relative',
+          'min-height': '90vh'
+        },
+        canvasStyle: {
+          position: 'absolute',
+          top: 0,
+          left: 0
         }
+      }
     },
     props: [
       'canvas'
     ],
-    watch:{
-        backgroundToggle: function (val) {
-          const canvas = this.$refs['video-canvas']
-          canvas.width = this.video.offsetWidth * this.canvas.scale
-          canvas.height = this.video.offsetHeight * this.canvas.scale
-          if (val === false) {
-            canvas.getContext('2d').clearRect(
-              0, 0, canvas.width, canvas.height
-            )
-          } else {
-            canvas.getContext('2d').drawImage(
-              this.video, 0, 0, canvas.width, canvas.height
-            )
-          }
+    watch: {
+      backgroundToggle: function (val) {
+        const canvas = this.$refs['video-canvas']
+        canvas.width = this.video.offsetWidth * this.canvas.scale
+        canvas.height = this.video.offsetHeight * this.canvas.scale
+        if (val === false) {
+          canvas.getContext('2d').clearRect(
+            0, 0, canvas.width, canvas.height
+          )
+        } else {
+          canvas.getContext('2d').drawImage(
+            this.video, 0, 0, canvas.width, canvas.height
+          )
         }
+      }
     },
     methods: {
       edit: function (video) {
@@ -100,18 +100,18 @@ videoEditor = Vue.component(
         const rect = canvas.getBoundingClientRect()
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
-        if (this.marks.length < this.markSetting.maxSize){
-            this.marks.push({
-              id: generateUuid(),
-              x: x, y: y
-            })
-            ctx.fillStyle = this.markSetting.color
-            ctx.beginPath()
-            ctx.arc(
-              x, y, this.markSetting.pointSize, 0,
-              Math.PI * 2, false
-            )
-            ctx.fill()
+        if (this.marks.length < this.markSetting.maxSize) {
+          this.marks.push({
+            id: generateUuid(),
+            x: x, y: y
+          })
+          ctx.fillStyle = this.markSetting.color
+          ctx.beginPath()
+          ctx.arc(
+            x, y, this.markSetting.pointSize, 0,
+            Math.PI * 2, false
+          )
+          ctx.fill()
         }
       },
       markDownload () {
@@ -212,13 +212,14 @@ videoEditor = Vue.component(
         </v-card>
       </v-dialog>
     `
-})
+  }
+)
 
 /* 動画用コンポーネント */
 Vue.component(
   'video-player', {
     components: {
-        'videoEditor': videoEditor
+      'videoEditor': videoEditor
     },
     data: function () {
       return {
@@ -231,7 +232,7 @@ Vue.component(
         },
         dropZone: {
           border: '5px solid blue',
-          width:  '200px',
+          width: '200px',
           height: '100px'
         },
         wavesurferSettings: {
@@ -271,7 +272,7 @@ Vue.component(
         regions: [],
         marks: [],
         cache: {},
-        cache_upload_dialog: false,
+        cacheUploadDialog: false,
         dialog: false,
         wavesurfer: null // wavesurfer クラス
       }
@@ -281,11 +282,11 @@ Vue.component(
     ],
     computed: {
       canvas: function () {
-          scale = 3
-          return {
-            target: null,
-            scale: scale
-          }
+        const scale = 3
+        return {
+          target: null,
+          scale: scale
+        }
       },
       basename: function () {
         const pathes = this.url.split('/')
@@ -419,7 +420,7 @@ Vue.component(
         this.wavesurfer.seekAndCenter(1)
         this.syncVideo(event)
       },
-      moveTo: function (time){
+      moveTo: function (time) {
         const video = this.$refs.nowVideo
         const duration = this.wavesurfer.getDuration()
         this.wavesurfer.seekAndCenter(time / duration)
@@ -473,7 +474,7 @@ Vue.component(
         this.$refs['video-editor'].edit(video)
         this.moveTo(point.data.time)
       },
-        // point 操作
+      // point 操作
       pointAdd: function (event) {
         /**
          * HTML: id="wave-form" 要素を ctrl+click した場合に
@@ -742,8 +743,8 @@ Vue.component(
         const filename = this.basename + '.json'
         downloadJson(this.cache, filename)
       },
-      cacheImportOnFocus (){
-        this.$refs.fileInput.click();
+      cacheImportOnFocus () {
+        this.$refs.fileInput.click()
       },
       cacheImport (event) {
         /**
@@ -751,17 +752,16 @@ Vue.component(
          */
         const files = event.target.files
         const file = files[0]
-        const fname = file.name
         const vm = this
         const fr = new FileReader()
-        fr.onload = function(e) {
-          const cache = JSON.parse(e.target.result);
+        fr.onload = function (e) {
+          const cache = JSON.parse(e.target.result)
           vm.regions = cache.regions
           vm.points = cache.points
-          console.log(vm.cache);
+          console.log(vm.cache)
         }
         fr.readAsText(file)
-        this.cache_upload_dialog = false
+        this.cacheUploadDialog = false
       }
     },
     template: `
@@ -778,7 +778,7 @@ Vue.component(
                 v-on:click="cacheDownload">
               </menuitem>
               <menuitem label="Import cache"
-                v-on:click="cache_upload_dialog = true">
+                v-on:click="cacheUploadDialog = true">
               </menuitem>
               <menu label="Move to...">
                 <menuitem label="Skip next (1 frame)"
@@ -800,7 +800,7 @@ Vue.component(
               </menu>
             </menu>
 
-            <v-dialog v-model="cache_upload_dialog"
+            <v-dialog v-model="cacheUploadDialog"
               persistent max-width="500px">
               <v-card>
                 <v-card-title>
@@ -1000,7 +1000,7 @@ Vue.component(
                   Export Cache
                 </v-btn>
                 <v-btn flat color="orange"
-                  v-on:click="cache_upload_dialog = true">
+                  v-on:click="cacheUploadDialog = true">
                   Import Cache
                 </v-btn>
               </v-card-actions>
@@ -1183,7 +1183,7 @@ function downloadCsv (csv, filename) {
 function downloadJson (obj, filename) {
   const blob = new Blob(
     [JSON.stringify(obj, null, '  ')],
-    {type: 'application/json'}
+    { type: 'application/json' }
   )
   const link = document.createElement('a')
   link.href = window.URL.createObjectURL(blob)
