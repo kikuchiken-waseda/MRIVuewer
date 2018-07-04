@@ -33,16 +33,26 @@ const videoEditor = Vue.component(
       return {
         dialog: false,
         marks: [],
+        regions: [],
         markSetting: {
           color: 'rgba(244,81,30 ,1)',
           pointSize: 5,
-          maxSize: 68
+          maxSize: 68,
+          headers: [
+            {
+              text: 'ID',
+              align: 'left',
+              sortable: false,
+              value: 'id'
+            },
+            { text: 'x', value: 'x' },
+            { text: 'y', value: 'y' }
+          ]
         },
         backgroundToggle: true,
         colors: [
           { text: 'red', val: 'rgba(244,81,30 ,1)' },
           { text: 'blue', val: 'rgba(41,128,185 ,1)' },
-          { text: 'yellow', val: 'rgba(241,196,15 ,1)' },
           { text: 'green', val: 'rgba(46,204,113 ,1)' }
         ],
         video: null,
@@ -94,10 +104,19 @@ const videoEditor = Vue.component(
         this.dialog = true
         this.video = video
       },
-      markAdd: function (event) {
+      renderMark: function (x, y, color) {
         const canvas = this.$refs['mark-canvas']
         const ctx = canvas.getContext('2d')
-        const rect = canvas.getBoundingClientRect()
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(
+          x, y, this.markSetting.pointSize, 0,
+          Math.PI * 2, false
+        )
+        ctx.fill()
+      },
+      markAdd: function (event) {
+        const rect = this.$refs['mark-canvas'].getBoundingClientRect()
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
         if (this.marks.length < this.markSetting.maxSize) {
@@ -105,13 +124,53 @@ const videoEditor = Vue.component(
             id: generateUuid(),
             x: x, y: y
           })
-          ctx.fillStyle = this.markSetting.color
-          ctx.beginPath()
-          ctx.arc(
-            x, y, this.markSetting.pointSize, 0,
-            Math.PI * 2, false
-          )
-          ctx.fill()
+          this.marks.sort(function (a, b) {
+            if (a.y > b.y) return 1
+            if (a.y < b.y) return -1
+            return 0
+          })
+          this.marks.sort(function (a, b) {
+            if (a.x > b.x) return 1
+            if (a.x < b.x) return -1
+            return 0
+          })
+          this.renderMark(x, y, this.markSetting.color)
+        }
+      },
+      markDescription: function (id) {
+        const color = 'rgba(241,196,15 ,1)'
+        const canvas = this.$refs['mark-canvas']
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
+        for (const index in this.marks) {
+          const item = this.marks[index]
+          if (item.id === id) {
+            this.renderMark(item.x, item.y, color)
+          } else {
+            this.renderMark(item.x, item.y, this.markSetting.color)
+          }
+        }
+      },
+      markDescriptionNomal: function (event) {
+        const canvas = this.$refs['mark-canvas']
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
+        for (const index in this.marks) {
+          const item = this.marks[index]
+          this.renderMark(item.x, item.y, this.markSetting.color)
+        }
+      },
+      markRemove: function (id) {
+        const canvas = this.$refs['mark-canvas']
+        const ctx = canvas.getContext('2d')
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        for (const index in this.marks) {
+          const item = this.marks[index]
+          if (item.id === id) {
+            this.marks.splice(index, 1)
+          }
+        }
+        for (const index in this.marks) {
+          const item = this.marks[index]
+          this.renderMark(item.x, item.y, this.markSetting.color)
         }
       },
       markDownload () {
@@ -139,6 +198,9 @@ const videoEditor = Vue.component(
           'mark.csv'
         ].join('_')
         downloadCsv(csv, filename)
+      },
+      regionAdd: function (event) {
+        console.log('ctrl')
       }
     },
     template: `
@@ -164,6 +226,7 @@ const videoEditor = Vue.component(
                     <div v-bind:style="canvasWrapperStyle">
                       <canvas v-bind:style="canvasStyle" ref="video-canvas" id="video-canvas"></canvas>
                       <canvas v-bind:style="canvasStyle" ref="mark-canvas" id="mark-canvas" @click="markAdd"></canvas>
+                      <canvas v-bind:style="canvasStyle" ref="region-canvas" id="region-canvas" @click.ctrl="regionAdd"></canvas>
                     </div>
                   </v-card-title>
                 </v-card>
@@ -205,6 +268,45 @@ const videoEditor = Vue.component(
                       <div class="title">特徴点: {{marks.length}}/{{markSetting.maxSize}}</div>
                     </div>
                   </v-card-title>
+                  <v-data-table
+                    :headers="markSetting.headers"
+                    :items="marks"
+                    class="elevation-1">
+                    <template slot="headerCell" slot-scope="props">
+                      <v-tooltip bottom>
+                        <span slot="activator">
+                          {{ props.header.text }}
+                        </span>
+                        <span>
+                          {{ props.header.text }}
+                        </span>
+                      </v-tooltip>
+                    </template>
+                    <template slot="items" slot-scope="props">
+                      <td
+                        @mouseenter="markDescription(props.item.id)"
+                        @mouseleave="markDescriptionNomal">
+                        {{ props.item.id }}
+                      </td>
+                      <td class="text-xs-right"
+                        @mouseenter="markDescription(props.item.id)"
+                        @mouseleave="markDescriptionNomal">
+                        {{ props.item.x }}
+                      </td>
+                      <td class="text-xs-right"
+                        @mouseenter="markDescription(props.item.id)"
+                        @mouseleave="markDescriptionNomal">
+                        {{ props.item.y }}
+                      </td>
+                      <td class="text-xs-right"
+                        @mouseenter="markDescription(props.item.id)"
+                        @mouseleave="markDescriptionNomal">
+                        <v-btn color="error" @click="markRemove(props.item.id)">
+                          <v-icon>remove_circle</v-icon>
+                        </v-btn>
+                      </td>
+                    </template>
+                  </v-data-table>
                 </v-card>
               </v-flex>
             </v-layout>
