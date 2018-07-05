@@ -147,6 +147,12 @@ const canvasEditor = Vue.component(
         this.redy = false
         this.video = video
       },
+      downloadImage (elmname) {
+        const canvas = this.$refs[elmname]
+        const type = elmname.split('-')[0]
+        const filename = this.basename + '_' + this.canvas.target.data.frame + '_' + type + '.png'
+        downloadPng(canvas, filename)
+      },
       renderMark: function (x, y, color) {
         /**
          * mark-canvas に point を描画します.
@@ -304,9 +310,27 @@ const canvasEditor = Vue.component(
             Time: {{canvas.target.data.time}} sec
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn icon @click="markDownload">
-            <v-icon>cloud_download</v-icon>
-          </v-btn>
+          <v-menu offset-y>
+            <v-btn icon dark slot="activator">
+              <v-icon>cloud_download</v-icon>
+            </v-btn>
+            <v-list>
+              <v-subheader>Video</v-subheader>
+              <v-divider></v-divider>
+              <v-list-tile @click="downloadImage('video-canvas')">
+                <v-list-tile-title>PNG</v-list-tile-title>
+              </v-list-tile>
+              <v-divider></v-divider>
+              <v-subheader>Marks</v-subheader>
+              <v-divider></v-divider>
+              <v-list-tile @click="markDownload">
+                <v-list-tile-title>CSV</v-list-tile-title>
+              </v-list-tile>
+              <v-list-tile @click="downloadImage('mark-canvas')">
+                <v-list-tile-title>PNG</v-list-tile-title>
+              </v-list-tile>
+            </v-list>
+          </v-menu>
           <v-btn icon dark @click.native="dialog = false">
             <v-icon>close</v-icon>
           </v-btn>
@@ -1377,6 +1401,24 @@ function generateUuid () {
 function downloadCsv (csv, filename) {
   const bom = new Uint8Array([0xEF, 0xBB, 0xBF])
   const blob = new Blob([bom, csv], { type: 'text/csv' })
+  const link = document.createElement('a')
+  link.href = window.URL.createObjectURL(blob)
+  link.target = '_blank'
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+function downloadPng (canvas, filename) {
+  const type = 'image/png'
+  const data = canvas.toDataURL(type)
+  const bin = window.atob(data.split(',')[1])
+  const bom = new Uint8Array(bin.length)
+  for (var i = 0; i < bin.length; i++) {
+    bom[i] = bin.charCodeAt(i)
+  }
+  const blob = new Blob([bom.buffer], { type: type })
   const link = document.createElement('a')
   link.href = window.URL.createObjectURL(blob)
   link.target = '_blank'
