@@ -1,28 +1,29 @@
 // 編集用設定
+const fps = 13.78310345
 const files = [
-  { url: './misc/20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.78310345 },
-  { url: './misc/origin_20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.83 },
-  { url: './misc/20171110_Masaki_MP4_luminance_numbered_split_35.mp4', 'fps': 13.78310345 },
-  { url: './misc/origin_20171110_Masaki_MP4_luminance_numbered_split_35.mp4', 'fps': 13.83 },
-  { url: './misc/20171110_Masaki_MP4_luminance_numbered_JM_35.mp4', 'fps': 13.78310345 },
-  { url: './misc/origin_20171110_Masaki_MP4_luminance_numbered_JM_35.mp4', 'fps': 13.83 },
-  { url: './misc/20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345 },
-  { url: './misc/origin_20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.83 },
-  { url: './misc/20171110_Nota_MP4_luminance_numbered_split_32.mp4', 'fps': 13.78310345 },
-  { url: './misc/origin_20171110_Nota_MP4_luminance_numbered_split_32.mp4', 'fps': 13.83 },
-  { url: './misc/20171110_Nota_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.78310345 },
-  { url: './misc/origin_20171110_Nota_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.83 },
-  { url: './misc/20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345 },
-  { url: './misc/origin_20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.83 },
-  { url: './misc/20171225_Kagomiya_MP4_luminance_numbered_split_32.mp4', 'fps': 13.78310345 },
-  { url: './misc/origin_20171225_Kagomiya_MP4_luminance_numbered_split_32.mp4', 'fps': 13.83 },
-  { url: './misc/20171225_Kagomiya_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.78310345 },
-  { url: './misc/origin_20171225_Kagomiya_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.83 },
-  { url: './misc/20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.78310345 },
-  { url: './misc/origin_20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.83 },
-  { url: './misc/20170714_Kikuchi_MP4_luminance_numbered_split_28.mp4', 'fps': 13.78310345 },
-  { url: './misc/origin_20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.83 },
-  { url: './misc/20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.78310345 },
+  // { url: './misc/20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.78310345 },
+  // { url: './misc/origin_20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.83 },
+  // { url: './misc/20171110_Masaki_MP4_luminance_numbered_split_35.mp4', 'fps': 13.78310345 },
+  // { url: './misc/origin_20171110_Masaki_MP4_luminance_numbered_split_35.mp4', 'fps': 13.83 },
+  // { url: './misc/20171110_Masaki_MP4_luminance_numbered_JM_35.mp4', 'fps': 13.78310345 },
+  // { url: './misc/origin_20171110_Masaki_MP4_luminance_numbered_JM_35.mp4', 'fps': 13.83 },
+  // { url: './misc/20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345 },
+  // { url: './misc/origin_20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.83 },
+  // { url: './misc/20171110_Nota_MP4_luminance_numbered_split_32.mp4', 'fps': 13.78310345 },
+  // { url: './misc/origin_20171110_Nota_MP4_luminance_numbered_split_32.mp4', 'fps': 13.83 },
+  // { url: './misc/20171110_Nota_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.78310345 },
+  // { url: './misc/origin_20171110_Nota_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.83 },
+  // { url: './misc/20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345 },
+  // { url: './misc/origin_20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.83 },
+  // { url: './misc/20171225_Kagomiya_MP4_luminance_numbered_split_32.mp4', 'fps': 13.78310345 },
+  // { url: './misc/origin_20171225_Kagomiya_MP4_luminance_numbered_split_32.mp4', 'fps': 13.83 },
+  // { url: './misc/20171225_Kagomiya_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.78310345 },
+  // { url: './misc/origin_20171225_Kagomiya_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.83 },
+  // { url: './misc/20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.78310345 },
+  // { url: './misc/origin_20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.83 },
+  // { url: './misc/20170714_Kikuchi_MP4_luminance_numbered_split_28.mp4', 'fps': 13.78310345 },
+  // { url: './misc/origin_20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.83 },
+  // { url: './misc/20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.78310345 },
   { url: './misc/origin_20170714_Kikuchi_MP4_luminance_numbered_split_28.mp4', 'fps': 13.83 }
 ]
 
@@ -507,13 +508,18 @@ Vue.component(
       }
     },
     props: [
-      'url', 'fps'
+      'url', 'fps', 'filename'
     ],
     computed: {
       basename: function () {
         const pathes = this.url.split('/')
-        const fname = pathes[pathes.length - 1]
-        return fname.split('.')[0]
+        if (pathes[0].match('blob')) {
+          const fname = this.filename
+          return fname.split('.')[0]
+        } else {
+          const fname = pathes[pathes.length - 1]
+          return fname.split('.')[0]
+        }
       },
       cachename: function () {
         return 'cache_' + this.basename
@@ -541,7 +547,6 @@ Vue.component(
     watch: {
       'url': function () {
         const url = this.url
-
         // 種々初期化
         const cache = JSON.parse(
           localStorage.getItem(this.cachename)
@@ -1028,7 +1033,6 @@ Vue.component(
                 </menuitem>
               </menu>
             </menu>
-
             <v-dialog v-model="cacheUploadDialog"
               persistent max-width="500px">
               <v-card>
@@ -1063,7 +1067,7 @@ Vue.component(
               class="scroll-y"
               contextmenu="player-menu">
               <v-toolbar color="accent" dark>
-                <v-toolbar-title>{{url}}</v-toolbar-title>
+                <v-toolbar-title>{{basename}}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-title>
                   時刻: {{currentTime}}
@@ -1117,6 +1121,15 @@ Vue.component(
                     </v-flex>
                     <v-flex xs3>
                       <v-container>
+                        <v-tooltip bottom>
+                          <v-text-field slot="activator" label="fps"
+                            v-model="fps"
+                            suffix="fps">
+                          </v-text-field>
+                          <span>
+                            動画の FPS を設定します
+                          </span>
+                        </v-tooltip>
                         <v-tooltip bottom>
                           <v-text-field slot="activator" label="brightness"
                             v-model="spectrogramSetting.brightness"
@@ -1367,15 +1380,53 @@ new Vue({
     target: {
       url: null, fps: null
     },
+    snackbar: {
+      show: false,
+      message: '',
+      color: 'red darken-4',
+      timeout: 6000
+    },
+    fileInputStyle: {
+      height: '0px',
+      visibility: 'hidden',
+      position: 'absolute'
+    },
     drawer: false
   },
   mounted () {
     this.target = this.files[0]
+    // Check for the various File API support.
+    if (window.File && window.FileReader && window.FileList && window.Blob) {
+      // Great success! All the File APIs are supported.
+    } else {
+      this.snackbar.show = true
+      this.snackbar.message = 'The File APIs are not fully supported in this browser.'
+    }
   },
   methods: {
     selectFile: function (target) {
       this.target = target
       this.drawer = false
+    },
+    movieImport () {
+      this.$refs.movieImport.click()
+    },
+    movieSelected (event) {
+      event.preventDefault()
+      const file = event.target.files[0]
+      if (file.type.match('video')) {
+        const url = window.URL.createObjectURL(file)
+        const target = {
+          name: file.name,
+          url: url,
+          fps: fps
+        }
+        this.files.push(target)
+        this.target = target
+      } else {
+        this.snackbar.show = true
+        this.snackbar.message = 'You should upload the video data.'
+      }
     },
     clear: function () {
       localStorage.clear()
