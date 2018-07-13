@@ -1375,7 +1375,7 @@ new Vue({
   el: '#app',
   data: {
     app: 'MRI Vuewer',
-    version: 1.0,
+    version: 1.1,
     files: files,
     target: {
       url: null, fps: null
