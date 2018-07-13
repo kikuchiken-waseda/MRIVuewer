@@ -1259,7 +1259,7 @@ Vue.component(
                           label="contents"
                           v-model="item.attributes.label"
                           @keyup.enter="labelUpdate(item)"
-                          flat solo>
+                          flat>
                         </v-text-field>
                       </v-list-tile-sub-title>
                       <v-list-tile-sub-title>
@@ -1315,7 +1315,7 @@ Vue.component(
                           label="contents"
                           v-model="item.attributes.label"
                           @keyup.enter="labelUpdate(item)"
-                          flat solo>
+                          flat>
                         </v-text-field>
                       </v-list-tile-sub-title>
                       <v-list-tile-sub-title>
