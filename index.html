@@ -85,7 +85,9 @@
 
         <!-- ツールバー --> 
         <v-toolbar color="indigo" style="z-index: 10;" dark fixed app>
-          <v-toolbar-title>Application</v-toolbar-title>
+          <v-toolbar-title>
+            {{app}} ver.{{version}} 
+          </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
         </v-toolbar>
@@ -102,8 +104,8 @@
             </v-layout>
           </v-container>
         </v-content>
-        <v-footer justify-center align-center text-center color="indigo" app inset>
-          <span class="white--text">&copy; 2018 qh73xe@waseda</span>
+        <v-footer style="z-index: 11;" justify-center align-center text-center color="indigo" app inset>
+          <span class="white--text">{{app}} ver.{{version}} &copy; 2018 qh73xe@waseda</span>
         </v-footer>
       </v-app>
     </div>

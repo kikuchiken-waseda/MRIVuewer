@@ -484,7 +484,7 @@ Vue.component(
         },
         spectrogramSetting: {
           container: '#wave-spectrogram',
-          fftSamples: 256,
+          fftSamples: 512,
           brightness: 1,
           labels: true
         },
@@ -1361,6 +1361,8 @@ Vue.component(
 new Vue({
   el: '#app',
   data: {
+    app: 'MRI Vuewer',
+    version: 1.0,
     files: files,
     target: {
       url: null, fps: null
