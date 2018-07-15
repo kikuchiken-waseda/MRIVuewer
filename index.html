@@ -53,7 +53,7 @@
           <v-list>
             <!-- ファイルアップロード --> 
             <v-divider></v-divider>
-            <v-list-tile @click="movieImport">
+            <v-list-tile ripple @click="movieImport">
               <v-list-tile-action>
                 <v-icon>playlist_add</v-icon>
               </v-list-tile-action>
@@ -71,7 +71,7 @@
               <v-list-tile slot="activator">
                 <v-list-tile-title>Files</v-list-tile-title>
               </v-list-tile>
-              <v-list-tile
+              <v-list-tile ripple
                 v-for="item in files" :key="item.url"
                 v-on:click="selectFile(item)">
                 <v-list-tile-action>
@@ -86,7 +86,7 @@
                 </v-list-tile-content>
               </v-list-tile>
             </v-list-group>
-            <v-list-tile @click="clear">
+            <v-list-tile ripple @click="clear">
               <v-list-tile-action>
                 <v-icon>delete_sweep</v-icon>
               </v-list-tile-action>

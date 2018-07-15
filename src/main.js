@@ -62,7 +62,7 @@ const canvasEditor = Vue.component(
         video: null,
         canvasWrapperStyle: {
           position: 'relative',
-          'min-height': '80vh'
+          'min-height': '83vh'
         },
         canvasStyle: {
           cursor: 'default',
@@ -280,6 +280,7 @@ const canvasEditor = Vue.component(
          * ダウンロードします.
          *
          */
+        const canvas = this.$refs['video-canvas']
         console.log('Mark: Download')
         let csv = 'basename,time,frame,x,y,width,height\n'
         this.marks.forEach(item => {
@@ -288,8 +289,8 @@ const canvasEditor = Vue.component(
             this.canvas.target.data.time,
             this.canvas.target.data.frame,
             item.x, item.y,
-            this.canvas.width,
-            this.canvas.height
+            canvas.width,
+            canvas.height
           ].join(',') + '\n'
           csv += line
         })
@@ -525,7 +526,7 @@ Vue.component(
         return 'cache_' + this.basename
       },
       canvas: function () {
-        const scale = 3
+        const scale = 2.5
         return {
           target: null,
           scale: scale
@@ -1000,7 +1001,7 @@ Vue.component(
     },
     template: `
       <v-layout row wrap>
-        <v-flex xs8>
+        <v-flex>
           <v-container>
             <!-- 右クリック時のオリジナルメニュー --> 
             <menu type="context" id="player-menu">
@@ -1250,7 +1251,7 @@ Vue.component(
           </v-container>
         </v-flex>
 
-        <v-flex xs4 v-if="isReady">
+        <v-flex v-if="isReady">
           <v-container>
             <v-card
               style="min-height:40vh; max-height:40vh;"
