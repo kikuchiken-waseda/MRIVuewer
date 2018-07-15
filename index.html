@@ -50,6 +50,7 @@
       <v-app>
         <!-- サイドバー --> 
         <v-navigation-drawer right fixed style="z-index: 11;" v-model="drawer" app>
+          <v-list>
             <!-- ファイルアップロード --> 
             <v-list-tile @click="movieImport">
               <v-list-tile-action>
@@ -61,7 +62,6 @@
                 </v-list-tile-title>
                 <input v-bind:style="fileInputStyle" v-on:change="movieSelected"
                   type="file" name="movieImport" ref="movieImport">
-                <output id="list"></output>
               </v-list-tile-content>
             </v-list-tile>
             <v-divider></v-divider>
@@ -90,15 +90,26 @@
               </v-list-tile-content>
             </v-list-tile>
             <v-divider></v-divider>
+            <v-list-tile @click="getFileList('/realTimeMRI/20170214')">
+              <v-list-tile-action>
+                <v-icon>sync</v-icon>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>Bropbox</v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-divider></v-divider>
           </v-list>
         </v-navigation-drawer>
-
         <!-- ツールバー --> 
         <v-toolbar color="indigo" style="z-index: 10;" dark fixed app>
           <v-toolbar-title>
             {{app}} ver.{{version}} 
           </v-toolbar-title>
           <v-spacer></v-spacer>
+          <v-toolbar-title>
+            {{dropbox.user}}
+          </v-toolbar-title>
           <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
         </v-toolbar>
 
@@ -131,6 +142,7 @@
     <!-- vue 関係の読み込み --> 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
     <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <!-- Wavesufer.js の読み込み --> 
     <script src="lib/wavesurfer/wavesurfer.js"></script>
@@ -138,7 +150,17 @@
     <script src="lib/wavesurfer/plugin/wavesurfer.spectrogram.js"></script>
     <script src="lib/wavesurfer/plugin/wavesurfer.minimap.js"></script>
     <script src="lib/wavesurfer/plugin/wavesurfer.timeline.js"></script>
-
+    <!-- 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.6/wavesurfer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.6/plugin/wavesurfer.regions.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.6/plugin/wavesurfer.spectrogram.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.6/plugin/wavesurfer.minimap.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.6/plugin/wavesurfer.timeline.min.js">
+    </script>
+    --> 
     <!-- 本体の読み込み --> 
     <script src="src/main.js"></script>
   </body>

@@ -1,30 +1,7 @@
 // 編集用設定
 const fps = 13.78310345
 const files = [
-  // { url: './misc/20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.78310345 },
-  // { url: './misc/origin_20171110_Masaki_MP4_edge_numbered_split_35.mp4', 'fps': 13.83 },
-  // { url: './misc/20171110_Masaki_MP4_luminance_numbered_split_35.mp4', 'fps': 13.78310345 },
-  // { url: './misc/origin_20171110_Masaki_MP4_luminance_numbered_split_35.mp4', 'fps': 13.83 },
-  // { url: './misc/20171110_Masaki_MP4_luminance_numbered_JM_35.mp4', 'fps': 13.78310345 },
-  // { url: './misc/origin_20171110_Masaki_MP4_luminance_numbered_JM_35.mp4', 'fps': 13.83 },
-  // { url: './misc/20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345 },
-  // { url: './misc/origin_20171110_Nota_MP4_edge_numbered_split_32.mp4', 'fps': 13.83 },
-  // { url: './misc/20171110_Nota_MP4_luminance_numbered_split_32.mp4', 'fps': 13.78310345 },
-  // { url: './misc/origin_20171110_Nota_MP4_luminance_numbered_split_32.mp4', 'fps': 13.83 },
-  // { url: './misc/20171110_Nota_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.78310345 },
-  // { url: './misc/origin_20171110_Nota_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.83 },
-  // { url: './misc/20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.78310345 },
-  // { url: './misc/origin_20171225_Kagomiya_MP4_edge_numbered_split_32.mp4', 'fps': 13.83 },
-  // { url: './misc/20171225_Kagomiya_MP4_luminance_numbered_split_32.mp4', 'fps': 13.78310345 },
-  // { url: './misc/origin_20171225_Kagomiya_MP4_luminance_numbered_split_32.mp4', 'fps': 13.83 },
-  // { url: './misc/20171225_Kagomiya_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.78310345 },
-  // { url: './misc/origin_20171225_Kagomiya_MP4_luminance_numbered_JM_32.mp4', 'fps': 13.83 },
-  // { url: './misc/20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.78310345 },
-  // { url: './misc/origin_20170714_Kikuchi_MP4_edge_numbered_split_28.mp4', 'fps': 13.83 },
-  // { url: './misc/20170714_Kikuchi_MP4_luminance_numbered_split_28.mp4', 'fps': 13.78310345 },
-  // { url: './misc/origin_20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.83 },
-  // { url: './misc/20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.78310345 },
-  { url: './misc/origin_20170714_Kikuchi_MP4_luminance_numbered_split_28.mp4', 'fps': 13.83 }
+  { url: './misc/20170714_Kikuchi_MP4_luminance_numbered_JM_28.mp4', 'fps': 13.78310345 }
 ]
 
 /* 動画マーク用コンポーネント */
@@ -1376,6 +1353,11 @@ new Vue({
   data: {
     app: 'MRI Vuewer',
     version: 1.1,
+    dropbox: {
+      token: 'ZiQh1tmaoNAAAAAAAAARiyWWFi89d63j1pY0yltyUxeEsaFmUDoZ53FjI7CHpTdV',
+      target: '/realTimeMRI',
+      user: null
+    },
     files: files,
     target: {
       url: null, fps: null
@@ -1431,6 +1413,40 @@ new Vue({
     clear: function () {
       localStorage.clear()
       this.drawer = false
+    },
+    getCurrentUser: function () {
+      const data = {
+        method: 'post',
+        url: 'https://api.dropboxapi.com/2/users/get_current_account',
+        headers: {
+          'Authorization': 'Bearer ' + this.dropbox.token,
+          'Content-Type': 'application/json'
+        }
+      }
+      axios(data).then(response => (this.dropbox.user = response.data.name.familiar_name))
+    },
+    getFileList: function (path) {
+      const data = {
+        method: 'post',
+        url: 'https://api.dropboxapi.com/2/files/list_folder',
+        headers: {
+          'Authorization': 'Bearer ' + this.dropbox.token,
+          'Content-Type': 'application/json'
+        },
+        data: {
+          path: path
+        }
+      }
+      axios(data).then(response => (
+        response.data.entries.forEach(function (element) {
+          if (element['.tag'] === 'folder') {
+            console.log(element)
+            this.getFileList(element.path_display)
+          } else {
+            console.log(element)
+          }
+        })
+      ))
     }
   }
 })

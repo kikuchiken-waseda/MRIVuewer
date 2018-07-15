@@ -9,6 +9,7 @@ module.exports = {
     'FileReader': true,
     'alert': true,
     'Vue': true,
+    'axios': true,
     'WaveSurfer': true,
     'SETTING': true,
     'DataStore': true,
