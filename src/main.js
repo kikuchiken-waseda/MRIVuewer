@@ -1283,12 +1283,13 @@ Vue.component(
                       </v-list-tile-sub-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
-                      <v-btn outline small
-                        icon color="indigo"
+                      <v-btn outline icon color="indigo"
                         @click="regionPlay(item)">
                         <v-icon>play_arrow</v-icon>
                       </v-btn>
-                      <v-btn outline small icon
+                    </v-list-tile-action>
+                    <v-list-tile-action>
+                      <v-btn outline icon
                         color="indigo"
                         @click="regionDelete(item)">
                         <v-icon>delete_outline</v-icon>
@@ -1339,10 +1340,12 @@ Vue.component(
                       </v-list-tile-sub-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
-                      <v-btn outline small icon color="indigo" @click="edit(item)">
+                      <v-btn outline icon color="indigo" @click="edit(item)">
                         <v-icon>edit</v-icon>
                       </v-btn>
-                      <v-btn outline small icon color="indigo" @click="pointDelete(item)">
+                    </v-list-tile-action>
+                    <v-list-tile-action>
+                      <v-btn outline icon color="indigo" @click="pointDelete(item)">
                         <v-icon>delete_outline</v-icon>
                       </v-btn>
                     </v-list-tile-action>

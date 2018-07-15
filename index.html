@@ -50,37 +50,42 @@
       <v-app>
         <!-- サイドバー --> 
         <v-navigation-drawer right fixed style="z-index: 11;" v-model="drawer" app>
+          <v-list>
             <!-- ファイルアップロード --> 
+            <v-divider></v-divider>
             <v-list-tile @click="movieImport">
               <v-list-tile-action>
-                <v-icon>folder_open</v-icon>
+                <v-icon>playlist_add</v-icon>
               </v-list-tile-action>
               <v-list-tile-title>
                 <v-list-tile-title>
-                  Files +
+                  File Upload
                 </v-list-tile-title>
                 <input v-bind:style="fileInputStyle" v-on:change="movieSelected"
                   type="file" name="movieImport" ref="movieImport">
                 <output id="list"></output>
               </v-list-tile-content>
             </v-list-tile>
-            <v-divider></v-divider>
             <!-- リンク --> 
-            <v-list-tile
-              v-for="item in files" :key="item.url"
-              v-on:click="selectFile(item)">
-              <v-list-tile-action>
-                <v-icon color="red" v-if="item.url===target.url">movie</v-icon>
-                <v-icon v-else>movie</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content v-if="item.name">
-                <v-list-tile-title>{{item.name}}</v-list-tile-title>
-              </v-list-tile-content>
-              <v-list-tile-content v-else>
-                <v-list-tile-title>{{item.url}}</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-divider></v-divider>
+            <v-list-group prepend-icon="playlist_add_check" value="true">
+              <v-list-tile slot="activator">
+                <v-list-tile-title>Files</v-list-tile-title>
+              </v-list-tile>
+              <v-list-tile
+                v-for="item in files" :key="item.url"
+                v-on:click="selectFile(item)">
+                <v-list-tile-action>
+                  <v-icon color="red" v-if="item.url===target.url">movie</v-icon>
+                  <v-icon v-else>movie</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content v-if="item.name">
+                  <v-list-tile-title>{{item.name}}</v-list-tile-title>
+                </v-list-tile-content>
+                <v-list-tile-content v-else>
+                  <v-list-tile-title>{{item.url}}</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </v-list-group>
             <v-list-tile @click="clear">
               <v-list-tile-action>
                 <v-icon>delete_sweep</v-icon>
