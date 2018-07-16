@@ -60,6 +60,7 @@ const canvasEditor = Vue.component(
           { text: 'green', val: 'rgba(46,204,113 ,1)' }
         ],
         video: null,
+        cachename: null,
         canvasWrapperStyle: {
           position: 'relative',
           'min-height': '83vh'
@@ -104,15 +105,15 @@ const canvasEditor = Vue.component(
         )
       }
     },
-    computed: {
-      cachename: function () {
-        if (this.canvas.target !== undefined) {
-          return 'cache_' + this.basename + this.canvas.target.data.frame
-        } else {
-          return null
-        }
-      }
-    },
+    // computed: {
+    //   cachename: function () {
+    //     if (this.canvas.target !== undefined) {
+    //       return 'cache_' + this.basename + this.canvas.target.data.frame
+    //     } else {
+    //       return null
+    //     }
+    //   }
+    // },
     methods: {
       edit: function (video) {
         /**
@@ -125,11 +126,16 @@ const canvasEditor = Vue.component(
         markCanvas.width = canvas.width
         markCanvas.height = canvas.height
         video.currentTime = this.canvas.target.data.time
+
+        if (this.canvas.target !== undefined) {
+          this.cachename = 'cache_' + this.basename + this.canvas.target.data.frame
+        }
         const cache = JSON.parse(
           localStorage.getItem(this.cachename)
         )
-        this.marks = []
-        if (cache.length > 0) {
+        if (cache === null) {
+          this.marks = []
+        } else {
           this.marks = cache
         }
         setTimeout(() => {
