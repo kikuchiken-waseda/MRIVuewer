@@ -1,9 +1,9 @@
 // 編集用設定
 const fps = 13.78310345
 const files = [
-  { url: './misc/sample.mp4', 'fps': 13.78310345 },
-  { url: './misc/sample1.mp4', 'fps': 13.78310345 },
-  { url: './misc/sample2.mp4', 'fps': 13.78310345 }
+  // { url: './misc/sample.mp4', 'fps': 13.78310345 },
+  // { url: './misc/sample1.mp4', 'fps': 13.78310345 },
+  // { url: './misc/sample2.mp4', 'fps': 13.78310345 }
 ]
 
 /* 動画マーク用コンポーネント */
@@ -1364,7 +1364,7 @@ new Vue({
   el: '#app',
   data: {
     app: 'MRI Vuewer',
-    version: 1.1,
+    version: 1.2,
     files: files,
     target: {
       url: null, fps: null
@@ -1383,13 +1383,16 @@ new Vue({
     drawer: false
   },
   mounted () {
-    this.target = this.files[0]
     // Check for the various File API support.
     if (window.File && window.FileReader && window.FileList && window.Blob) {
       // Great success! All the File APIs are supported.
     } else {
       this.snackbar.show = true
       this.snackbar.message = 'The File APIs are not fully supported in this browser.'
+    }
+    // load video if there are files
+    if (this.files.length > 0) {
+      this.target = this.files[0]
     }
   },
   methods: {

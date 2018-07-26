@@ -119,6 +119,25 @@
               </video-player>
             </v-layout>
           </v-container>
+          <v-jumbotron v-else>
+            <v-container fill-height>
+              <v-layout align-center>
+                <v-flex>
+                  <h3 class="display-3">Welcome to {{app}} ver.{{version}}</h3>
+                  <span class="subheading">
+                    このアプリケーションでは動画ファイルのアノテーションを行うことができます.
+                    現在はこのアプリケーションに動画ファイルが設定されていないので,
+                    下のボタンから任意の動画ファイルをアップロードしてください.
+                  </span>
+                  <v-divider class="my-3"></v-divider>
+                  <div class="title mb-3">動画アップロード</div>
+                  <v-btn class="mx-0" color="primary" large @click="movieImport">
+                    Choice your movie
+                  </v-btn>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-jumbotron>
         </v-content>
 
         <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="snackbar.timeout">
