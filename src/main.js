@@ -986,69 +986,69 @@ Vue.component(
     },
     template: `
       <v-layout row wrap>
-        <v-flex>
-          <v-container>
-            <!-- 右クリック時のオリジナルメニュー --> 
-            <menu type="context" id="player-menu">
-              <menuitem label="Play or Pause"
-                v-on:click="play"
-                icon="icons/baseline-play_circle_outline-24px.svg">
+        <v-container>
+          <!-- 右クリック時のオリジナルメニュー --> 
+          <menu type="context" id="player-menu">
+            <menuitem label="Play or Pause"
+              v-on:click="play"
+              icon="icons/baseline-play_circle_outline-24px.svg">
+            </menuitem>
+            <menuitem label="Export cache"
+              v-on:click="cacheDownload">
+            </menuitem>
+            <menuitem label="Import cache"
+              v-on:click="cacheUploadDialog = true">
+            </menuitem>
+            <menu label="Move to...">
+              <menuitem label="Skip next (1 frame)"
+                icon="icons/baseline-skip_next-24px.svg"
+                @click="skipForward">
               </menuitem>
-              <menuitem label="Export cache"
-                v-on:click="cacheDownload">
+              <menuitem label="Skip back (1 frame)"
+                icon="icons/baseline-skip_previous-24px.svg"
+                @click="skipBackward">
               </menuitem>
-              <menuitem label="Import cache"
-                v-on:click="cacheUploadDialog = true">
+              <menuitem label="Move strat of video"
+                icon="icons/baseline-fast_rewind-24px.svg"
+                @click="startTo">
               </menuitem>
-              <menu label="Move to...">
-                <menuitem label="Skip next (1 frame)"
-                  icon="icons/baseline-skip_next-24px.svg"
-                  @click="skipForward">
-                </menuitem>
-                <menuitem label="Skip back (1 frame)"
-                  icon="icons/baseline-skip_previous-24px.svg"
-                  @click="skipBackward">
-                </menuitem>
-                <menuitem label="Move strat of video"
-                  icon="icons/baseline-fast_rewind-24px.svg"
-                  @click="startTo">
-                </menuitem>
-                <menuitem label="Move end of video"
-                  icon="icons/baseline-fast_forward-24px.svg"
-                  @click="endTo">
-                </menuitem>
-              </menu>
+              <menuitem label="Move end of video"
+                icon="icons/baseline-fast_forward-24px.svg"
+                @click="endTo">
+              </menuitem>
             </menu>
-            <v-dialog v-model="cacheUploadDialog"
-              persistent max-width="500px">
-              <v-card>
-                <v-card-title>
-                  <span class="headline">
-                    Import Cache
-                  </span>
-                </v-card-title>
-                <v-card-text>
-                  <v-container grid-list-md>
-                    <v-layout wrap>
-                      <v-flex>
-                        <v-text-field
-                          prepend-icon="attach_file"
-                          single-line
-                          @click.native="cacheImportOnFocus"
-                          ref="fileTextField">
-                        </v-text-field>
-                        <input type="file"
-                          :multiple="false"
-                          ref="fileInput"
-                          style="display:none;"
-                          @change="cacheImport">
-                      </v-flex>
-                    </v-layout>
-                  </v-container>
-                </v-card-text>
-              </v-card>
-            </v-dialog>
+          </menu>
 
+          <v-dialog v-model="cacheUploadDialog"
+            persistent max-width="500px">
+            <v-card>
+              <v-card-title>
+                <span class="headline">
+                  Import Cache
+                </span>
+              </v-card-title>
+              <v-card-text>
+                <v-container grid-list-md>
+                  <v-layout wrap>
+                    <v-flex>
+                      <v-text-field
+                        prepend-icon="attach_file"
+                        single-line
+                        @click.native="cacheImportOnFocus"
+                        ref="fileTextField">
+                      </v-text-field>
+                      <input type="file"
+                        :multiple="false"
+                        ref="fileInput"
+                        style="display:none;"
+                        @change="cacheImport">
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+          <v-flex>
             <v-card text-xs-center
               class="scroll-y"
               contextmenu="player-menu">
@@ -1294,6 +1294,7 @@ Vue.component(
               </v-card-title>
             </v-card>
           </v-container>
+
           <v-container>
             <v-card
               style="min-height:36vh; max-height:36vh;"
@@ -1349,6 +1350,7 @@ Vue.component(
             </v-card>
           </v-container>
         </v-flex>
+
         <canvas-editor
           ref="canvas-editor"
           v-bind:canvas=canvas
