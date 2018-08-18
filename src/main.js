@@ -1218,6 +1218,7 @@ Vue.component(
                     @mouseup.exact="waveformUpdate"
                     @click="syncVideo"
                     @click.ctrl.exact="pointAdd"
+                    @click.alt.exact="pointAdd"
                     @keyup.enter="pointAdd">
                   </div>
                 </v-container>
