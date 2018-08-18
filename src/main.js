@@ -84,15 +84,6 @@ const canvasEditor = Vue.component(
         )
       }
     },
-    // computed: {
-    //   cachename: function () {
-    //     if (this.canvas.target !== undefined) {
-    //       return 'cache_' + this.basename + this.canvas.target.data.frame
-    //     } else {
-    //       return null
-    //     }
-    //   }
-    // },
     methods: {
       edit: function (video) {
         /**
@@ -1051,7 +1042,7 @@ Vue.component(
 
         <!-- プレイヤー本体 -->
         <v-layout row fill-height wrap>
-          <v-flex d-flex>
+          <v-flex d-flex md8>
             <v-card class="ma-2" text-xs-center contextmenu="player-menu">
               <v-toolbar color="accent" dark>
                 <v-toolbar-title>{{basename}}</v-toolbar-title>
@@ -1235,9 +1226,9 @@ Vue.component(
               </v-card-actions>
             </v-card>
           </v-flex>
-          <v-flex d-flex v-if="isReady">
+          <v-flex d-flex md3 v-if="isReady">
             <v-layout justify-space-arround column fill-height>
-              <v-flex d-flex >
+              <v-flex d-flex>
                 <v-card class="ma-2">
                   <v-toolbar color="accent" dark>
                     <v-toolbar-title>Region</v-toolbar-title>
