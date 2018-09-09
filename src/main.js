@@ -976,185 +976,142 @@ Vue.component(
       }
     },
     template: `
-      <v-container>
-        <!-- 右クリック時のオリジナルメニュー --> 
-        <menu type="context" id="player-menu">
-          <menuitem label="Play or Pause"
-            v-on:click="play"
-            icon="icons/baseline-play_circle_outline-24px.svg">
-          </menuitem>
-          <menuitem label="Export cache"
-            v-on:click="cacheDownload">
-          </menuitem>
-          <menuitem label="Import cache"
-            v-on:click="cacheUploadDialog = true">
-          </menuitem>
-          <menu label="Move to...">
-            <menuitem label="Skip next (1 frame)"
-              icon="icons/baseline-skip_next-24px.svg"
-              @click="skipForward">
-            </menuitem>
-            <menuitem label="Skip back (1 frame)"
-              icon="icons/baseline-skip_previous-24px.svg"
-              @click="skipBackward">
-            </menuitem>
-            <menuitem label="Move strat of video"
-              icon="icons/baseline-fast_rewind-24px.svg"
-              @click="startTo">
-            </menuitem>
-            <menuitem label="Move end of video"
-              icon="icons/baseline-fast_forward-24px.svg"
-              @click="endTo">
-            </menuitem>
-          </menu>
-        </menu>
-
-        <!-- キャシュ読み込みダイアログ --> 
-        <v-dialog v-model="cacheUploadDialog"
-          persistent max-width="500px">
-          <v-card>
-            <v-card-title>
-              <span class="headline">
-                Import Cache
-              </span>
-            </v-card-title>
-            <v-card-text>
-              <v-container grid-list-md>
-                <v-layout wrap>
-                  <v-flex>
-                    <v-text-field
-                      prepend-icon="attach_file"
-                      single-line
-                      @click.native="cacheImportOnFocus"
-                      ref="fileTextField">
-                    </v-text-field>
-                    <input type="file"
-                      :multiple="false"
-                      ref="fileInput"
-                      style="display:none;"
-                      @change="cacheImport">
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
-
-        <!-- プレイヤー本体 -->
+      <v-container fluid grid-list-md>
         <v-layout row fill-height wrap>
-          <v-flex d-flex md8>
-            <v-card class="ma-2" text-xs-center contextmenu="player-menu">
+          <!-- 右クリック時のオリジナルメニュー --> 
+          <menu type="context" id="player-menu">
+            <menuitem label="Play or Pause"
+              v-on:click="play"
+              icon="icons/baseline-play_circle_outline-24px.svg">
+            </menuitem>
+            <menuitem label="Export cache"
+              v-on:click="cacheDownload">
+            </menuitem>
+            <menuitem label="Import cache"
+              v-on:click="cacheUploadDialog = true">
+            </menuitem>
+            <menu label="Move to...">
+              <menuitem label="Skip next (1 frame)"
+                icon="icons/baseline-skip_next-24px.svg"
+                @click="skipForward">
+              </menuitem>
+              <menuitem label="Skip back (1 frame)"
+                icon="icons/baseline-skip_previous-24px.svg"
+                @click="skipBackward">
+              </menuitem>
+              <menuitem label="Move strat of video"
+                icon="icons/baseline-fast_rewind-24px.svg"
+                @click="startTo">
+              </menuitem>
+              <menuitem label="Move end of video"
+                icon="icons/baseline-fast_forward-24px.svg"
+                @click="endTo">
+              </menuitem>
+            </menu>
+          </menu>
+          <v-flex xs9>
+            <v-card class="ma-2" contextmenu="player-menu">
               <v-toolbar color="accent" dark>
                 <v-toolbar-title>{{basename}}</v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-toolbar-title>
-                  時刻: {{currentTime}}
-                </v-toolbar-title>
-                <v-toolbar-title>
-                  フレーム数: {{currentFrame}}
-                </v-toolbar-title>
+                <v-toolbar-title>時刻: {{currentTime}}</v-toolbar-title>
+                <v-toolbar-title>フレーム数: {{currentFrame}}</v-toolbar-title>
               </v-toolbar>
               <!-- 動画表示 --> 
-              <v-card-title grid-list-md v-if="isReady">
-                <v-layout row justify-left align-left>
-                  <v-layout row wrap>
-                    <v-flex d-flex xs3>
+              <v-container v-show="isReady">
+                <v-layout row wrap>
+                  <v-flex d-flex xs3>
+                    <v-tooltip bottom>
+                      <video slot="activator"
+                        id="preVideo"
+                        ref="preVideo" muted
+                        v-bind:src=url
+                        v-bind:style="videoCSS"
+                        v-on:click="play">
+                      </video>
+                      <span>{{skipLength}} sec 前の画像</span>
+                    </v-tooltip>
+                  </v-flex>
+                  <v-flex d-flex xs3>
+                    <v-tooltip bottom>
+                      <video slot="activator"
+                        id="nowVideo"
+                        ref="nowVideo"
+                        muted
+                        v-bind:src=url
+                        v-bind:style="videoCSS"
+                        v-on:click="play"
+                        v-on:timeupdate="syncVideos">
+                      </video>
+                      <span>現在の画像</span>
+                    </v-tooltip>
+                  </v-flex>
+                  <v-flex d-flex xs3>
+                    <v-tooltip bottom>
+                      <video slot="activator"
+                        id="posVideo"
+                        ref="posVideo"
+                        muted
+                        v-bind:src=url
+                        v-bind:style="videoCSS"
+                        v-on:click="play">
+                      </video>
+                      <span>{{skipLength}} sec 後の画像</span>
+                    </v-tooltip>
+                  </v-flex>
+                  <v-flex d-flex xs3>
+                    <v-container>
                       <v-tooltip bottom>
-                        <video slot="activator"
-                          id="preVideo"
-                          ref="preVideo" muted
-                          v-bind:src=url
-                          v-bind:style="videoCSS"
-                          v-on:click="play">
-                        </video>
+                        <v-text-field
+                          slot="activator"
+                          label="fps"
+                          v-model="fps"
+                          suffix="fps">
+                        </v-text-field>
+                        <span>動画の FPS を設定します</span>
+                      </v-tooltip>
+                      <v-tooltip bottom>
+                        <v-text-field slot="activator" label="brightness"
+                          v-model="spectrogramSetting.brightness"
+                          @keyup.enter="reRender"
+                          suffix="times">
+                        </v-text-field>
                         <span>
-                          {{skipLength}} sec 前の画像
+                          スペクトルグラムの明るさを調整します.
+                          この値は 0 以上の数字で,
+                          1 より大きくすると明るくなり,
+                          0 以上 1 未満にすると暗くなります.
                         </span>
                       </v-tooltip>
-                    </v-flex>
-                    <v-flex d-flex xs3>
                       <v-tooltip bottom>
-                        <video slot="activator"
-                          id="nowVideo"
-                          ref="nowVideo"
-                          muted
-                          v-bind:src=url
-                          v-bind:style="videoCSS"
-                          v-on:click="play"
-                          v-on:timeupdate="syncVideos">
-                        </video>
-                        <span>現在の画像</span>
+                        <v-text-field slot="activator" label="minPx per sec"
+                          @keyup.enter="reRender"
+                          v-model="wavesurferSettings.minPxPerSec"
+                          suffix="per sec">
+                        </v-text-field>
+                        <span>
+                          1 秒を何ピクセルで表現するのかを決定します.
+                          この値が大きいほど波形は拡大されます.
+                        </span>
                       </v-tooltip>
-                    </v-flex>
-                    <v-flex d-flex xs3>
                       <v-tooltip bottom>
-                        <video slot="activator" id="posVideo" ref="posVideo" muted
-                          v-bind:src=url
-                          v-bind:style="videoCSS"
-                          v-on:click="play">
-                        </video>
-                        <span>{{skipLength}} sec 後の画像</span>
+                        <v-text-field  slot="activator" label="fft sample"
+                          v-model="spectrogramSetting.fftSamples"
+                          @keyup.enter="reRender"
+                          suffix="sample">
+                        </v-text-field>
+                        <span>
+                          FFT サンプリングレートです.
+                          現在は動的に変更するとうまく動かないです.
+                        </span>
                       </v-tooltip>
-                    </v-flex>
-                    <v-flex d-flex xs3>
-                      <v-container>
-                        <v-tooltip bottom>
-                          <v-text-field slot="activator" label="fps"
-                            v-model="fps"
-                            suffix="fps">
-                          </v-text-field>
-                          <span>
-                            動画の FPS を設定します
-                          </span>
-                        </v-tooltip>
-                        <v-tooltip bottom>
-                          <v-text-field slot="activator" label="brightness"
-                            v-model="spectrogramSetting.brightness"
-                            @keyup.enter="reRender"
-                            suffix="times">
-                          </v-text-field>
-                          <span>
-                            スペクトルグラムの明るさを調整します.
-                            この値は 0 以上の数字で, 1 より大きくすると明るくなり,
-                            0 以上 1 未満にすると暗くなります.
-                          </span>
-                        </v-tooltip>
-                        <v-tooltip bottom>
-                          <v-text-field slot="activator" label="minPx per sec"
-                            @keyup.enter="reRender"
-                            v-model="wavesurferSettings.minPxPerSec"
-                            suffix="per sec">
-                          </v-text-field>
-                          <span>
-                            1 秒を何ピクセルで表現するのかを決定します.
-                            この値が大きいほど波形は拡大されます.
-                          </span>
-                        </v-tooltip>
-                        <v-tooltip bottom>
-                          <v-text-field  slot="activator" label="fft sample"
-                            v-model="spectrogramSetting.fftSamples"
-                            @keyup.enter="reRender"
-                            suffix="sample">
-                          </v-text-field>
-                          <span>
-                            FFT サンプリングレートです.
-                            現在は動的に変更するとうまく動かないです.
-                          </span>
-                        </v-tooltip>
-                      </v-container>
-                    </v-flex>
-                  </v-layout>
+                    </v-container>
+                  </v-flex>
                 </v-layout>
-              </v-card-title>
-              <v-card-title align-center v-else>
-                <v-container text-xs-center>
-                  <v-progress-circular :size="100" :width="7" indeterminate color="purple">
-                  </v-progress-circular>
-                  <p>Now loading...</p>
-                </v-container>
-              </v-card-title>
+              </v-container>
+
               <!-- 操作ボタン --> 
-              <v-card-actions v-if="isReady">
+              <v-card-actions v-show="isReady">
                 <v-tooltip bottom>
                   <v-btn icon slot="activator"
                     color="accent" @click=startTo>
@@ -1201,19 +1158,18 @@ Vue.component(
                 </v-tooltip>
               </v-card-actions>
               <!-- 音声表示 --> 
-              <v-card flat style="max-height:30vh;" class="scroll-y">
-                <v-container>
-                  <div id="wave-spectrogram"></div>
-                  <div id="wave-timeline"></div>
-                  <div id="wave-form"
-                    @mouseup.exact="waveformUpdate"
-                    @click="syncVideo"
-                    @click.ctrl.exact="pointAdd"
-                    @click.alt.exact="pointAdd"
-                    @keyup.enter="pointAdd">
-                  </div>
-                </v-container>
-              </v-card>
+              <v-container style="max-height:30vh;" class="scroll-y"
+                v-show="isReady">
+                <div id="wave-spectrogram"></div>
+                <div id="wave-timeline"></div>
+                <div id="wave-form"
+                  @mouseup.exact="waveformUpdate"
+                  @click="syncVideo"
+                  @click.ctrl.exact="pointAdd"
+                  @click.alt.exact="pointAdd"
+                  @keyup.enter="pointAdd">
+                </div>
+              </v-container>
               <v-card-actions v-if="isReady">
                 <v-btn flat color="orange"
                   v-on:click="cacheDownload">
@@ -1224,137 +1180,176 @@ Vue.component(
                   Import Cache
                 </v-btn>
               </v-card-actions>
+              <v-card-title align-center v-else>
+                <v-container text-xs-center>
+                  <v-progress-circular
+                    :size="100"
+                    :width="7"
+                    indeterminate color="purple">
+                  </v-progress-circular>
+                  <p>Now loading...</p>
+                </v-container>
+              </v-card-title>
             </v-card>
           </v-flex>
-          <v-flex d-flex md3 v-if="isReady">
-            <v-layout justify-space-arround column fill-height>
-              <v-flex d-flex>
-                <v-card class="ma-2">
-                  <v-toolbar color="accent" dark>
-                    <v-toolbar-title>Region</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-btn icon @click="regionDownload">
-                      <v-icon>cloud_download</v-icon>
-                    </v-btn>
-                  </v-toolbar>
-                  <v-card flat style="max-height:35vh; min-height:35vh;" class="scroll-y">
-                    <v-list three-line subheader
-                      v-if="regions.length !== 0">
-                      <template v-for="(item, index) in regions">
-                        <v-list-tile :key="item.id">
-                          <v-list-tile-content>
-                            <v-list-tile-sub-title>
-                              <v-text-field
-                                label="contents"
-                                v-model="item.attributes.label"
-                                @keyup.enter="labelUpdate(item)"
-                                flat>
-                              </v-text-field>
-                            </v-list-tile-sub-title>
-                            <v-list-tile-sub-title>
-                              START: {{ item.start.toFixed(3) }} sec
-                            </v-list-tile-sub-title>
-                            <v-list-tile-sub-title>
-                              END: {{ item.end.toFixed(3) }} sec
-                            </v-list-tile-sub-title>
-                          </v-list-tile-content>
-                          <v-list-tile-action>
-                            <v-btn outline icon color="indigo"
-                              @click="regionPlay(item)">
-                              <v-icon>play_arrow</v-icon>
-                            </v-btn>
-                          </v-list-tile-action>
-                          <v-list-tile-action>
-                            <v-btn outline icon
-                              color="indigo"
-                              @click="regionDelete(item)">
-                              <v-icon>delete_outline</v-icon>
-                            </v-btn>
-                          </v-list-tile-action>
-                        </v-list-tile>
-                        <v-divider></v-divider>
-                      </template>
-                    </v-list> 
-                    <v-list three-line subheader dark v-else>
-                      <v-list-tile>
-                        <v-list-tile-content>
-                          <v-list-tile-sub-title>
-                            No Region
-                          </v-list-tile-sub-title>
-                          <v-list-tile-sub-title></v-list-tile-sub-title>
-                          <v-list-tile-sub-title></v-list-tile-sub-title>
-                        </v-list-tile-content>
-                        <v-list-tile-action></v-list-tile-action>
-                        <v-list-tile-action></v-list-tile-action>
-                      </v-list-tile>
-                    </v-list> 
-                  </v-card>
-                </v-card>
-              </v-flex>
-              <v-flex d-flex>
-                <v-card class="ma-2">
-                  <v-toolbar color="accent" dark>
-                    <v-toolbar-title>Point</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-btn icon @click="pointDownload">
-                      <v-icon>cloud_download</v-icon>
-                    </v-btn>
-                  </v-toolbar>
-                  <v-card class="scroll-y" flat style="max-height:35vh;min-height:35vh;">
-                    <v-list three-line subheader
-                      v-if="points.length !== 0">
-                      <template v-for="(item, index) in points">
-                        <v-list-tile :key="item.id">
-                          <v-list-tile-content>
-                            <v-list-tile-sub-title>
-                              <v-text-field
-                                label="contents"
-                                v-model="item.attributes.label"
-                                @keyup.enter="labelUpdate(item)"
-                                flat>
-                              </v-text-field>
-                            </v-list-tile-sub-title>
-                            <v-list-tile-sub-title>
-                              Time: {{ item.data.time.toFixed(3) }} sec
-                            </v-list-tile-sub-title>
-                            <v-list-tile-sub-title>
-                              Frame: {{ item.data.frame.toFixed(0) }}
-                            </v-list-tile-sub-title>
-                          </v-list-tile-content>
-                          <v-list-tile-action>
-                            <v-btn outline icon color="indigo" @click="edit(item)">
-                              <v-icon>edit</v-icon>
-                            </v-btn>
-                          </v-list-tile-action>
-                          <v-list-tile-action>
-                            <v-btn outline icon color="indigo" @click="pointDelete(item)">
-                              <v-icon>delete_outline</v-icon>
-                            </v-btn>
-                          </v-list-tile-action>
-                        </v-list-tile>
-                        <v-divider></v-divider>
-                      </template>
-                    </v-list> 
-                    <v-list v-else three-line subheader dark>
-                      <v-list-tile>
-                        <v-list-tile-content>
-                          <v-list-tile-sub-title>
-                            No Points
-                          </v-list-tile-sub-title>
-                          <v-list-tile-sub-title></v-list-tile-sub-title>
-                          <v-list-tile-sub-title></v-list-tile-sub-title>
-                        </v-list-tile-content>
-                        <v-list-tile-action></v-list-tile-action>
-                        <v-list-tile-action></v-list-tile-action>
-                      </v-list-tile>
-                    </v-list> 
-                  </v-card>
-                </v-card>
-              </v-flex>
-            </v-layout>
+          <v-flex xs3>
+            <v-card flat v-if="regions.length !== 0" class="ma-2">
+              <v-toolbar color="accent" dark>
+                <v-toolbar-title>Region</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn icon @click="regionDownload">
+                  <v-icon>cloud_download</v-icon>
+                </v-btn>
+              </v-toolbar>
+              <v-list three-line subheader
+                class="scroll-y" style="max-height:40vh; min-height:40vh;">
+                <template v-for="(item, index) in regions">
+                  <v-list-tile :key="item.id">
+                    <v-list-tile-content>
+                      <v-list-tile-sub-title>
+                        <v-text-field flat
+                          label="contents"
+                          v-model="item.attributes.label"
+                          @keyup.enter="labelUpdate(item)">
+                        </v-text-field>
+                      </v-list-tile-sub-title>
+                      <v-list-tile-sub-title>
+                        START: {{ item.start.toFixed(3) }} sec
+                      </v-list-tile-sub-title>
+                      <v-list-tile-sub-title>
+                        END: {{ item.end.toFixed(3) }} sec
+                      </v-list-tile-sub-title>
+                    </v-list-tile-content>
+                    <v-list-tile-action>
+                      <v-btn outline icon color="indigo"
+                        @click="regionPlay(item)">
+                        <v-icon>play_arrow</v-icon>
+                      </v-btn>
+                    </v-list-tile-action>
+                    <v-list-tile-action>
+                      <v-btn outline icon
+                        color="indigo"
+                        @click="regionDelete(item)">
+                        <v-icon>delete_outline</v-icon>
+                      </v-btn>
+                    </v-list-tile-action>
+                  </v-list-tile>
+                  <v-divider></v-divider>
+                </template>
+              </v-list> 
+            </v-card>
+            <v-card flat dark class="ma-2" v-else>
+              <v-toolbar color="accent" dark>
+                <v-toolbar-title>Region</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn icon @click="regionDownload">
+                  <v-icon>cloud_download</v-icon>
+                </v-btn>
+              </v-toolbar>
+              <v-list three-line subheader
+                class="scroll-y" style="max-height:40vh; min-height:40vh;">
+                <v-list-tile>
+                  <v-list-tile-content>
+                    <v-list-tile-sub-title>No Region</v-list-tile-sub-title>
+                  </v-list-tile-content>
+                </v-list-tile>
+              </v-list> 
+            </v-card>
+            <v-card flat class="ma-2" v-if="points.length !== 0">
+              <v-toolbar color="accent" dark>
+                <v-toolbar-title>Point</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn icon @click="pointDownload">
+                  <v-icon>cloud_download</v-icon>
+                </v-btn>
+              </v-toolbar>
+              <v-list three-line subheader
+                class="scroll-y" style="max-height:35vh;min-height:35vh;">
+                <template v-for="(item, index) in points">
+                  <v-list-tile :key="item.id">
+                    <v-list-tile-content>
+                      <v-list-tile-sub-title>
+                        <v-text-field
+                          label="contents"
+                          v-model="item.attributes.label"
+                          @keyup.enter="labelUpdate(item)"
+                          flat>
+                        </v-text-field>
+                      </v-list-tile-sub-title>
+                      <v-list-tile-sub-title>
+                        Time: {{ item.data.time.toFixed(3) }} sec
+                      </v-list-tile-sub-title>
+                      <v-list-tile-sub-title>
+                        Frame: {{ item.data.frame.toFixed(0) }}
+                      </v-list-tile-sub-title>
+                    </v-list-tile-content>
+                    <v-list-tile-action>
+                      <v-btn outline icon
+                        color="indigo"
+                        @click="edit(item)">
+                        <v-icon>edit</v-icon>
+                      </v-btn>
+                    </v-list-tile-action>
+                    <v-list-tile-action>
+                      <v-btn outline icon
+                        color="indigo"
+                        @click="pointDelete(item)">
+                        <v-icon>delete_outline</v-icon>
+                      </v-btn>
+                    </v-list-tile-action>
+                  </v-list-tile>
+                  <v-divider></v-divider>
+                </template>
+              </v-list> 
+            </v-card>
+            <v-card class="ma-2" v-else>
+              <v-toolbar color="accent" dark>
+                <v-toolbar-title>Point</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn icon @click="pointDownload">
+                  <v-icon>cloud_download</v-icon>
+                </v-btn>
+              </v-toolbar>
+              <v-list three-line subheader dark
+                class="scroll-y" style="max-height:40vh;min-height:40vh;">
+                <v-list-tile>
+                  <v-list-tile-content>
+                    <v-list-tile-sub-title>No Points</v-list-tile-sub-title>
+                  </v-list-tile-content>
+                </v-list-tile>
+              </v-list> 
+            </v-card>
           </v-flex>
         </v-layout>
 
+        <!-- キャシュ読み込みダイアログ --> 
+        <v-dialog v-model="cacheUploadDialog"
+          persistent max-width="500px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">Import Cache</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container grid-list-md>
+                <v-layout wrap>
+                  <v-flex>
+                    <v-text-field
+                      prepend-icon="attach_file"
+                      single-line
+                      @click.native="cacheImportOnFocus"
+                      ref="fileTextField">
+                    </v-text-field>
+                    <input type="file"
+                      :multiple="false"
+                      ref="fileInput"
+                      style="display:none;"
+                      @change="cacheImport">
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
         <canvas-editor
           ref="canvas-editor"
           v-bind:canvas=canvas
