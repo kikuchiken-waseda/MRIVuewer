@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
     <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
     <meta charset="utf-8"/>
     <meta name="viewport"
@@ -48,18 +49,17 @@
   <body>
     <div id="app">
       <v-app>
-        <!-- サイドバー --> 
+        <!-- サイドバー -->
         <v-navigation-drawer right fixed
-	  style="z-index: 11;" v-model="drawer" app>
+          style="z-index: 11;" v-model="drawer" app>
           <v-list>
-
             <!-- ファイルアップロード --> 
             <v-divider></v-divider>
             <v-list-tile ripple @click="movieImport">
               <v-list-tile-action>
                 <v-icon>playlist_add</v-icon>
               </v-list-tile-action>
-              <v-list-tile-title>
+              <v-list-tile-content>
                 <v-list-tile-title>
                   File Upload
                 </v-list-tile-title>
@@ -70,7 +70,9 @@
             </v-list-tile>
 
             <!-- リンク --> 
-            <v-list-group prepend-icon="playlist_add_check" value="true">
+            <v-list-group
+              prepend-icon="playlist_add_check"
+              value="true">
               <v-list-tile slot="activator">
                 <v-list-tile-title>Files</v-list-tile-title>
               </v-list-tile>
@@ -78,11 +80,16 @@
                 v-for="item in files" :key="item.url"
                 v-on:click="selectFile(item)">
                 <v-list-tile-action>
-                  <v-icon color="red" v-if="item.url===target.url">movie</v-icon>
+                  <v-icon color="red"
+                    v-if="item.url===target.url">
+                    movie
+                  </v-icon>
                   <v-icon v-else>movie</v-icon>
                 </v-list-tile-action>
                 <v-list-tile-content v-if="item.name">
-                  <v-list-tile-title>{{item.name}}</v-list-tile-title>
+                  <v-list-tile-title>
+                    {{item.name}}
+                  </v-list-tile-title>
                 </v-list-tile-content>
                 <v-list-tile-content v-else>
                   <v-list-tile-title>{{item.url}}</v-list-tile-title>
@@ -95,8 +102,8 @@
               </v-list-tile-action>
               <v-list-tile-content>
                 <v-list-tile-title>
-		  キャッシュの削除(すべて)
-		</v-list-tile-title>
+                    キャッシュの削除(すべて)
+                </v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
             <v-divider></v-divider>
@@ -110,7 +117,7 @@
           </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-side-icon @click.stop="drawer = !drawer">
-	  </v-toolbar-side-icon>
+          </v-toolbar-side-icon>
         </v-toolbar>
 
         <!-- コンテンツ --> 
@@ -132,10 +139,11 @@
                   <h3 class="display-3">Welcome to {{app}} ver.{{version}}</h3>
                   <span class="subheading">
                     このアプリケーションでは動画ファイルの
-		    アノテーションを行うことができます.
+                    アノテーションを行うことができます.
                     現在はこのアプリケーションに動画ファイルが
-		    設定されていないので,
-                    下のボタンから任意の動画ファイルをアップロードしてください.
+                    設定されていないので,
+                    下のボタンから任意の動画ファイルを
+                    アップロードしてください.
                   </span>
                   <v-divider class="my-3"></v-divider>
                   <div class="title mb-3">動画アップロード</div>
@@ -148,14 +156,25 @@
           </v-responsive>
         </v-content>
 
-        <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="snackbar.timeout">
+        <v-snackbar
+          v-model="snackbar.show"
+          :color="snackbar.color"
+          :timeout="snackbar.timeout">
           <v-icon>info</v-icon>
           <span>
-            {{ snackbar.message }}
+              {{ snackbar.message }}
           </span>
         </v-snackbar>
-        <v-footer style="z-index: 11;" justify-center align-center text-center color="indigo" app inset>
-          <span class="white--text">{{app}} ver.{{version}} &copy; 2018 qh73xe@waseda</span>
+        <v-footer
+          style="z-index: 11;"
+          justify-center
+          align-center
+          text-center
+          color="indigo"
+          app inset>
+          <span class="white--text">
+            {{app}} ver.{{version}} &copy; 2018 qh73xe@waseda
+          </span>
         </v-footer>
       </v-app>
     </div>
@@ -165,11 +184,11 @@
     <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
 
     <!-- Wavesufer.js の読み込み --> 
-    <script src="lib/wavesurfer/wavesurfer.js"></script>
-    <script src="lib/wavesurfer/plugin/wavesurfer.regions.js"></script>
-    <script src="lib/wavesurfer/plugin/wavesurfer.spectrogram.js"></script>
-    <script src="lib/wavesurfer/plugin/wavesurfer.minimap.js"></script>
-    <script src="lib/wavesurfer/plugin/wavesurfer.timeline.js"></script>
+    <script src="lib/wavesurfer.js/dist/wavesurfer.js"></script>
+    <script src="lib/wavesurfer.js/dist/plugin/wavesurfer.regions.js"></script>
+    <script src="lib/wavesurfer.js/dist/plugin/wavesurfer.spectrogram.js"></script>
+    <script src="lib/wavesurfer.js/dist/plugin/wavesurfer.minimap.js"></script>
+    <script src="lib/wavesurfer.js/dist/plugin/wavesurfer.timeline.js"></script>
 
     <!-- 本体の読み込み --> 
     <script src="src/main.js"></script>

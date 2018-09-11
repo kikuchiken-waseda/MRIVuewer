@@ -12,6 +12,7 @@ module.exports = {
     'WaveSurfer': true,
     'SETTING': true,
     'DataStore': true,
+    'DataTransfer': true,
     'Region': true,
     'Point': true,
   }

@@ -1,0 +1,17 @@
+{
+    "presets": [
+        ["env"]
+    ],
+    "plugins": ["transform-class-properties", "add-module-exports"],
+    "env": {
+        "test": {
+            "plugins": [
+                ["istanbul", {
+                    "exclude": [
+                        "spec/**/*.spec.js"
+                    ]
+                }]
+            ]    
+        }
+    }
+}

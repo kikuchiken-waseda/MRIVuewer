@@ -280,7 +280,9 @@ const canvasEditor = Vue.component(
       }
     },
     template: `
-      <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+      <v-dialog fullscreen hide-overlay
+        v-model="dialog"
+        transition="dialog-bottom-transition">
         <v-toolbar dark color="primary">
           <v-toolbar-title v-if="canvas.target">
             Time: {{canvas.target.data.time}} sec
