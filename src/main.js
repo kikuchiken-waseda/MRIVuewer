@@ -100,24 +100,22 @@ const canvasEditor = Vue.component(
         if (this.canvas.target !== undefined) {
           this.cachename = 'cache_' + this.basename + this.canvas.target.data.frame
         }
-        const cache = JSON.parse(
-          localStorage.getItem(this.cachename)
-        )
+        const cache = JSON.parse(localStorage.getItem(this.cachename))
         if (cache === null) {
           this.marks = []
         } else {
           this.marks = cache
         }
         setTimeout(() => {
+          canvas.getContext('2d').drawImage(
+            video, 0, 0, canvas.width, canvas.height
+          )
           if (cache.length > 0) {
             for (const index in this.cache) {
               const item = this.marks[index]
               this.renderMark(item.x, item.y, this.markSetting.color)
             }
           }
-          canvas.getContext('2d').drawImage(
-            video, 0, 0, canvas.width, canvas.height
-          )
           this.redy = true
         }, 1000)
         this.dialog = true
@@ -320,8 +318,11 @@ const canvasEditor = Vue.component(
                 <v-card>
                   <v-card-title>
                     <div v-bind:style="canvasWrapperStyle" v-show="redy">
-                      <canvas v-bind:style="canvasStyle" ref="video-canvas" id="video-canvas"></canvas>
-                      <canvas v-bind:style="canvasStyle" ref="mark-canvas" id="mark-canvas"
+                      <canvas v-bind:style="canvasStyle"
+                        ref="video-canvas" id="video-canvas">
+                      </canvas>
+                      <canvas v-bind:style="canvasStyle"
+                        ref="mark-canvas" id="mark-canvas"
                         @mousemove="isMarked"
                         @mousedown="markDrag"
                         @mouseup="markCange"
@@ -329,7 +330,10 @@ const canvasEditor = Vue.component(
                       </canvas>
                     </div>
                     <v-container text-xs-center v-if="!redy">
-                      <v-progress-circular :size="100" :width="7" indeterminate color="purple">
+                      <v-progress-circular
+                        :size="100"
+                        :width="7"
+                        indeterminate color="purple">
                       </v-progress-circular>
                       <p>Now loading...</p>
                     </v-container>
@@ -682,8 +686,10 @@ Vue.component(
       edit: function (point) {
         const video = this.$refs.nowVideo
         this.canvas.target = point
-        this.$refs['canvas-editor'].edit(video)
         this.moveTo(point.data.time)
+        setTimeout(() => {
+          this.$refs['canvas-editor'].edit(video)
+        }, 1000)
       },
       // point 操作
       pointAdd: function (event) {
