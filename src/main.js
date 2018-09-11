@@ -904,7 +904,9 @@ Vue.component(
               // 開始, 終了時刻は異なる場合は反映
               const index = registeredIds.indexOf(region.id)
               const oldRegion = regionList[index]
-              if (oldRegion.start !== region.start || oldRegion.end !== region.end) {
+              if (
+                oldRegion.start !== region.start || oldRegion.end !== region.end
+              ) {
                 regionList[index].start = region.start
                 regionList[index].end = region.end
                 regionList[index].data.duration = region.end - region.start
@@ -1066,7 +1068,7 @@ Vue.component(
                     </v-tooltip>
                   </v-flex>
                   <v-flex d-flex xs3>
-                    <v-container>
+                    <v-container style="max-height:30vh;" class="scroll-y">
                       <v-tooltip bottom>
                         <v-text-field
                           slot="activator"
@@ -1115,7 +1117,6 @@ Vue.component(
                   </v-flex>
                 </v-layout>
               </v-container>
-
               <!-- 操作ボタン --> 
               <v-card-actions v-show="isReady">
                 <v-tooltip bottom>
@@ -1371,7 +1372,7 @@ new Vue({
   el: '#app',
   data: {
     app: 'MRI Vuewer',
-    version: 1.2,
+    version: 1.3,
     files: files,
     target: {
       url: null, fps: null
