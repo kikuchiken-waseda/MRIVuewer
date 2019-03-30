@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    >
     <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
     <meta charset="utf-8"/>
-    <meta name="viewport"
+    <meta
+      name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <style>
       #waveform {
@@ -49,10 +53,14 @@
     <div id="app">
       <v-app>
         <!-- サイドバー --> 
-        <v-navigation-drawer right fixed
-	  style="z-index: 11;" v-model="drawer" app>
+        <v-navigation-drawer
+          style="z-index: 11;"
+          v-model="drawer"
+          fixed
+          right
+          app
+        >
           <v-list>
-
             <!-- ファイルアップロード --> 
             <v-divider></v-divider>
             <v-list-tile ripple @click="movieImport">
@@ -95,8 +103,8 @@
               </v-list-tile-action>
               <v-list-tile-content>
                 <v-list-tile-title>
-		  キャッシュの削除(すべて)
-		</v-list-tile-title>
+                  キャッシュの削除(すべて)
+                </v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
             <v-divider></v-divider>
@@ -109,8 +117,7 @@
             {{app}} ver.{{version}} 
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-toolbar-side-icon @click.stop="drawer = !drawer">
-	  </v-toolbar-side-icon>
+          <v-toolbar-side-icon @click.stop="drawer = !drawer" />
         </v-toolbar>
 
         <!-- コンテンツ --> 
@@ -121,8 +128,7 @@
                 ref="video-player"
                 v-bind:url=target.url
                 v-bind:filename=target.name
-                v-bind:fps=target.fps>
-              </video-player>
+                v-bind:fps=target.fps />
             </v-layout>
           </v-container>
           <v-responsive v-else>
@@ -132,9 +138,8 @@
                   <h3 class="display-3">Welcome to {{app}} ver.{{version}}</h3>
                   <span class="subheading">
                     このアプリケーションでは動画ファイルの
-		    アノテーションを行うことができます.
-                    現在はこのアプリケーションに動画ファイルが
-		    設定されていないので,
+                    アノテーションを行うことができます.
+                    現在はこのアプリケーションに動画ファイルが設定されていないので,
                     下のボタンから任意の動画ファイルをアップロードしてください.
                   </span>
                   <v-divider class="my-3"></v-divider>
@@ -142,20 +147,42 @@
                   <v-btn class="mx-0" color="primary" large @click="movieImport">
                     Open your movie
                   </v-btn>
+                  <v-divider class="my-3"></v-divider>
+                  <div class="subheading">
+                    もしくは, 以下のボタンをクリックすると
+                    サンプル動画を確認することができます．
+                  </div>
+                  <v-btn class="mx-0" color="primary" large @click="sampleImport">
+                    Go to sample movie
+                  </v-btn>
                 </v-flex>
               </v-layout>
             </v-container>
           </v-responsive>
         </v-content>
 
-        <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="snackbar.timeout">
+        <v-snackbar
+          v-model="snackbar.show"
+          :color="snackbar.color"
+          :timeout="snackbar.timeout"
+        >
           <v-icon>info</v-icon>
           <span>
             {{ snackbar.message }}
           </span>
         </v-snackbar>
-        <v-footer style="z-index: 11;" justify-center align-center text-center color="indigo" app inset>
-          <span class="white--text">{{app}} ver.{{version}} &copy; 2018 qh73xe@ruri.waseda.jp</span>
+        <v-footer
+          color="indigo"
+          style="z-index: 11;"
+          justify-center
+          align-center
+          text-center
+          app
+          inset
+        >
+          <span class="white--text">
+            {{app}} ver.{{version}} &copy; 2018 qh73xe@ruri.waseda.jp
+          </span>
         </v-footer>
       </v-app>
     </div>

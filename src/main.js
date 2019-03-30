@@ -1,285 +1,285 @@
 // 編集用設定
-const fps = 13.78310345
+const fps = 13.78310345;
 const files = [
   // { url: './misc/sample.mp4', 'fps': 13.78310345 },
   // { url: './misc/sample1.mp4', 'fps': 13.78310345 },
   // { url: './misc/sample2.mp4', 'fps': 13.78310345 }
-]
+];
 
 /* 動画マーク用コンポーネント */
-const canvasEditor = Vue.component(
-  'canvas-editor', {
-    data: function () {
-      return {
-        dialog: false,
-        redy: false,
-        marks: [],
-        regions: [],
-        markSetting: {
-          color: 'rgba(244,81,30 ,1)',
-          pointSize: 5,
-          maxSize: 68,
-          headers: [
-            {
-              text: 'ID',
-              align: 'left',
-              sortable: false,
-              value: 'id'
-            },
-            { text: 'x', value: 'x' },
-            { text: 'y', value: 'y' }
-          ]
-        },
-        markon: null,
-        isDrag: false,
-        backgroundToggle: true,
-        colors: [
-          { text: 'red', val: 'rgba(244,81,30 ,1)' },
-          { text: 'blue', val: 'rgba(41,128,185 ,1)' },
-          { text: 'green', val: 'rgba(46,204,113 ,1)' }
-        ],
-        video: null,
-        cachename: null,
-        canvasWrapperStyle: {
-          position: 'relative',
-          'min-height': '83vh'
-        },
-        canvasStyle: {
-          cursor: 'default',
-          position: 'absolute',
-          border: 'solid 3px #000000',
-          top: 0,
-          left: 0
-        }
+const canvasEditor = Vue.component("canvas-editor", {
+  data: function() {
+    return {
+      dialog: false,
+      redy: false,
+      marks: [],
+      regions: [],
+      markSetting: {
+        color: "rgba(244,81,30 ,1)",
+        pointSize: 5,
+        maxSize: 68,
+        headers: [
+          {
+            text: "ID",
+            align: "left",
+            sortable: false,
+            value: "id"
+          },
+          { text: "x", value: "x" },
+          { text: "y", value: "y" }
+        ]
+      },
+      markon: null,
+      isDrag: false,
+      backgroundToggle: true,
+      colors: [
+        { text: "red", val: "rgba(244,81,30 ,1)" },
+        { text: "blue", val: "rgba(41,128,185 ,1)" },
+        { text: "green", val: "rgba(46,204,113 ,1)" }
+      ],
+      video: null,
+      cachename: null,
+      canvasWrapperStyle: {
+        position: "relative",
+        "min-height": "83vh"
+      },
+      canvasStyle: {
+        cursor: "default",
+        position: "absolute",
+        border: "solid 3px #000000",
+        top: 0,
+        left: 0
+      }
+    };
+  },
+  props: ["canvas", "basename"],
+  watch: {
+    backgroundToggle: function(val) {
+      const canvas = this.$refs["video-canvas"];
+      canvas.width = this.video.offsetWidth * this.canvas.scale;
+      canvas.height = this.video.offsetHeight * this.canvas.scale;
+      if (val === false) {
+        canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+      } else {
+        canvas
+          .getContext("2d")
+          .drawImage(this.video, 0, 0, canvas.width, canvas.height);
       }
     },
-    props: [
-      'canvas', 'basename'
-    ],
-    watch: {
-      backgroundToggle: function (val) {
-        const canvas = this.$refs['video-canvas']
-        canvas.width = this.video.offsetWidth * this.canvas.scale
-        canvas.height = this.video.offsetHeight * this.canvas.scale
-        if (val === false) {
-          canvas.getContext('2d').clearRect(
-            0, 0, canvas.width, canvas.height
-          )
-        } else {
-          canvas.getContext('2d').drawImage(
-            this.video, 0, 0, canvas.width, canvas.height
-          )
-        }
-      },
-      isDrag: function (val) {
-        if (val === true) {
-          this.canvasStyle.cursor = 'move'
-        } else {
-          this.canvasStyle.cursor = 'default'
-        }
-      },
-      marks: function (val) {
-        localStorage.setItem(
-          this.cachename, JSON.stringify(this.marks)
-        )
+    isDrag: function(val) {
+      if (val === true) {
+        this.canvasStyle.cursor = "move";
+      } else {
+        this.canvasStyle.cursor = "default";
       }
     },
-    methods: {
-      edit: function (video) {
-        /**
-         * 画像領域の初期化を行います
-         */
-        const canvas = this.$refs['video-canvas']
-        const markCanvas = this.$refs['mark-canvas']
-        canvas.width = video.offsetWidth * this.canvas.scale
-        canvas.height = video.offsetHeight * this.canvas.scale
-        markCanvas.width = canvas.width
-        markCanvas.height = canvas.height
-        video.currentTime = this.canvas.target.data.time
+    marks: function(val) {
+      localStorage.setItem(this.cachename, JSON.stringify(this.marks));
+    }
+  },
+  methods: {
+    edit: function(video) {
+      /**
+       * 画像領域の初期化を行います
+       */
+      const canvas = this.$refs["video-canvas"];
+      const markCanvas = this.$refs["mark-canvas"];
+      canvas.width = video.offsetWidth * this.canvas.scale;
+      canvas.height = video.offsetHeight * this.canvas.scale;
+      markCanvas.width = canvas.width;
+      markCanvas.height = canvas.height;
+      video.currentTime = this.canvas.target.data.time;
 
-        if (this.canvas.target !== undefined) {
-          this.cachename = 'cache_' + this.basename + this.canvas.target.data.frame
+      if (this.canvas.target !== undefined) {
+        this.cachename =
+          "cache_" + this.basename + this.canvas.target.data.frame;
+      }
+      const cache = JSON.parse(localStorage.getItem(this.cachename));
+      if (cache === null) {
+        this.marks = [];
+      } else {
+        this.marks = cache;
+      }
+      setTimeout(() => {
+        canvas
+          .getContext("2d")
+          .drawImage(video, 0, 0, canvas.width, canvas.height);
+        if (cache.length > 0) {
+          for (const index in this.cache) {
+            const item = this.marks[index];
+            this.renderMark(item.x, item.y, this.markSetting.color);
+          }
         }
-        const cache = JSON.parse(localStorage.getItem(this.cachename))
-        if (cache === null) {
-          this.marks = []
+        this.redy = true;
+      }, 1000);
+      this.dialog = true;
+      this.redy = false;
+      this.video = video;
+    },
+    downloadImage(elmname) {
+      const canvas = this.$refs[elmname];
+      const type = elmname.split("-")[0];
+      const filename =
+        this.basename +
+        "_" +
+        this.canvas.target.data.frame +
+        "_" +
+        type +
+        ".png";
+      downloadPng(canvas, filename);
+    },
+    renderMark: function(x, y, color) {
+      /**
+       * mark-canvas に point を描画します.
+       *
+       * この関数が画像領域の描画に注力することに注意してください.
+       */
+      const canvas = this.$refs["mark-canvas"];
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, this.markSetting.pointSize, 0, Math.PI * 2, false);
+      ctx.fill();
+    },
+    isMarked: function(event) {
+      /**
+       * 画像領域ホバー中に, 既に描画が行われているか否かを判定します.
+       */
+      if (this.isDrag === false) {
+        let isMarked = false;
+        let markon = null;
+        const rect = this.$refs["mark-canvas"].getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        for (const index in this.marks) {
+          const item = this.marks[index];
+          const diffx = Math.abs(x - item.x);
+          const diffy = Math.abs(y - item.y);
+          if (diffx < 3 && diffy < 3) {
+            isMarked = true;
+            markon = item;
+          }
+        }
+        if (isMarked === true) {
+          this.canvasStyle.cursor = "move";
+          this.markon = markon;
         } else {
-          this.marks = cache
+          this.canvasStyle.cursor = "default";
+          this.isDrag = false;
+          this.markon = null;
         }
-        setTimeout(() => {
-          canvas.getContext('2d').drawImage(
-            video, 0, 0, canvas.width, canvas.height
-          )
-          if (cache.length > 0) {
-            for (const index in this.cache) {
-              const item = this.marks[index]
-              this.renderMark(item.x, item.y, this.markSetting.color)
-            }
-          }
-          this.redy = true
-        }, 1000)
-        this.dialog = true
-        this.redy = false
-        this.video = video
-      },
-      downloadImage (elmname) {
-        const canvas = this.$refs[elmname]
-        const type = elmname.split('-')[0]
-        const filename = this.basename + '_' + this.canvas.target.data.frame + '_' + type + '.png'
-        downloadPng(canvas, filename)
-      },
-      renderMark: function (x, y, color) {
-        /**
-         * mark-canvas に point を描画します.
-         *
-         * この関数が画像領域の描画に注力することに注意してください.
-         */
-        const canvas = this.$refs['mark-canvas']
-        const ctx = canvas.getContext('2d')
-        ctx.fillStyle = color
-        ctx.beginPath()
-        ctx.arc(
-          x, y, this.markSetting.pointSize, 0,
-          Math.PI * 2, false
-        )
-        ctx.fill()
-      },
-      isMarked: function (event) {
-        /**
-         * 画像領域ホバー中に, 既に描画が行われているか否かを判定します.
-         */
-        if (this.isDrag === false) {
-          let isMarked = false
-          let markon = null
-          const rect = this.$refs['mark-canvas'].getBoundingClientRect()
-          const x = event.clientX - rect.left
-          const y = event.clientY - rect.top
-          for (const index in this.marks) {
-            const item = this.marks[index]
-            const diffx = Math.abs(x - item.x)
-            const diffy = Math.abs(y - item.y)
-            if (diffx < 3 && diffy < 3) {
-              isMarked = true
-              markon = item
-            }
-          }
-          if (isMarked === true) {
-            this.canvasStyle.cursor = 'move'
-            this.markon = markon
-          } else {
-            this.canvasStyle.cursor = 'default'
-            this.isDrag = false
-            this.markon = null
-          }
-        }
-      },
-      markDrag: function (event) {
-        if (this.markon !== null) {
-          this.isDrag = true
-          this.markRemove(this.markon.id)
+      }
+    },
+    markDrag: function(event) {
+      if (this.markon !== null) {
+        this.isDrag = true;
+        this.markRemove(this.markon.id);
+      } else {
+        this.isDrag = false;
+      }
+    },
+    markCange: function(event) {
+      this.isDrag = false;
+      this.markon = null;
+    },
+    markAdd: function(event) {
+      /**
+       * 画像領域クリック時に point をレンダーし, その情報を記録します.
+       */
+      const rect = this.$refs["mark-canvas"].getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      if (this.marks.length < this.markSetting.maxSize) {
+        this.marks.push({
+          id: generateUuid(),
+          x: x,
+          y: y
+        });
+        this.marks.sort(function(a, b) {
+          if (a.y > b.y) return 1;
+          if (a.y < b.y) return -1;
+          return 0;
+        });
+        this.marks.sort(function(a, b) {
+          if (a.x > b.x) return 1;
+          if (a.x < b.x) return -1;
+          return 0;
+        });
+        this.renderMark(x, y, this.markSetting.color);
+      }
+      this.isDrag = false;
+      this.markon = null;
+    },
+    markDescription: function(id) {
+      const color = "rgba(241,196,15 ,1)";
+      const canvas = this.$refs["mark-canvas"];
+      canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+      for (const index in this.marks) {
+        const item = this.marks[index];
+        if (item.id === id) {
+          this.renderMark(item.x, item.y, color);
         } else {
-          this.isDrag = false
+          this.renderMark(item.x, item.y, this.markSetting.color);
         }
-      },
-      markCange: function (event) {
-        this.isDrag = false
-        this.markon = null
-      },
-      markAdd: function (event) {
-        /**
-         * 画像領域クリック時に point をレンダーし, その情報を記録します.
-         */
-        const rect = this.$refs['mark-canvas'].getBoundingClientRect()
-        const x = event.clientX - rect.left
-        const y = event.clientY - rect.top
-        if (this.marks.length < this.markSetting.maxSize) {
-          this.marks.push({
-            id: generateUuid(),
-            x: x, y: y
-          })
-          this.marks.sort(function (a, b) {
-            if (a.y > b.y) return 1
-            if (a.y < b.y) return -1
-            return 0
-          })
-          this.marks.sort(function (a, b) {
-            if (a.x > b.x) return 1
-            if (a.x < b.x) return -1
-            return 0
-          })
-          this.renderMark(x, y, this.markSetting.color)
+      }
+    },
+    markDescriptionNomal: function(event) {
+      const canvas = this.$refs["mark-canvas"];
+      canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+      for (const index in this.marks) {
+        const item = this.marks[index];
+        this.renderMark(item.x, item.y, this.markSetting.color);
+      }
+    },
+    markRemove: function(id) {
+      const canvas = this.$refs["mark-canvas"];
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const index in this.marks) {
+        const item = this.marks[index];
+        if (item.id === id) {
+          this.marks.splice(index, 1);
         }
-        this.isDrag = false
-        this.markon = null
-      },
-      markDescription: function (id) {
-        const color = 'rgba(241,196,15 ,1)'
-        const canvas = this.$refs['mark-canvas']
-        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
-        for (const index in this.marks) {
-          const item = this.marks[index]
-          if (item.id === id) {
-            this.renderMark(item.x, item.y, color)
-          } else {
-            this.renderMark(item.x, item.y, this.markSetting.color)
-          }
-        }
-      },
-      markDescriptionNomal: function (event) {
-        const canvas = this.$refs['mark-canvas']
-        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
-        for (const index in this.marks) {
-          const item = this.marks[index]
-          this.renderMark(item.x, item.y, this.markSetting.color)
-        }
-      },
-      markRemove: function (id) {
-        const canvas = this.$refs['mark-canvas']
-        const ctx = canvas.getContext('2d')
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        for (const index in this.marks) {
-          const item = this.marks[index]
-          if (item.id === id) {
-            this.marks.splice(index, 1)
-          }
-        }
-        for (const index in this.marks) {
-          const item = this.marks[index]
-          this.renderMark(item.x, item.y, this.markSetting.color)
-        }
-      },
-      markDownload () {
-        /**
-         * point として記述した内容を CSV に変換し
-         * ダウンロードします.
-         *
-         */
-        const canvas = this.$refs['video-canvas']
-        console.log('Mark: Download')
-        let csv = 'basename,time,frame,x,y,width,height\n'
-        this.marks.forEach(item => {
-          const line = [
+      }
+      for (const index in this.marks) {
+        const item = this.marks[index];
+        this.renderMark(item.x, item.y, this.markSetting.color);
+      }
+    },
+    markDownload() {
+      /**
+       * point として記述した内容を CSV に変換し
+       * ダウンロードします.
+       *
+       */
+      const canvas = this.$refs["video-canvas"];
+      console.log("Mark: Download");
+      let csv = "basename,time,frame,x,y,width,height\n";
+      this.marks.forEach(item => {
+        const line =
+          [
             this.basename,
             this.canvas.target.data.time,
             this.canvas.target.data.frame,
-            item.x, item.y,
+            item.x,
+            item.y,
             canvas.width,
             canvas.height
-          ].join(',') + '\n'
-          csv += line
-        })
-        const filename = [
-          // this.basename,
-          // this.currentFrame,
-          'mark.csv'
-        ].join('_')
-        downloadCsv(csv, filename)
-      },
-      regionAdd: function (event) {
-        console.log('ctrl')
-      }
+          ].join(",") + "\n";
+        csv += line;
+      });
+      const filename = [
+        // this.basename,
+        // this.currentFrame,
+        "mark.csv"
+      ].join("_");
+      downloadCsv(csv, filename);
     },
-    template: `
+    regionAdd: function(event) {
+      console.log("ctrl");
+    }
+  },
+  template: `
       <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
         <v-toolbar dark color="primary">
           <v-toolbar-title v-if="canvas.target">
@@ -423,567 +423,533 @@ const canvasEditor = Vue.component(
         </v-card>
       </v-dialog>
     `
-  }
-)
+});
 
 /* 動画用コンポーネント */
-Vue.component(
-  'video-player', {
-    components: {
-      'canvasEditor': canvasEditor
+Vue.component("video-player", {
+  components: {
+    canvasEditor: canvasEditor
+  },
+  data: function() {
+    return {
+      currentTime: 0,
+      currentFrame: 0,
+      playBtnIcon: "play_arrow",
+      videoCSS: {
+        width: "100%",
+        height: "auto"
+      },
+      dropZone: {
+        border: "5px solid blue",
+        width: "200px",
+        height: "100px"
+      },
+      wavesurferSettings: {
+        container: "#wave-form",
+        waveColor: "violet",
+        progressColor: "purple",
+        minPxPerSec: 200,
+        scrollParent: true,
+        minimap: true,
+        normalize: true
+      },
+      regionSetting: {
+        dragSelection: {
+          slop: 5
+        },
+        color: "rgba(255,183,77, 0.3)",
+        data: {
+          type: "region"
+        }
+      },
+      spectrogramSetting: {
+        container: "#wave-spectrogram",
+        fftSamples: 512,
+        brightness: 1,
+        labels: true
+      },
+      timelineSetting: {
+        container: "#wave-timeline"
+      },
+      minimapSetting: {
+        height: 30,
+        waveColor: "#ddd",
+        progressColor: "#999",
+        cursorColor: "#999"
+      },
+      points: [],
+      regions: [],
+      marks: [],
+      cache: {},
+      cacheUploadDialog: false,
+      dialog: false,
+      wavesurfer: null // wavesurfer クラス
+    };
+  },
+  props: ["url", "fps", "filename"],
+  computed: {
+    basename: function() {
+      const pathes = this.url.split("/");
+      if (pathes[0].match("blob")) {
+        const fname = this.filename;
+        return fname.split(".")[0];
+      } else {
+        const fname = pathes[pathes.length - 1];
+        return fname.split(".")[0];
+      }
     },
-    data: function () {
+    cachename: function() {
+      return "cache_" + this.basename;
+    },
+    canvas: function() {
+      const scale = 2.5;
       return {
-        currentTime: 0,
-        currentFrame: 0,
-        playBtnIcon: 'play_arrow',
-        videoCSS: {
-          width: '100%',
-          height: 'auto'
-        },
-        dropZone: {
-          border: '5px solid blue',
-          width: '200px',
-          height: '100px'
-        },
-        wavesurferSettings: {
-          container: '#wave-form',
-          waveColor: 'violet',
-          progressColor: 'purple',
-          minPxPerSec: 200,
-          scrollParent: true,
-          minimap: true,
-          normalize: true
-        },
-        regionSetting: {
-          dragSelection: {
-            slop: 5
-          },
-          color: 'rgba(255,183,77, 0.3)',
-          data: {
-            type: 'region'
+        target: null,
+        scale: scale
+      };
+    },
+    skipLength: function() {
+      const len = 1 / this.fps;
+      return parseFloat(len.toFixed(4));
+    },
+    isReady: function() {
+      // 音声の読み込みが終了したか否かを判定します.
+      if (this.wavesurfer !== null) {
+        return this.wavesurfer.isReady;
+      } else {
+        return false;
+      }
+    }
+  },
+  watch: {
+    url: function() {
+      const url = this.url;
+      // 種々初期化
+      const cache = JSON.parse(localStorage.getItem(this.cachename));
+      if (cache === null) {
+        this.cache = {};
+        this.regions = [];
+        this.points = [];
+      } else {
+        this.cache = cache;
+        this.points = this.cache.points;
+        this.regions = this.cache.regions;
+      }
+      this.wavesurfer.destroy();
+      // リロード
+      this.load(url);
+    },
+    points: function(val) {
+      this.cache.points = val;
+      localStorage.setItem(this.cachename, JSON.stringify(this.cache));
+    },
+    regions: function(val) {
+      this.cache.regions = val;
+      localStorage.setItem(this.cachename, JSON.stringify(this.cache));
+    }
+  },
+  mounted() {
+    const url = this.url;
+    const cache = JSON.parse(localStorage.getItem(this.cachename));
+    if (cache !== null) {
+      console.log(cache);
+      this.cache = cache;
+      this.points = this.cache.points;
+      this.regions = this.cache.regions;
+    }
+    this.load(url);
+  },
+  methods: {
+    // 基本操作
+    load: function(url) {
+      /**
+       * url で指定されたファイルの音声波形データを
+       * 作成します.
+       *
+       * wavesurfer のレンダーは直接の DOM 操作が
+       * 必要であるため操作は nextTick 内に記述します.
+       */
+      this.regionSetting.regions = this.regions.concat(this.points);
+      this.$nextTick(() => {
+        const setting = Object.assign({}, this.wavesurferSettings);
+        setting.skipLength = this.skipLength;
+        setting.plugins = [
+          WaveSurfer.regions.create(this.regionSetting),
+          WaveSurfer.minimap.create(this.minimapSetting),
+          WaveSurfer.timeline.create(this.timelineSetting),
+          WaveSurfer.spectrogram.create(this.spectrogramSetting)
+        ];
+        this.wavesurfer = WaveSurfer.create(setting);
+        this.wavesurfer.load(url);
+      });
+      this.playBtnIcon = "play_arrow";
+    },
+    play: function(event) {
+      if (event.type === "keyup") {
+        event.preventDefault();
+      }
+      const video = this.$refs.nowVideo;
+      if (video.paused) {
+        video.play();
+        this.wavesurfer.play();
+        this.playBtnIcon = "pause";
+      } else {
+        video.pause();
+        this.wavesurfer.pause();
+        this.currentTime = video.currentTime;
+        this.playBtnIcon = "play_arrow";
+      }
+      this.playing = video.paused;
+    },
+    skipForward: function(event) {
+      this.wavesurfer.skipForward();
+      this.syncVideo(event);
+    },
+    skipBackward: function(event) {
+      this.wavesurfer.skipBackward();
+      this.syncVideo(event);
+    },
+    startTo: function(event) {
+      this.wavesurfer.seekAndCenter(0);
+      this.syncVideo(event);
+    },
+    endTo: function(event) {
+      this.wavesurfer.seekAndCenter(1);
+      this.syncVideo(event);
+    },
+    moveTo: function(time) {
+      const video = this.$refs.nowVideo;
+      const duration = this.wavesurfer.getDuration();
+      this.wavesurfer.seekAndCenter(time / duration);
+      video.currentTime = time;
+    },
+    // 動画再生時の挙動
+    syncVideos: function(event) {
+      const video = this.$refs.nowVideo;
+      const preVideo = this.$refs.preVideo;
+      const posVideo = this.$refs.posVideo;
+      this.currentTime = parseFloat(video.currentTime);
+      this.currentFrame = Math.floor(video.currentTime * this.fps);
+      if (this.currentTime > this.skipLength) {
+        preVideo.currentTime = this.currentTime - this.skipLength;
+      } else {
+        preVideo.currentTime = 0;
+      }
+      if (this.currentTime + this.skipLength <= video.duration) {
+        posVideo.currentTime = this.currentTime + this.skipLength;
+      } else {
+        posVideo.currentTime = video.duration;
+      }
+      if (this.currentTime === video.duration) {
+        this.playBtnIcon = "play_arrow";
+      }
+    },
+    // 音声波形操作
+    syncVideo: function(event) {
+      setTimeout(() => {
+        const video = this.$refs.nowVideo;
+        const currentTime = parseFloat(this.wavesurfer.getCurrentTime());
+        video.currentTime = currentTime;
+      }, 0.1);
+    },
+    reRender: function() {
+      const url = this.url;
+      this.$nextTick(() => {
+        // WaveSurfer の初期設定
+        this.wavesurfer.destroy();
+        this.load(url);
+      });
+    },
+    // canvas 操作
+    edit: function(point) {
+      const video = this.$refs.nowVideo;
+      this.canvas.target = point;
+      this.moveTo(point.data.time);
+      setTimeout(() => {
+        this.$refs["canvas-editor"].edit(video);
+      }, 1000);
+    },
+    // point 操作
+    pointAdd: function(event) {
+      /**
+       * HTML: id="wave-form" 要素を ctrl+click した場合に
+       * wave-form の現在値の情報を取得し,
+       * this.points に追加します.
+       */
+      this.$nextTick(() => {
+        setTimeout(() => {
+          const range = 1 / this.wavesurferSettings.minPxPerSec;
+          const currentTime = this.wavesurfer.getCurrentTime();
+          const currentFrame = Math.floor(currentTime * this.fps);
+          if (currentTime !== 0) {
+            const item = {
+              start: currentTime - range,
+              end: currentTime + range,
+              data: {
+                time: currentTime,
+                frame: currentFrame,
+                type: "point"
+              },
+              attributes: {
+                label: null,
+                type: "point",
+                highlight: false
+              },
+              color: "rgba(103, 58, 183, 0.5)",
+              resize: false,
+              id: "point_" + (this.points.length + 1)
+            };
+            this.points.push(item);
+            // wavesurfer に登録
+            this.wavesurfer.addRegion(item);
+            this.wavesurfer.fireEvent("region-updated", this.wavesurfer);
           }
-        },
-        spectrogramSetting: {
-          container: '#wave-spectrogram',
-          fftSamples: 512,
-          brightness: 1,
-          labels: true
-        },
-        timelineSetting: {
-          container: '#wave-timeline'
-        },
-        minimapSetting: {
-          height: 30,
-          waveColor: '#ddd',
-          progressColor: '#999',
-          cursorColor: '#999'
-        },
-        points: [],
-        regions: [],
-        marks: [],
-        cache: {},
-        cacheUploadDialog: false,
-        dialog: false,
-        wavesurfer: null // wavesurfer クラス
-      }
+        }, 0.2);
+      });
     },
-    props: [
-      'url', 'fps', 'filename'
-    ],
-    computed: {
-      basename: function () {
-        const pathes = this.url.split('/')
-        if (pathes[0].match('blob')) {
-          const fname = this.filename
-          return fname.split('.')[0]
-        } else {
-          const fname = pathes[pathes.length - 1]
-          return fname.split('.')[0]
-        }
-      },
-      cachename: function () {
-        return 'cache_' + this.basename
-      },
-      canvas: function () {
-        const scale = 2.5
-        return {
-          target: null,
-          scale: scale
-        }
-      },
-      skipLength: function () {
-        const len = 1 / this.fps
-        return parseFloat(len.toFixed(4))
-      },
-      isReady: function () {
-        // 音声の読み込みが終了したか否かを判定します.
-        if (this.wavesurfer !== null) {
-          return this.wavesurfer.isReady
-        } else {
-          return false
-        }
-      }
-    },
-    watch: {
-      'url': function () {
-        const url = this.url
-        // 種々初期化
-        const cache = JSON.parse(
-          localStorage.getItem(this.cachename)
-        )
-        if (cache === null) {
-          this.cache = {}
-          this.regions = []
-          this.points = []
-        } else {
-          this.cache = cache
-          this.points = this.cache.points
-          this.regions = this.cache.regions
-        }
-        this.wavesurfer.destroy()
-        // リロード
-        this.load(url)
-      },
-      'points': function (val) {
-        this.cache.points = val
-        localStorage.setItem(
-          this.cachename, JSON.stringify(this.cache)
-        )
-      },
-      'regions': function (val) {
-        this.cache.regions = val
-        localStorage.setItem(
-          this.cachename, JSON.stringify(this.cache)
-        )
-      }
-    },
-    mounted () {
-      const url = this.url
-      const cache = JSON.parse(
-        localStorage.getItem(this.cachename)
-      )
-      if (cache !== null) {
-        console.log(cache)
-        this.cache = cache
-        this.points = this.cache.points
-        this.regions = this.cache.regions
-      }
-      this.load(url)
-    },
-    methods: {
-      // 基本操作
-      load: function (url) {
-        /**
-         * url で指定されたファイルの音声波形データを
-         * 作成します.
-         *
-         * wavesurfer のレンダーは直接の DOM 操作が
-         * 必要であるため操作は nextTick 内に記述します.
-         */
-        this.regionSetting.regions = this.regions.concat(
-          this.points
-        )
-        this.$nextTick(() => {
-          const setting = Object.assign(
-            {}, this.wavesurferSettings
-          )
-          setting.skipLength = this.skipLength
-          setting.plugins = [
-            WaveSurfer.regions.create(this.regionSetting),
-            WaveSurfer.minimap.create(this.minimapSetting),
-            WaveSurfer.timeline.create(this.timelineSetting),
-            WaveSurfer.spectrogram.create(
-              this.spectrogramSetting
-            )
-          ]
-          this.wavesurfer = WaveSurfer.create(setting)
-          this.wavesurfer.load(url)
-        })
-        this.playBtnIcon = 'play_arrow'
-      },
-      play: function (event) {
-        if (event.type === 'keyup') {
-          event.preventDefault()
-        }
-        const video = this.$refs.nowVideo
-        if (video.paused) {
-          video.play()
-          this.wavesurfer.play()
-          this.playBtnIcon = 'pause'
-        } else {
-          video.pause()
-          this.wavesurfer.pause()
-          this.currentTime = video.currentTime
-          this.playBtnIcon = 'play_arrow'
-        }
-        this.playing = video.paused
-      },
-      skipForward: function (event) {
-        this.wavesurfer.skipForward()
-        this.syncVideo(event)
-      },
-      skipBackward: function (event) {
-        this.wavesurfer.skipBackward()
-        this.syncVideo(event)
-      },
-      startTo: function (event) {
-        this.wavesurfer.seekAndCenter(0)
-        this.syncVideo(event)
-      },
-      endTo: function (event) {
-        this.wavesurfer.seekAndCenter(1)
-        this.syncVideo(event)
-      },
-      moveTo: function (time) {
-        const video = this.$refs.nowVideo
-        const duration = this.wavesurfer.getDuration()
-        this.wavesurfer.seekAndCenter(time / duration)
-        video.currentTime = time
-      },
-      // 動画再生時の挙動
-      syncVideos: function (event) {
-        const video = this.$refs.nowVideo
-        const preVideo = this.$refs.preVideo
-        const posVideo = this.$refs.posVideo
-        this.currentTime = parseFloat(video.currentTime)
-        this.currentFrame = Math.floor(
-          video.currentTime * this.fps
-        )
-        if (this.currentTime > this.skipLength) {
-          preVideo.currentTime = this.currentTime - this.skipLength
-        } else {
-          preVideo.currentTime = 0
-        }
-        if (this.currentTime + this.skipLength <= video.duration) {
-          posVideo.currentTime = this.currentTime + this.skipLength
-        } else {
-          posVideo.currentTime = video.duration
-        }
-        if (this.currentTime === video.duration) {
-          this.playBtnIcon = 'play_arrow'
-        }
-      },
-      // 音声波形操作
-      syncVideo: function (event) {
-        setTimeout(() => {
-          const video = this.$refs.nowVideo
-          const currentTime = parseFloat(
-            this.wavesurfer.getCurrentTime()
-          )
-          video.currentTime = currentTime
-        }, 0.1)
-      },
-      reRender: function () {
-        const url = this.url
-        this.$nextTick(() => {
-          // WaveSurfer の初期設定
-          this.wavesurfer.destroy()
-          this.load(url)
-        })
-      },
-      // canvas 操作
-      edit: function (point) {
-        const video = this.$refs.nowVideo
-        this.canvas.target = point
-        this.moveTo(point.data.time)
-        setTimeout(() => {
-          this.$refs['canvas-editor'].edit(video)
-        }, 1000)
-      },
-      // point 操作
-      pointAdd: function (event) {
-        /**
-         * HTML: id="wave-form" 要素を ctrl+click した場合に
-         * wave-form の現在値の情報を取得し,
-         * this.points に追加します.
-         */
-        this.$nextTick(() => {
-          setTimeout(() => {
-            const range = 1 / this.wavesurferSettings.minPxPerSec
-            const currentTime = this.wavesurfer.getCurrentTime()
-            const currentFrame = Math.floor(
-              currentTime * this.fps
-            )
-            if (currentTime !== 0) {
-              const item = {
-                start: currentTime - range,
-                end: currentTime + range,
-                data: {
-                  time: currentTime,
-                  frame: currentFrame,
-                  type: 'point'
-                },
-                attributes: {
-                  label: null,
-                  type: 'point',
-                  highlight: false
-                },
-                color: 'rgba(103, 58, 183, 0.5)',
-                resize: false,
-                id: 'point_' + (this.points.length + 1)
-              }
-              this.points.push(item)
-              // wavesurfer に登録
-              this.wavesurfer.addRegion(item)
-              this.wavesurfer.fireEvent(
-                'region-updated', this.wavesurfer
-              )
-            }
-          }, 0.2)
-        })
-      },
-      pointUpdate: function (event) {
-        /**
-         * point 移動時に this.points に反映
-         *
-         * detail:
-         *   wave-form にある regions をすべて確認し,
-         *   this.points を更新します.
-         * event: mouseup
-         * target: id=wave-form
-         */
-        console.info('point: update')
-        const range = 1 / this.wavesurferSettings.minPxPerSec
-        const pointList = this.points
-        const registeredIds = []
+    pointUpdate: function(event) {
+      /**
+       * point 移動時に this.points に反映
+       *
+       * detail:
+       *   wave-form にある regions をすべて確認し,
+       *   this.points を更新します.
+       * event: mouseup
+       * target: id=wave-form
+       */
+      console.info("point: update");
+      const range = 1 / this.wavesurferSettings.minPxPerSec;
+      const pointList = this.points;
+      const registeredIds = [];
 
+      // 現状の id 一覧を取得
+      for (const i in pointList) {
+        registeredIds.push(pointList[i].id);
+      }
+      const regions = this.wavesurfer.regions.list;
+      for (const key in regions) {
+        const region = regions[key];
+        if (region.data.type !== undefined && region.data.type === "point") {
+          // 開始, 終了時刻は異なる場合は反映
+          const index = registeredIds.indexOf(region.id);
+          const oldPoint = pointList[index];
+          if (oldPoint.start !== region.start || oldPoint.end !== region.end) {
+            pointList[index].start = region.start;
+            pointList[index].end = region.end;
+            pointList[index].data = {
+              time: region.start + range,
+              frame: Math.floor((region.start + range) * this.fps)
+            };
+          }
+        }
+      }
+      pointList.sort(function(a, b) {
+        if (a.start < b.start) return -1;
+        if (a.start > b.start) return 1;
+        return 0;
+      });
+    },
+    pointDelete(point) {
+      /**
+       * point の削除
+       *
+       */
+      console.info("point: delete");
+      this.points = this.points.filter(x => x.id !== point.id);
+      // wave-form から削除
+      const regions = this.wavesurfer.regions.list;
+      for (const i in regions) {
+        if (point.id === regions[i].id) {
+          regions[i].remove();
+          break;
+        }
+      }
+    },
+    pointDownload() {
+      /**
+       * point として記述した内容を CSV に変換し
+       * ダウンロードします.
+       *
+       */
+      console.log("Point: Download");
+      let csv = "time,frame,text\n";
+      this.points.forEach(item => {
+        const line =
+          item.data.time +
+          "," +
+          item.data.frame +
+          "," +
+          item.attributes.label +
+          "\n";
+        csv += line;
+      });
+      const filename = [this.basename, "point.csv"].join("_");
+      downloadCsv(csv, filename);
+    },
+    // region 操作
+    regionPlay: function(region) {
+      console.log("REGION: PLAY");
+      const video = this.$refs.nowVideo;
+      const duration = this.wavesurfer.getDuration();
+
+      // 時刻合わせ
+      video.currentTime = region.start;
+      this.currentTime = region.start;
+      this.wavesurfer.seekAndCenter(region.start / duration);
+
+      // 再生
+      video.play();
+      for (const i in this.wavesurfer.regions.list) {
+        if (this.wavesurfer.regions.list[i].id === region.id) {
+          this.wavesurfer.regions.list[i].play();
+        }
+      }
+      // 停止
+      const stop = function() {
+        const video = document.getElementById("nowVideo");
+        video.pause();
+      };
+      setTimeout(stop, (region.end - region.start) * 1000);
+    },
+    regionDelete: function(region) {
+      console.log("REGION: DELETE");
+      // LIST から削除
+      this.regions = this.regions.filter(x => x.id !== region.id);
+      // wave-form から削除
+      const regions = this.wavesurfer.regions.list;
+      for (const i in regions) {
+        if (region.id === regions[i].id) {
+          regions[i].remove();
+          break;
+        }
+      }
+    },
+    regionUpdate: function(event) {
+      /**
+       * レギオン作成時にアノテーションリストを更新
+       *
+       * detail:
+       *   wave-form にある regions をすべて確認し,
+       *   this.regions を更新します.
+       * event: mouseup
+       * target: id=wave-form
+       */
+      console.info("region: update");
+      const regionList = this.regions;
+      const registeredIds = [];
+      for (const i in regionList) {
         // 現状の id 一覧を取得
-        for (const i in pointList) {
-          registeredIds.push(pointList[i].id)
-        }
-        const regions = this.wavesurfer.regions.list
-        for (const key in regions) {
-          const region = regions[key]
-          if (
-            region.data.type !== undefined &&
-            region.data.type === 'point'
-          ) {
-            // 開始, 終了時刻は異なる場合は反映
-            const index = registeredIds.indexOf(region.id)
-            const oldPoint = pointList[index]
-            if (
-              oldPoint.start !== region.start ||
-              oldPoint.end !== region.end
-            ) {
-              pointList[index].start = region.start
-              pointList[index].end = region.end
-              pointList[index].data = {
-                time: region.start + range,
-                frame: Math.floor(
-                  (region.start + range) * this.fps
-                )
-              }
-            }
-          }
-        }
-        pointList.sort(function (a, b) {
-          if (a.start < b.start) return -1
-          if (a.start > b.start) return 1
-          return 0
-        })
-      },
-      pointDelete (point) {
-        /**
-         * point の削除
-         *
-         */
-        console.info('point: delete')
-        this.points = this.points.filter(
-          x => x.id !== point.id
-        )
-        // wave-form から削除
-        const regions = this.wavesurfer.regions.list
-        for (const i in regions) {
-          if (point.id === regions[i].id) {
-            regions[i].remove()
-            break
-          }
-        }
-      },
-      pointDownload () {
-        /**
-         * point として記述した内容を CSV に変換し
-         * ダウンロードします.
-         *
-         */
-        console.log('Point: Download')
-        let csv = 'time,frame,text\n'
-        this.points.forEach(item => {
-          const line = item.data.time + ',' + item.data.frame + ',' + item.attributes.label + '\n'
-          csv += line
-        })
-        const filename = [this.basename, 'point.csv'].join(
-          '_'
-        )
-        downloadCsv(csv, filename)
-      },
-      // region 操作
-      regionPlay: function (region) {
-        console.log('REGION: PLAY')
-        const video = this.$refs.nowVideo
-        const duration = this.wavesurfer.getDuration()
-
-        // 時刻合わせ
-        video.currentTime = region.start
-        this.currentTime = region.start
-        this.wavesurfer.seekAndCenter(region.start / duration)
-
-        // 再生
-        video.play()
-        for (const i in this.wavesurfer.regions.list) {
-          if (
-            this.wavesurfer.regions.list[i].id === region.id
-          ) {
-            this.wavesurfer.regions.list[i].play()
-          }
-        }
-        // 停止
-        const stop = function () {
-          const video = document.getElementById('nowVideo')
-          video.pause()
-        }
-        setTimeout(stop, (region.end - region.start) * 1000)
-      },
-      regionDelete: function (region) {
-        console.log('REGION: DELETE')
-        // LIST から削除
-        this.regions = this.regions.filter(
-          x => x.id !== region.id
-        )
-        // wave-form から削除
-        const regions = this.wavesurfer.regions.list
-        for (const i in regions) {
-          if (region.id === regions[i].id) {
-            regions[i].remove()
-            break
-          }
-        }
-      },
-      regionUpdate: function (event) {
-        /**
-         * レギオン作成時にアノテーションリストを更新
-         *
-         * detail:
-         *   wave-form にある regions をすべて確認し,
-         *   this.regions を更新します.
-         * event: mouseup
-         * target: id=wave-form
-         */
-        console.info('region: update')
-        const regionList = this.regions
-        const registeredIds = []
-        for (const i in regionList) {
-          // 現状の id 一覧を取得
-          registeredIds.push(regionList[i].id)
-        }
-        const regions = this.wavesurfer.regions.list
-        for (const key in regions) {
-          const region = regions[key]
-          if (region.data.type !== undefined && region.data.type === 'region') {
-            if (registeredIds.indexOf(region.id) === -1) {
-              // 新規 region が波形レイヤーに存在する場合のみ追加
-              const duration = region.end - regions.start
-              const item = {
-                start: region.start,
-                end: region.end,
-                color: region.color,
-                data: {
-                  type: 'region',
-                  duration: duration
-                },
-                attributes: {
-                  label: null,
-                  type: 'region',
-                  highlight: false
-                },
-                id: region.id
-              }
-              regionList.push(item)
-            } else {
-              // 開始, 終了時刻は異なる場合は反映
-              const index = registeredIds.indexOf(region.id)
-              const oldRegion = regionList[index]
-              if (
-                oldRegion.start !== region.start || oldRegion.end !== region.end
-              ) {
-                regionList[index].start = region.start
-                regionList[index].end = region.end
-                regionList[index].data.duration = region.end - region.start
-              }
-            }
-          }
-        }
-        regionList.sort(function (a, b) {
-          if (a.start < b.start) return -1
-          if (a.start > b.start) return 1
-          return 0
-        })
-      },
-      regionDownload () {
-        /**
-         * region として記述した内容を CSV に変換し, ダウンロードします.
-         *
-         */
-        console.log('Region: Download')
-        let csv = 'strat,end,text\n'
-        this.regions.forEach(item => {
-          const line = item.start + ',' + item.end + ',' + item.attributes.label + '\n'
-          csv += line
-        })
-        const filename = [this.basename, 'region.csv'].join('_')
-        downloadCsv(csv, filename)
-      },
-      // region, point の共通操作
-      labelUpdate: function (item) {
-        /**
-         * @desc ラベル属性を決定します
-         */
-        this.$nextTick(() => {
-          const regions = this.wavesurfer.regions.list
-          for (const i in regions) {
-            if (regions[i].id === item.id) {
-              regions[i].update(item)
-            }
-          }
-        })
-      },
-      waveformUpdate (event) {
-        /**
-         * @desc 音声波形のラベル情報と, LIST 情報を一致させる.
-         */
-        this.regionUpdate(event)
-        this.pointUpdate(event)
-      },
-      cacheDownload (event) {
-        /**
-         * @desc 現在のキャシュを JSON でダウンロード
-         */
-        const filename = this.basename + '.json'
-        downloadJson(this.cache, filename)
-      },
-      cacheImportOnFocus () {
-        this.$refs.fileInput.click()
-      },
-      cacheImport (event) {
-        /**
-         * @desc Upload された Json で現状を上書き
-         */
-        const files = event.target.files
-        const file = files[0]
-        const vm = this
-        const fr = new FileReader()
-        fr.onload = function (e) {
-          const cache = JSON.parse(e.target.result)
-          vm.regions = cache.regions
-          vm.points = cache.points
-          console.log(vm.cache)
-        }
-        fr.readAsText(file)
-        this.cacheUploadDialog = false
+        registeredIds.push(regionList[i].id);
       }
+      const regions = this.wavesurfer.regions.list;
+      for (const key in regions) {
+        const region = regions[key];
+        if (region.data.type !== undefined && region.data.type === "region") {
+          if (registeredIds.indexOf(region.id) === -1) {
+            // 新規 region が波形レイヤーに存在する場合のみ追加
+            const duration = region.end - regions.start;
+            const item = {
+              start: region.start,
+              end: region.end,
+              color: region.color,
+              data: {
+                type: "region",
+                duration: duration
+              },
+              attributes: {
+                label: null,
+                type: "region",
+                highlight: false
+              },
+              id: region.id
+            };
+            regionList.push(item);
+          } else {
+            // 開始, 終了時刻は異なる場合は反映
+            const index = registeredIds.indexOf(region.id);
+            const oldRegion = regionList[index];
+            if (
+              oldRegion.start !== region.start ||
+              oldRegion.end !== region.end
+            ) {
+              regionList[index].start = region.start;
+              regionList[index].end = region.end;
+              regionList[index].data.duration = region.end - region.start;
+            }
+          }
+        }
+      }
+      regionList.sort(function(a, b) {
+        if (a.start < b.start) return -1;
+        if (a.start > b.start) return 1;
+        return 0;
+      });
     },
-    template: `
+    regionDownload() {
+      /**
+       * region として記述した内容を CSV に変換し, ダウンロードします.
+       *
+       */
+      console.log("Region: Download");
+      let csv = "strat,end,text\n";
+      this.regions.forEach(item => {
+        const line =
+          item.start + "," + item.end + "," + item.attributes.label + "\n";
+        csv += line;
+      });
+      const filename = [this.basename, "region.csv"].join("_");
+      downloadCsv(csv, filename);
+    },
+    // region, point の共通操作
+    labelUpdate: function(item) {
+      /**
+       * @desc ラベル属性を決定します
+       */
+      this.$nextTick(() => {
+        const regions = this.wavesurfer.regions.list;
+        for (const i in regions) {
+          if (regions[i].id === item.id) {
+            regions[i].update(item);
+          }
+        }
+      });
+    },
+    waveformUpdate(event) {
+      /**
+       * @desc 音声波形のラベル情報と, LIST 情報を一致させる.
+       */
+      this.regionUpdate(event);
+      this.pointUpdate(event);
+    },
+    cacheDownload(event) {
+      /**
+       * @desc 現在のキャシュを JSON でダウンロード
+       */
+      const filename = this.basename + ".json";
+      downloadJson(this.cache, filename);
+    },
+    cacheImportOnFocus() {
+      this.$refs.fileInput.click();
+    },
+    cacheImport(event) {
+      /**
+       * @desc Upload された Json で現状を上書き
+       */
+      const files = event.target.files;
+      const file = files[0];
+      const vm = this;
+      const fr = new FileReader();
+      fr.onload = function(e) {
+        const cache = JSON.parse(e.target.result);
+        vm.regions = cache.regions;
+        vm.points = cache.points;
+        console.log(vm.cache);
+      };
+      fr.readAsText(file);
+      this.cacheUploadDialog = false;
+    }
+  },
+  template: `
       <v-container fluid grid-list-md>
         <v-layout row fill-height wrap>
           <!-- 右クリック時のオリジナルメニュー --> 
@@ -1364,133 +1330,136 @@ Vue.component(
         </canvas-editor>
       </v-container>
     `
-  }
-)
+});
 
 /* アプリケーション本体 */
 new Vue({
-  el: '#app',
+  el: "#app",
   data: {
-    app: 'MRI Vuewer',
+    app: "MRI Vuewer",
     version: 1.3,
     files: files,
     target: {
-      url: null, fps: null
+      url: null,
+      fps: null
     },
     snackbar: {
       show: false,
-      message: '',
-      color: 'red darken-4',
+      message: "",
+      color: "red darken-4",
       timeout: 6000
     },
     fileInputStyle: {
-      height: '0px',
-      visibility: 'hidden',
-      position: 'absolute'
+      height: "0px",
+      visibility: "hidden",
+      position: "absolute"
     },
     drawer: false
   },
-  mounted () {
+  mounted() {
     // Check for the various File API support.
     if (window.File && window.FileReader && window.FileList && window.Blob) {
       // Great success! All the File APIs are supported.
     } else {
-      this.snackbar.show = true
-      this.snackbar.message = 'The File APIs are not fully supported in this browser.'
+      this.snackbar.show = true;
+      this.snackbar.message =
+        "The File APIs are not fully supported in this browser.";
     }
     // load video if there are files
     if (this.files.length > 0) {
-      this.target = this.files[0]
+      this.target = this.files[0];
     }
   },
   methods: {
-    selectFile: function (target) {
-      this.target = target
-      this.drawer = false
+    selectFile: function(target) {
+      this.target = target;
+      this.drawer = false;
     },
-    movieImport () {
-      this.$refs.movieImport.click()
+    movieImport() {
+      this.$refs.movieImport.click();
     },
-    movieSelected (event) {
-      event.preventDefault()
-      const file = event.target.files[0]
-      if (file.type.match('video')) {
-        const url = window.URL.createObjectURL(file)
+    sampleImport() {
+      this.$refs.movieImport.click();
+    },
+    movieSelected(event) {
+      event.preventDefault();
+      const file = event.target.files[0];
+      if (file.type.match("video")) {
+        const url = window.URL.createObjectURL(file);
         const target = {
           name: file.name,
           url: url,
           fps: fps
-        }
-        this.files.push(target)
-        this.target = target
+        };
+        this.files.push(target);
+        this.target = target;
       } else {
-        this.snackbar.show = true
-        this.snackbar.message = 'You should upload the video data.'
+        this.snackbar.show = true;
+        this.snackbar.message = "You should upload the video data.";
       }
     },
-    clear: function () {
-      localStorage.clear()
-      this.drawer = false
+    clear: function() {
+      localStorage.clear();
+      this.drawer = false;
     }
   }
-})
+});
 
 /* 汎用関数 */
-function generateUuid () {
-  const chars = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.split('')
+function generateUuid() {
+  const chars = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".split("");
   for (let i = 0, len = chars.length; i < len; i++) {
     switch (chars[i]) {
-      case 'x':
-        chars[i] = Math.floor(Math.random() * 16).toString(16)
-        break
-      case 'y':
-        chars[i] = (Math.floor(Math.random() * 4) + 8).toString(16)
-        break
+      case "x":
+        chars[i] = Math.floor(Math.random() * 16).toString(16);
+        break;
+      case "y":
+        chars[i] = (Math.floor(Math.random() * 4) + 8).toString(16);
+        break;
     }
   }
-  return chars.join('')
+  return chars.join("");
 }
 
-function downloadCsv (csv, filename) {
-  const bom = new Uint8Array([0xEF, 0xBB, 0xBF])
-  const blob = new Blob([bom, csv], { type: 'text/csv' })
-  const link = document.createElement('a')
-  link.href = window.URL.createObjectURL(blob)
-  link.target = '_blank'
-  link.download = filename
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+function downloadCsv(csv, filename) {
+  const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
+  const blob = new Blob([bom, csv], { type: "text/csv" });
+  const link = document.createElement("a");
+  link.href = window.URL.createObjectURL(blob);
+  link.target = "_blank";
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
-function downloadPng (canvas, filename) {
-  const type = 'image/png'
-  const data = canvas.toDataURL(type)
-  const bin = window.atob(data.split(',')[1])
-  const bom = new Uint8Array(bin.length)
+function downloadPng(canvas, filename) {
+  const type = "image/png";
+  const data = canvas.toDataURL(type);
+  const bin = window.atob(data.split(",")[1]);
+  const bom = new Uint8Array(bin.length);
   for (var i = 0; i < bin.length; i++) {
-    bom[i] = bin.charCodeAt(i)
+    bom[i] = bin.charCodeAt(i);
   }
-  const blob = new Blob([bom.buffer], { type: type })
-  const link = document.createElement('a')
-  link.href = window.URL.createObjectURL(blob)
-  link.target = '_blank'
-  link.download = filename
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+  const blob = new Blob([bom.buffer], { type: type });
+  const link = document.createElement("a");
+  link.href = window.URL.createObjectURL(blob);
+  link.target = "_blank";
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
-function downloadJson (obj, filename) {
-  const blob = new Blob(
-    [JSON.stringify(obj, null, '  ')],
-    { type: 'application/json' }
-  )
-  const link = document.createElement('a')
-  link.href = window.URL.createObjectURL(blob)
-  link.target = '_blank'
-  link.download = filename
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+function downloadJson(obj, filename) {
+  const blob = new Blob([JSON.stringify(obj, null, "  ")], {
+    type: "application/json"
+  });
+  const link = document.createElement("a");
+  link.href = window.URL.createObjectURL(blob);
+  link.target = "_blank";
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
