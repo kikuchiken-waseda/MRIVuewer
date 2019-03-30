@@ -1379,7 +1379,14 @@ new Vue({
       this.$refs.movieImport.click();
     },
     sampleImport() {
-      this.$refs.movieImport.click();
+      const url = "https://kikuchiken-waseda.github.io/MRIVuewer/misc/6.mp4";
+      const target = {
+        name: "sample.mp4",
+        url: url,
+        fps: fps
+      };
+      this.files.push(target);
+      this.target = target;
     },
     movieSelected(event) {
       event.preventDefault();
