@@ -14,6 +14,11 @@ const canvasEditor = Vue.component("canvas-editor", {
       redy: false,
       marks: [],
       regions: [],
+      canvas_size: {},
+      imageSetting: {
+        x: 256,
+        y: 256
+      },
       markSetting: {
         color: "rgba(244,81,30 ,1)",
         pointSize: 5,
@@ -100,14 +105,20 @@ const canvasEditor = Vue.component("canvas-editor", {
       } else {
         this.marks = cache;
       }
+
+      vm = this;
       setTimeout(() => {
         canvas
           .getContext("2d")
           .drawImage(video, 0, 0, canvas.width, canvas.height);
-        if (cache.length > 0) {
-          for (const index in this.cache) {
-            const item = this.marks[index];
-            this.renderMark(item.x, item.y, this.markSetting.color);
+        this.canvas_size.width = canvas.width;
+        this.canvas_size.height = canvas.height;
+        if (this.marks) {
+          if (this.marks.length > 0) {
+            for (const index in this.marks) {
+              const item = this.marks[index];
+              this.renderMark(item.x, item.y, this.markSetting.color);
+            }
           }
         }
         this.redy = true;
@@ -193,7 +204,9 @@ const canvasEditor = Vue.component("canvas-editor", {
         this.marks.push({
           id: generateUuid(),
           x: x,
-          y: y
+          y: y,
+          width: rect.width,
+          height: rect.height
         });
         this.marks.sort(function(a, b) {
           if (a.y > b.y) return 1;
@@ -317,17 +330,15 @@ const canvasEditor = Vue.component("canvas-editor", {
               <v-flex xs6>
                 <v-card>
                   <v-card-title>
-                    <div v-bind:style="canvasWrapperStyle" v-show="redy">
-                      <canvas v-bind:style="canvasStyle"
-                        ref="video-canvas" id="video-canvas">
-                      </canvas>
-                      <canvas v-bind:style="canvasStyle"
+                    <div :style="canvasWrapperStyle" v-show="redy">
+                      <canvas :style="canvasStyle" ref="video-canvas" id="video-canvas" />
+                      <canvas :style="canvasStyle"
                         ref="mark-canvas" id="mark-canvas"
                         @mousemove="isMarked"
                         @mousedown="markDrag"
                         @mouseup="markCange"
-                        @click="markAdd">
-                      </canvas>
+                        @click="markAdd"
+                      />
                     </div>
                     <v-container text-xs-center v-if="!redy">
                       <v-progress-circular
@@ -340,7 +351,7 @@ const canvasEditor = Vue.component("canvas-editor", {
                   </v-card-title>
                 </v-card>
               </v-flex>
-              <v-flex v-if="dialog">
+              <v-flex xs6>
                 <v-card>
                   <v-card-title primary-title>
                     <v-flex xs12>
@@ -374,7 +385,7 @@ const canvasEditor = Vue.component("canvas-editor", {
                   <v-card-title>
                     <div>
                       <h3 class="headline mb-0">Detail</h3>
-                      <div class="title">特徴点: {{marks.length}}/{{markSetting.maxSize}}</div>
+                      <div class="title">特徴点: {{marks.length}} / {{markSetting.maxSize}}</div>
                     </div>
                   </v-card-title>
                   <v-data-table

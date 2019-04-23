@@ -5,7 +5,7 @@
 動画を前提とし, 音声のスペクトルグラムをうまく表示できる適当なツールが存在しないため,
 新規に作成しました．
 
-2018 年度秋期音響学会で発表予定です.
+2018 年度秋期音響学会で発表を行いました
 
 - demo: https://kikuchiken-waseda.github.io/MRIVuewer/
 
@@ -18,7 +18,7 @@
 
 ## 動作環境
 
-OS: linux, windows, mac, 
+OS: linux, windows, mac,
 推奨ブラウザ: firefox
 動画ファイル: mp4
 
@@ -28,8 +28,8 @@ OS: linux, windows, mac,
 ## 概要
 
 - 開発言語: javascript (js)
-- フレームワーク:  Vue, wavesufer.js
-- UI フレームワーク:  Vuetify
+- フレームワーク: Vue, wavesufer.js
+- UI フレームワーク: Vuetify
 - 開発時ブラウザ: Firefox
 
 基本的には js + HTML のみで動作します.
@@ -64,16 +64,17 @@ UI に関しては CSS を組んだり, icon 作成したりが面倒なので,
   - contents フィールド: 文字を入力し, Enter を押すとラベルを付与することができます.
   - 再生ボタン: 該当範囲のみを再生
   - 削除ボタン: ラベル情報を削除
-  - ダウンロードボタン:  現在の Region を csv 形式にてダウンロード
-- Points: ある1時刻に対する転記情報
+  - ダウンロードボタン: 現在の Region を csv 形式にてダウンロード
+- Points: ある 1 時刻に対する転記情報
+
   - contents フィールド: 文字を入力し, Enter を押すとラベルを付与することができます.
   - 編集ボタン: 指定時刻の画像に対し画像アノテーションを開始
 
-      1. 画面が遷移し, 現在の画像が表示されます
-      2. 任意の点をクリックするとマークをつけることができます
+    1. 画面が遷移し, 現在の画像が表示されます
+    2. 任意の点をクリックするとマークをつけることができます
 
   - 削除ボタン: ラベル情報を削除
-  - ダウンロードボタン:  現在の Points を csv 形式にてダウンロード
+  - ダウンロードボタン: 現在の Points を csv 形式にてダウンロード
 
 ### 結果の共有
 
@@ -110,16 +111,18 @@ const files = [
 ```
 
 ## 諸注意
+
 ### 画像アノテーションに関して
+
 現状では画像アノテーションの CSV ファイルはかなり適当です.
 出力に関して以下の点に留意してください.
 
 - 画像スケール:
-    - 画像アノテーションでは, その際のブラウザの大きさに応じて適当にスケーリングを行っています.
-    - csv の内 height, weigh  にアノテーション時の高さ及び幅を記述しています.
+  - 画像アノテーションでは, その際のブラウザの大きさに応じて適当にスケーリングを行っています.
+  - csv の内 height, weigh にアノテーション時の高さ及び幅を記述しています.
 - 原点:
-    - マウスの座標取得を行うために 左上を原点にしていることに注意してください.
-    - すなわち, y 軸に関しては height - y  で左下が原点になります.
+  - マウスの座標取得を行うために 左上を原点にしていることに注意してください.
+  - すなわち, y 軸に関しては height - y で左下が原点になります.
 
 ### ネットワーク
 
@@ -149,22 +152,25 @@ $ python3 -m http.server
 ```
 
 - windows の場合, デフォルトでは python が入っていないです.
-    - python3 をインストールすれば同様のことが可能です
-    - ただし面倒な場合には Firefox を使用することをおすすめします.
+  - python3 をインストールすれば同様のことが可能です
+  - ただし面倒な場合には Firefox を使用することをおすすめします.
 
 ## 参考
 
 - wavesufer.js:
+
   - 公式: https://cdnjs.com/libraries/wavesurfer.js
   - github: https://github.com/katspaugh/wavesurfer.js
   - cdn: https://wavesurfer-js.org/docs/methods.html
 
 - vue:
+
   - 公式: https://jp.vuejs.org/index.html
   - github: https://github.com/vuejs/vue
   - cdn: https://cdn.jsdelivr.net/npm/vue/dist/vue.js
 
 - vuetify:
+
   - 公式: https://vuetifyjs.com/ja/getting-started/quick-start
   - github: https://github.com/vuetifyjs/vuetify
   - cdn: https://unpkg.com/vuetify/dist/vuetify.js
