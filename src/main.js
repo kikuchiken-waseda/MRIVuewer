@@ -321,9 +321,7 @@ const canvasEditor = Vue.component("canvas-editor", {
             this.canvas.target.data.time,
             this.canvas.target.data.frame,
             item.x,
-            item.y,
-            canvas.width,
-            canvas.height
+            item.y
           ].join(",") + "\n";
         csv += line;
       });
