@@ -117,7 +117,13 @@ const canvasEditor = Vue.component("canvas-editor", {
           if (this.marks.length > 0) {
             for (const index in this.marks) {
               const item = this.marks[index];
-              this.renderMark(item.x, item.y, this.markSetting.color);
+              this.renderMark(
+                item.x,
+                item.y,
+                item.height,
+                item.width,
+                this.markSetting.color
+              );
             }
           }
         }
@@ -139,7 +145,7 @@ const canvasEditor = Vue.component("canvas-editor", {
         ".png";
       downloadPng(canvas, filename);
     },
-    renderMark: function(x, y, color) {
+    renderMark: function(x, y, height, width, color) {
       /**
        * mark-canvas に point を描画します.
        *
@@ -147,9 +153,18 @@ const canvasEditor = Vue.component("canvas-editor", {
        */
       const canvas = this.$refs["mark-canvas"];
       const ctx = canvas.getContext("2d");
+      const wx = canvas.width / width;
+      const wy = canvas.height / height;
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.arc(x, y, this.markSetting.pointSize, 0, Math.PI * 2, false);
+      ctx.arc(
+        x * wx,
+        y * wy,
+        this.markSetting.pointSize,
+        0,
+        Math.PI * 2,
+        false
+      );
       ctx.fill();
     },
     isMarked: function(event) {
@@ -227,12 +242,17 @@ const canvasEditor = Vue.component("canvas-editor", {
       const color = "rgba(241,196,15 ,1)";
       const canvas = this.$refs["mark-canvas"];
       canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
-      for (const index in this.marks) {
-        const item = this.marks[index];
+      for (const item of this.marks) {
         if (item.id === id) {
-          this.renderMark(item.x, item.y, color);
+          this.renderMark(item.x, item.y, item.height, item.width, color);
         } else {
-          this.renderMark(item.x, item.y, this.markSetting.color);
+          this.renderMark(
+            item.x,
+            item.y,
+            item.heigh,
+            item.width,
+            this.markSetting.color
+          );
         }
       }
     },
@@ -241,22 +261,32 @@ const canvasEditor = Vue.component("canvas-editor", {
       canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
       for (const index in this.marks) {
         const item = this.marks[index];
-        this.renderMark(item.x, item.y, this.markSetting.color);
+        this.renderMark(
+          item.x,
+          item.y,
+          item.height,
+          item.width,
+          this.markSetting.color
+        );
       }
     },
     markRemove: function(id) {
       const canvas = this.$refs["mark-canvas"];
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (const index in this.marks) {
-        const item = this.marks[index];
+      for (const item of this.marks) {
         if (item.id === id) {
           this.marks.splice(index, 1);
         }
       }
-      for (const index in this.marks) {
-        const item = this.marks[index];
-        this.renderMark(item.x, item.y, this.markSetting.color);
+      for (const item of this.marks) {
+        this.renderMark(
+          item.x,
+          item.y,
+          item.height,
+          item.width,
+          this.markSetting.color
+        );
       }
     },
     markDownload() {
