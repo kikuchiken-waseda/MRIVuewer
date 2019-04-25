@@ -82,6 +82,25 @@ const canvasEditor = Vue.component("canvas-editor", {
       localStorage.setItem(this.cachename, JSON.stringify(this.marks));
     }
   },
+  computed: {
+    show_marks() {
+      const data = [];
+      for (const item of this.marks) {
+        const ww = 256 / item.width;
+        const wh = 256 / item.height;
+        const x = item.x * ww;
+        const y = item.x * wh;
+        data.push({
+          id: item.id,
+          x: x,
+          y: y,
+          width: 256,
+          height: 256
+        });
+      }
+      return data;
+    }
+  },
   methods: {
     edit: function(video) {
       /**
@@ -105,7 +124,6 @@ const canvasEditor = Vue.component("canvas-editor", {
       } else {
         this.marks = cache;
       }
-
       vm = this;
       setTimeout(() => {
         canvas
@@ -115,8 +133,7 @@ const canvasEditor = Vue.component("canvas-editor", {
         this.canvas_size.height = canvas.height;
         if (this.marks) {
           if (this.marks.length > 0) {
-            for (const index in this.marks) {
-              const item = this.marks[index];
+            for (const item of this.marks) {
               this.renderMark(
                 item.x,
                 item.y,
@@ -177,8 +194,7 @@ const canvasEditor = Vue.component("canvas-editor", {
         const rect = this.$refs["mark-canvas"].getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-        for (const index in this.marks) {
-          const item = this.marks[index];
+        for (const item of this.marks) {
           const diffx = Math.abs(x - item.x);
           const diffy = Math.abs(y - item.y);
           if (diffx < 3 && diffy < 3) {
@@ -233,7 +249,7 @@ const canvasEditor = Vue.component("canvas-editor", {
           if (a.x < b.x) return -1;
           return 0;
         });
-        this.renderMark(x, y, this.markSetting.color);
+        this.renderMark(x, y, rect.height, rect.width, this.markSetting.color);
       }
       this.isDrag = false;
       this.markon = null;
@@ -259,8 +275,7 @@ const canvasEditor = Vue.component("canvas-editor", {
     markDescriptionNomal: function(event) {
       const canvas = this.$refs["mark-canvas"];
       canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
-      for (const index in this.marks) {
-        const item = this.marks[index];
+      for (const item of this.marks) {
         this.renderMark(
           item.x,
           item.y,
@@ -274,7 +289,8 @@ const canvasEditor = Vue.component("canvas-editor", {
       const canvas = this.$refs["mark-canvas"];
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (const item of this.marks) {
+      for (const index in this.marks) {
+        item = this.marks[index];
         if (item.id === id) {
           this.marks.splice(index, 1);
         }
@@ -298,7 +314,7 @@ const canvasEditor = Vue.component("canvas-editor", {
       const canvas = this.$refs["video-canvas"];
       console.log("Mark: Download");
       let csv = "basename,time,frame,x,y,width,height\n";
-      this.marks.forEach(item => {
+      this.show_marks.forEach(item => {
         const line =
           [
             this.basename,
@@ -311,11 +327,7 @@ const canvasEditor = Vue.component("canvas-editor", {
           ].join(",") + "\n";
         csv += line;
       });
-      const filename = [
-        // this.basename,
-        // this.currentFrame,
-        "mark.csv"
-      ].join("_");
+      const filename = ["mark.csv"].join("_");
       downloadCsv(csv, filename);
     },
     regionAdd: function(event) {
@@ -420,7 +432,7 @@ const canvasEditor = Vue.component("canvas-editor", {
                   </v-card-title>
                   <v-data-table
                     :headers="markSetting.headers"
-                    :items="marks"
+                    :items="show_marks"
                     class="elevation-1">
                     <template slot="headerCell" slot-scope="props">
                       <v-tooltip bottom>
