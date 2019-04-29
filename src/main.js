@@ -1,9 +1,7 @@
 // 編集用設定
 const fps = 13.78310345;
 const files = [
-  // { url: './misc/sample.mp4', 'fps': 13.78310345 },
-  // { url: './misc/sample1.mp4', 'fps': 13.78310345 },
-  // { url: './misc/sample2.mp4', 'fps': 13.78310345 }
+  // { url: './misc/6.mp4', 'fps': 13.78310345 },
 ];
 
 /* 動画マーク用コンポーネント */
@@ -89,7 +87,7 @@ const canvasEditor = Vue.component("canvas-editor", {
         const ww = 256 / item.width;
         const wh = 256 / item.height;
         const x = item.x * ww;
-        const y = item.x * wh;
+        const y = item.y * wh;
         data.push({
           id: item.id,
           x: x,
@@ -239,16 +237,17 @@ const canvasEditor = Vue.component("canvas-editor", {
           width: rect.width,
           height: rect.height
         });
-        this.marks.sort(function(a, b) {
-          if (a.y > b.y) return 1;
-          if (a.y < b.y) return -1;
-          return 0;
-        });
-        this.marks.sort(function(a, b) {
-          if (a.x > b.x) return 1;
-          if (a.x < b.x) return -1;
-          return 0;
-        });
+        // mark のソートは不評だったのでやめた
+        // this.marks.sort(function(a, b) {
+        //   if (a.y > b.y) return 1;
+        //   if (a.y < b.y) return -1;
+        //   return 0;
+        // });
+        // this.marks.sort(function(a, b) {
+        //   if (a.x > b.x) return 1;
+        //   if (a.x < b.x) return -1;
+        //   return 0;
+        // });
         this.renderMark(x, y, rect.height, rect.width, this.markSetting.color);
       }
       this.isDrag = false;
@@ -313,10 +312,11 @@ const canvasEditor = Vue.component("canvas-editor", {
        */
       const canvas = this.$refs["video-canvas"];
       console.log("Mark: Download");
-      let csv = "basename,time,frame,x,y,width,height\n";
+      let csv = "id,basename,time,frame,x,y\n";
       this.show_marks.forEach(item => {
         const line =
           [
+            item.id,
             this.basename,
             this.canvas.target.data.time,
             this.canvas.target.data.frame,
@@ -1388,7 +1388,7 @@ new Vue({
   el: "#app",
   data: {
     app: "MRI Vuewer",
-    version: 1.5,
+    version: 1.51,
     files: files,
     target: {
       url: null,
