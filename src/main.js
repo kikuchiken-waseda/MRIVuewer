@@ -499,8 +499,8 @@ Vue.component("video-player", {
         container: "#wave-form",
         waveColor: "violet",
         progressColor: "purple",
-        minPxPerSec: 200,
         scrollParent: true,
+        minPxPerSec: 100,
         minimap: true,
         normalize: true
       },
@@ -1388,7 +1388,7 @@ new Vue({
   el: "#app",
   data: {
     app: "MRI Vuewer",
-    version: 1.51,
+    version: 1.52,
     files: files,
     target: {
       url: null,
