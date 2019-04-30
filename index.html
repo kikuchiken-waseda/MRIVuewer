@@ -71,8 +71,14 @@
                 <v-list-tile-title>
                   File Upload
                 </v-list-tile-title>
-                <input v-bind:style="fileInputStyle" v-on:change="movieSelected"
-                  type="file" name="movieImport" ref="movieImport">
+                <input
+                  v-bind:style="fileInputStyle"
+                  v-on:change="movieSelected"
+                  type="file"
+                  accept='video/*'
+                  name="movieImport"
+                  ref="movieImport"
+                />
                 <output id="list"></output>
               </v-list-tile-content>
             </v-list-tile>
@@ -135,26 +141,32 @@
             <v-container fill-height>
               <v-layout align-center>
                 <v-flex>
-                  <h3 class="display-3">Welcome to {{app}} ver.{{version}}</h3>
-                  <span class="subheading">
-                    このアプリケーションでは動画ファイルの
-                    アノテーションを行うことができます.
-                    現在はこのアプリケーションに動画ファイルが設定されていないので,
-                    下のボタンから任意の動画ファイルをアップロードしてください.
-                  </span>
+                  <h3 :class="`display-${$vuetify.breakpoint.smAndDown ? 1: 3}`">
+                    {{app}} ver.{{version}}
+                  </h3>
+                  <div class="subheading">
+                    Real Time MRI 動画ファイルのアノテーションツールです.
+                  </div>
                   <v-divider class="my-3"></v-divider>
                   <div class="title mb-3">動画アップロード</div>
                   <v-btn class="mx-0" color="primary" large @click="movieImport">
                     Open your movie
                   </v-btn>
-                  <v-divider class="my-3"></v-divider>
-                  <div class="subheading">
-                    もしくは, 以下のボタンをクリックすると
-                    サンプル動画を確認することができます．
+                  <div class="caption">
+                    <v-icon>info</v-icon>
+                    現在はアプリケーション用の動画ファイルが公開されていないので
+                    任意の動画ファイルをアップロードしてください.
                   </div>
+                  <v-divider class="my-3"></v-divider>
+                  <div class="title mb-3">サンプル</div>
                   <v-btn class="mx-0" color="primary" large @click="sampleImport">
                     Go to sample movie
                   </v-btn>
+                  <div class="caption">
+                    <v-icon>info</v-icon>
+                    上のボタンをクリックすると
+                    サンプル動画を確認することができます．
+                  </div>
                 </v-flex>
               </v-layout>
             </v-container>
@@ -174,15 +186,14 @@
         <v-footer
           color="indigo"
           style="z-index: 11;"
-          justify-center
-          align-center
-          text-center
           app
           inset
         >
-          <span class="white--text">
-            {{app}} ver.{{version}} &copy; 2018 qh73xe@ruri.waseda.jp
-          </span>
+          <v-layout justify-center align-center text-center>
+            <span class="white--text">
+              {{app}} ver.{{version}} &copy; 2018 qh73xe@ruri.waseda.jp
+            </span>
+          </v-layout>
         </v-footer>
       </v-app>
     </div>
