@@ -1178,15 +1178,26 @@ Vue.component("video-player", {
               <!-- 操作ボタン --> 
               <v-card-actions v-show="isReady">
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator"
-                    color="accent" @click=startTo>
+                  <v-btn
+                    icon
+                    class="mx-3"
+                    slot="activator"
+                    color="accent"
+                    @click=startTo
+                    :small="$vuetify.breakpoint.smAndDown"
+                  >
                     <v-icon>fast_rewind</v-icon>
                   </v-btn>
                   <span>move to start...</span>
                 </v-tooltip>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator"
-                    color="accent" @click=skipBackward>
+                  <v-btn
+                    icon
+                    slot="activator"
+                    color="accent"
+                    :small="$vuetify.breakpoint.smAndDown"
+                    @click=skipBackward
+                  >
                     <v-icon>skip_previous</v-icon>
                   </v-btn>
                   <span>move to previous frame...</span>
@@ -1194,6 +1205,8 @@ Vue.component("video-player", {
                 <v-spacer></v-spacer>
                 <v-tooltip bottom>
                   <v-btn icon slot="activator"
+                    class="mx-3"
+                    :small="$vuetify.breakpoint.smAndDown"
                     color="accent" @click=play>
                     <v-icon>{{playBtnIcon}}</v-icon>
                   </v-btn>
@@ -1201,6 +1214,7 @@ Vue.component("video-player", {
                 </v-tooltip>
                 <v-tooltip bottom>
                   <v-btn icon slot="activator"
+                    :small="$vuetify.breakpoint.smAndDown"
                     color="accent" @click="reRender">
                     <v-icon>refresh</v-icon>
                   </v-btn>
@@ -1209,6 +1223,7 @@ Vue.component("video-player", {
                 <v-spacer></v-spacer>
                 <v-tooltip bottom>
                   <v-btn icon slot="activator"
+                    :small="$vuetify.breakpoint.smAndDown"
                     color="accent" @click=skipForward>
                     <v-icon>skip_next</v-icon>
                   </v-btn>
@@ -1216,6 +1231,8 @@ Vue.component("video-player", {
                 </v-tooltip>
                 <v-tooltip bottom>
                   <v-btn icon slot="activator"
+                    class="mx-3"
+                    :small="$vuetify.breakpoint.smAndDown"
                     color="accent" @click=endTo>
                     <v-icon>fast_forward</v-icon>
                   </v-btn>
@@ -1278,10 +1295,10 @@ Vue.component("video-player", {
                           @keyup.enter="labelUpdate(item)">
                         </v-text-field>
                       </v-list-tile-sub-title>
-                      <v-list-tile-sub-title>
+                      <v-list-tile-sub-title class="caption text-truncate">
                         START: {{ item.start.toFixed(3) }} sec
                       </v-list-tile-sub-title>
-                      <v-list-tile-sub-title>
+                      <v-list-tile-sub-title class="caption text-truncate">
                         END: {{ item.end.toFixed(3) }} sec
                       </v-list-tile-sub-title>
                     </v-list-tile-content>
@@ -1341,22 +1358,26 @@ Vue.component("video-player", {
                           flat>
                         </v-text-field>
                       </v-list-tile-sub-title>
-                      <v-list-tile-sub-title>
+                      <v-list-tile-sub-title class="caption text-truncate">
                         Time: {{ item.data.time.toFixed(3) }} sec
                       </v-list-tile-sub-title>
-                      <v-list-tile-sub-title>
+                      <v-list-tile-sub-title class="caption text-truncate">
                         Frame: {{ item.data.frame.toFixed(0) }}
                       </v-list-tile-sub-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
-                      <v-btn outline icon
+                      <v-btn
+                        icon
+                        outline
                         color="indigo"
                         @click="edit(item)">
                         <v-icon>edit</v-icon>
                       </v-btn>
                     </v-list-tile-action>
                     <v-list-tile-action>
-                      <v-btn outline icon
+                      <v-btn
+                        outline
+                        icon
                         color="indigo"
                         @click="pointDelete(item)">
                         <v-icon>delete_outline</v-icon>
