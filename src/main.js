@@ -1275,7 +1275,7 @@ Vue.component("video-player", {
             </v-card>
           </v-flex>
           <v-flex xs12 sm5 md3>
-            <v-card flat v-if="regions.length !== 0" class="ma-2">
+            <v-card v-if="regions.length !== 0" class="ma-2">
               <v-toolbar color="accent" dark>
                 <v-toolbar-title>Region</v-toolbar-title>
                 <v-spacer></v-spacer>
@@ -1320,7 +1320,7 @@ Vue.component("video-player", {
                 </template>
               </v-list> 
             </v-card>
-            <v-card flat dark class="ma-2" v-else>
+            <v-card dark class="ma-2" v-else>
               <v-toolbar color="accent" dark>
                 <v-toolbar-title>Region</v-toolbar-title>
                 <v-spacer></v-spacer>
@@ -1337,7 +1337,7 @@ Vue.component("video-player", {
                 </v-list-tile>
               </v-list> 
             </v-card>
-            <v-card flat class="ma-2" v-if="points.length !== 0">
+            <v-card class="ma-2" v-if="points.length !== 0">
               <v-toolbar color="accent" dark>
                 <v-toolbar-title>Point</v-toolbar-title>
                 <v-spacer></v-spacer>
