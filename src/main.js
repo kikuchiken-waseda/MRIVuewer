@@ -42,10 +42,6 @@ const canvasEditor = Vue.component("canvas-editor", {
       ],
       video: null,
       cachename: null,
-      canvasWrapperStyle: {
-        position: "relative",
-        "min-height": "83vh"
-      },
       canvasStyle: {
         cursor: "default",
         position: "absolute",
@@ -105,9 +101,31 @@ const canvasEditor = Vue.component("canvas-editor", {
         return (baseWidth / 2) * 0.85;
       } else if (bp == "lg") {
         return (baseWidth / 2) * 0.9;
-      } else if (bp == "lg") {
+      } else if (bp == "xl") {
         return (baseWidth / 2) * 0.9;
       }
+    },
+    canvasWrapperStyle() {
+      const baseWidth = window.innerWidth;
+      const bp = this.$vuetify.breakpoint.name;
+      console.log(bp);
+      const style = {
+        position: "relative"
+      };
+      if (bp == "xs") {
+        style["min-height"] = `${baseWidth * 0.8}px`;
+      } else if (bp == "sm") {
+        style["min-height"] = `${(baseWidth / 2) * 0.85}px`;
+      } else if (bp == "md") {
+        style["min-height"] = `${(baseWidth / 2) * 0.85}px`;
+      } else if (bp == "lg") {
+        style["min-height"] = `${(baseWidth / 2) * 0.9}px`;
+        style["max-height"] = "90vh";
+      } else if (bp == "xl") {
+        style["min-height"] = `${(baseWidth / 2) * 0.9}px`;
+        style["max-height"] = "90vh";
+      }
+      return style;
     }
   },
   methods: {
@@ -409,7 +427,7 @@ const canvasEditor = Vue.component("canvas-editor", {
               </v-flex>
               <v-flex xs12 sm6>
                 <v-card>
-                  <v-card-title primary-title>
+                  <v-card-title primary-title :style="canvasWrapperStyle" >
                     <v-flex xs12>
                       <h3 class="headline mb-0">Settings</h3>
                       <v-form>
@@ -438,6 +456,10 @@ const canvasEditor = Vue.component("canvas-editor", {
                       </v-form>
                     </v-flex>
                   </v-card-title>
+                </v-card>
+              </v-flex>
+              <v-flex xs12>
+                <v-card>
                   <v-card-title>
                     <div>
                       <h3 class="headline mb-0">Detail</h3>
