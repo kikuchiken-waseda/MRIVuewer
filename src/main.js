@@ -58,15 +58,10 @@ const canvasEditor = Vue.component("canvas-editor", {
   props: ["canvas", "basename"],
   watch: {
     backgroundToggle: function(val) {
-      const canvas = this.$refs["video-canvas"];
-      canvas.width = this.video.offsetWidth * this.canvas.scale;
-      canvas.height = this.video.offsetHeight * this.canvas.scale;
+      this.init_canvas();
       if (val === false) {
+        const canvas = this.$refs["video-canvas"];
         canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
-      } else {
-        canvas
-          .getContext("2d")
-          .drawImage(this.video, 0, 0, canvas.width, canvas.height);
       }
     },
     isDrag: function(val) {
@@ -97,36 +92,36 @@ const canvasEditor = Vue.component("canvas-editor", {
         });
       }
       return data;
+    },
+    canvasWidth() {
+      const baseWidth = window.innerWidth;
+      const bp = this.$vuetify.breakpoint.name;
+      console.log(bp);
+      if (bp == "xs") {
+        return baseWidth * 0.8;
+      } else if (bp == "sm") {
+        return (baseWidth / 2) * 0.85;
+      } else if (bp == "md") {
+        return (baseWidth / 2) * 0.85;
+      } else if (bp == "lg") {
+        return (baseWidth / 2) * 0.9;
+      } else if (bp == "lg") {
+        return (baseWidth / 2) * 0.9;
+      }
     }
   },
   methods: {
-    edit: function(video) {
-      /**
-       * 画像領域の初期化を行います
-       */
-      const canvas = this.$refs["video-canvas"];
-      const markCanvas = this.$refs["mark-canvas"];
-      canvas.width = video.offsetWidth * this.canvas.scale;
-      canvas.height = video.offsetHeight * this.canvas.scale;
-      markCanvas.width = canvas.width;
-      markCanvas.height = canvas.height;
-      video.currentTime = this.canvas.target.data.time;
-
-      if (this.canvas.target !== undefined) {
-        this.cachename =
-          "cache_" + this.basename + this.canvas.target.data.frame;
-      }
-      const cache = JSON.parse(localStorage.getItem(this.cachename));
-      if (cache === null) {
-        this.marks = [];
-      } else {
-        this.marks = cache;
-      }
-      vm = this;
-      setTimeout(() => {
+    init_canvas: function() {
+      if (this.video) {
+        const canvas = this.$refs["video-canvas"];
+        const markCanvas = this.$refs["mark-canvas"];
+        canvas.width = this.canvasWidth;
+        canvas.height = this.canvasWidth;
+        markCanvas.width = canvas.width;
+        markCanvas.height = canvas.height;
         canvas
           .getContext("2d")
-          .drawImage(video, 0, 0, canvas.width, canvas.height);
+          .drawImage(this.video, 0, 0, canvas.width, canvas.height);
         this.canvas_size.width = canvas.width;
         this.canvas_size.height = canvas.height;
         if (this.marks) {
@@ -142,11 +137,29 @@ const canvasEditor = Vue.component("canvas-editor", {
             }
           }
         }
-        this.redy = true;
-      }, 1000);
+      }
+    },
+    edit: function(video) {
+      /**
+       * 画像領域の初期化を行います
+       */
+      this.video = video;
       this.dialog = true;
       this.redy = false;
-      this.video = video;
+      if (this.canvas.target !== undefined) {
+        this.cachename =
+          "cache_" + this.basename + this.canvas.target.data.frame;
+      }
+      const cache = JSON.parse(localStorage.getItem(this.cachename));
+      if (cache === null) {
+        this.marks = [];
+      } else {
+        this.marks = cache;
+      }
+      setTimeout(() => {
+        this.init_canvas();
+        this.redy = true;
+      }, 1000);
     },
     downloadImage(elmname) {
       const canvas = this.$refs[elmname];
@@ -254,6 +267,7 @@ const canvasEditor = Vue.component("canvas-editor", {
       this.markon = null;
     },
     markDescription: function(id) {
+      this.init_canvas();
       const color = "rgba(241,196,15 ,1)";
       const canvas = this.$refs["mark-canvas"];
       canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
@@ -272,6 +286,7 @@ const canvasEditor = Vue.component("canvas-editor", {
       }
     },
     markDescriptionNomal: function(event) {
+      this.init_canvas();
       const canvas = this.$refs["mark-canvas"];
       canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
       for (const item of this.marks) {
@@ -285,6 +300,7 @@ const canvasEditor = Vue.component("canvas-editor", {
       }
     },
     markRemove: function(id) {
+      this.init_canvas();
       const canvas = this.$refs["mark-canvas"];
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -366,8 +382,8 @@ const canvasEditor = Vue.component("canvas-editor", {
         </v-toolbar>
         <v-card>
           <v-container fluid grid-list-md>
-            <v-layout row wrap>
-              <v-flex xs6>
+            <v-layout row wrap v-resize="init_canvas">
+              <v-flex xs12 sm6>
                 <v-card>
                   <v-card-title>
                     <div :style="canvasWrapperStyle" v-show="redy">
@@ -391,7 +407,7 @@ const canvasEditor = Vue.component("canvas-editor", {
                   </v-card-title>
                 </v-card>
               </v-flex>
-              <v-flex xs6>
+              <v-flex xs12 sm6>
                 <v-card>
                   <v-card-title primary-title>
                     <v-flex xs12>
