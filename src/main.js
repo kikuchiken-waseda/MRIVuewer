@@ -534,6 +534,7 @@ Vue.component("video-player", {
       cache: {},
       cacheUploadDialog: false,
       dialog: false,
+      menu: false,
       wavesurfer: null // wavesurfer クラス
     };
   },
@@ -1041,11 +1042,83 @@ Vue.component("video-player", {
                 <v-spacer></v-spacer>
                 <v-toolbar-title>時刻: {{currentTime}}</v-toolbar-title>
                 <v-toolbar-title>フレーム数: {{currentFrame}}</v-toolbar-title>
+
+                <v-menu
+                  offset-x
+                  v-model="menu"
+                  :close-on-content-click="false"
+                  :nudge-width="200"
+                >
+                  <v-btn icon dark slot="activator">
+                    <v-icon>settings</v-icon>
+                  </v-btn>
+                  <v-card>
+                    <v-card-text>
+                      <v-tooltip bottom>
+                        <v-text-field
+                          @keyup.enter="reRender"
+                          slot="activator"
+                          label="fps"
+                          v-model="fps"
+                          suffix="fps"
+                        />
+                        <span>動画の FPS を設定します</span>
+                      </v-tooltip>
+                      <v-tooltip bottom>
+                        <v-text-field slot="activator" label="brightness"
+                          @keyup.enter="reRender"
+                          v-model="spectrogramSetting.brightness"
+                          suffix="times"
+                        />
+                        <span>
+                          スペクトルグラムの明るさを調整します.
+                          この値は 0 以上の数字で,
+                          1 より大きくすると明るくなり,
+                          0 以上 1 未満にすると暗くなります.
+                        </span>
+                      </v-tooltip>
+                      <v-tooltip bottom>
+                        <v-text-field
+                          @keyup.enter="reRender"
+                          v-model="wavesurferSettings.minPxPerSec"
+                          slot="activator"
+                          label="minPx per sec"
+                          suffix="per sec"
+                        />
+                        <span>
+                          1 秒を何ピクセルで表現するのかを決定します.
+                          この値が大きいほど波形は拡大されます.
+                        </span>
+                      </v-tooltip>
+                      <v-tooltip bottom>
+                        <v-text-field
+                          @keyup.enter="reRender"
+                          v-model="spectrogramSetting.fftSamples"
+                          slot="activator"
+                          label="fft sample"
+                          suffix="sample"
+                        />
+                        <span>
+                          FFT サンプリングレートです.
+                          現在は動的に変更するとうまく動かないです.
+                        </span>
+                      </v-tooltip>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn flat @click="menu=false">Cancel</v-btn>
+                      <v-btn color="primary" flat @click="reRender(); menu=false">
+                        Save
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-menu>
+
               </v-toolbar>
               <!-- 動画表示 --> 
               <v-container v-show="isReady">
                 <v-layout row wrap>
-                  <v-flex d-flex xs3>
+                  <v-flex d-flex xs4>
                     <v-tooltip bottom>
                       <video slot="activator"
                         id="preVideo"
@@ -1057,7 +1130,7 @@ Vue.component("video-player", {
                       <span>{{skipLength}} sec 前の画像</span>
                     </v-tooltip>
                   </v-flex>
-                  <v-flex d-flex xs3>
+                  <v-flex d-flex xs4>
                     <v-tooltip bottom>
                       <video slot="activator"
                         id="nowVideo"
@@ -1071,7 +1144,7 @@ Vue.component("video-player", {
                       <span>現在の画像</span>
                     </v-tooltip>
                   </v-flex>
-                  <v-flex d-flex xs3>
+                  <v-flex d-flex xs4>
                     <v-tooltip bottom>
                       <video slot="activator"
                         id="posVideo"
@@ -1083,54 +1156,6 @@ Vue.component("video-player", {
                       </video>
                       <span>{{skipLength}} sec 後の画像</span>
                     </v-tooltip>
-                  </v-flex>
-                  <v-flex d-flex xs3>
-                    <v-container style="max-height:30vh;" class="scroll-y">
-                      <v-tooltip bottom>
-                        <v-text-field
-                          slot="activator"
-                          label="fps"
-                          v-model="fps"
-                          suffix="fps">
-                        </v-text-field>
-                        <span>動画の FPS を設定します</span>
-                      </v-tooltip>
-                      <v-tooltip bottom>
-                        <v-text-field slot="activator" label="brightness"
-                          v-model="spectrogramSetting.brightness"
-                          @keyup.enter="reRender"
-                          suffix="times">
-                        </v-text-field>
-                        <span>
-                          スペクトルグラムの明るさを調整します.
-                          この値は 0 以上の数字で,
-                          1 より大きくすると明るくなり,
-                          0 以上 1 未満にすると暗くなります.
-                        </span>
-                      </v-tooltip>
-                      <v-tooltip bottom>
-                        <v-text-field slot="activator" label="minPx per sec"
-                          @keyup.enter="reRender"
-                          v-model="wavesurferSettings.minPxPerSec"
-                          suffix="per sec">
-                        </v-text-field>
-                        <span>
-                          1 秒を何ピクセルで表現するのかを決定します.
-                          この値が大きいほど波形は拡大されます.
-                        </span>
-                      </v-tooltip>
-                      <v-tooltip bottom>
-                        <v-text-field  slot="activator" label="fft sample"
-                          v-model="spectrogramSetting.fftSamples"
-                          @keyup.enter="reRender"
-                          suffix="sample">
-                        </v-text-field>
-                        <span>
-                          FFT サンプリングレートです.
-                          現在は動的に変更するとうまく動かないです.
-                        </span>
-                      </v-tooltip>
-                    </v-container>
                   </v-flex>
                 </v-layout>
               </v-container>
