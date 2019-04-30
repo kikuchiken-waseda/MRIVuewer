@@ -29,7 +29,9 @@ const canvasEditor = Vue.component("canvas-editor", {
             value: "id"
           },
           { text: "x", value: "x" },
-          { text: "y", value: "y" }
+          { text: "y", value: "y" },
+          { text: "color", value: "color" },
+          { text: "actions", sortable: false }
         ]
       },
       markon: null,
@@ -37,8 +39,21 @@ const canvasEditor = Vue.component("canvas-editor", {
       backgroundToggle: true,
       colors: [
         { text: "red", val: "rgba(244,81,30 ,1)" },
-        { text: "blue", val: "rgba(41,128,185 ,1)" },
-        { text: "green", val: "rgba(46,204,113 ,1)" }
+        { text: "pink", val: "rgba(233,30,99,1)" },
+        { text: "purple", val: "rgba(156,39,176,1)" },
+        { text: "deep purple", val: "rgba(103,58,183,1)" },
+        { text: "indigo", val: "rgba(63,81,181,1)" },
+        { text: "blue", val: "rgba(33,150,243,1)" },
+        { text: "light blue", val: "rgba(3,169,244,1)" },
+        { text: "cyan", val: "rgba(0,188,212,1)" },
+        { text: "teal", val: "rgba(0,150,136,1)" },
+        { text: "green", val: "rgba(76,175,80,1)" },
+        { text: "light green", val: "rgba(139,195,74,1)" },
+        { text: "lime", val: "rgba(205,220,57,1)" },
+        { text: "yellow", val: "rgba(255,235,59,1)" },
+        { text: "amber", val: "rgba(255,193,7,1)" },
+        { text: "orange", val: "rgba(255,87,34,1)" },
+        { text: "deep orange", val: "rgba(121, 85, 72, 1)" }
       ],
       video: null,
       cachename: null,
@@ -79,13 +94,28 @@ const canvasEditor = Vue.component("canvas-editor", {
         const wh = 256 / item.height;
         const x = item.x * ww;
         const y = item.y * wh;
-        data.push({
-          id: item.id,
-          x: x,
-          y: y,
-          width: 256,
-          height: 256
+        let color = this.colors.find(x => {
+          return x.val == item.color;
         });
+        if (color) {
+          data.push({
+            id: item.id,
+            x: x,
+            y: y,
+            color: color.text,
+            width: 256,
+            height: 256
+          });
+        } else {
+          data.push({
+            id: item.id,
+            x: x,
+            y: y,
+            color: this.markSetting.color,
+            width: 256,
+            height: 256
+          });
+        }
       }
       return data;
     },
@@ -126,6 +156,20 @@ const canvasEditor = Vue.component("canvas-editor", {
         style["max-height"] = "90vh";
       }
       return style;
+    },
+    draffOfSet() {
+      const bp = this.$vuetify.breakpoint.name;
+      if (bp == "xs") {
+        return 3;
+      } else if (bp == "sm") {
+        return 3;
+      } else if (bp == "md") {
+        return 3;
+      } else if (bp == "lg") {
+        return 10;
+      } else if (bp == "xl") {
+        return 10;
+      }
     }
   },
   methods: {
@@ -145,13 +189,11 @@ const canvasEditor = Vue.component("canvas-editor", {
         if (this.marks) {
           if (this.marks.length > 0) {
             for (const item of this.marks) {
-              this.renderMark(
-                item.x,
-                item.y,
-                item.height,
-                item.width,
-                this.markSetting.color
-              );
+              let color = this.markSetting.color;
+              if (item.color) {
+                color = item.color;
+              }
+              this.renderMark(item.x, item.y, item.height, item.width, color);
             }
           }
         }
@@ -197,6 +239,9 @@ const canvasEditor = Vue.component("canvas-editor", {
        *
        * この関数が画像領域の描画に注力することに注意してください.
        */
+      if (color === undefined) {
+        color = this.markSetting.color;
+      }
       const canvas = this.$refs["mark-canvas"];
       const ctx = canvas.getContext("2d");
       const wx = canvas.width / width;
@@ -226,7 +271,8 @@ const canvasEditor = Vue.component("canvas-editor", {
         for (const item of this.marks) {
           const diffx = Math.abs(x - item.x);
           const diffy = Math.abs(y - item.y);
-          if (diffx < 3 && diffy < 3) {
+          console.info(diffx, diffy);
+          if (diffx < this.draffOfSet && diffy < this.draffOfSet) {
             isMarked = true;
             markon = item;
           }
@@ -261,25 +307,15 @@ const canvasEditor = Vue.component("canvas-editor", {
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
       if (this.marks.length < this.markSetting.maxSize) {
+        this.renderMark(x, y, rect.height, rect.width, this.markSetting.color);
         this.marks.push({
           id: generateUuid(),
           x: x,
           y: y,
           width: rect.width,
-          height: rect.height
+          height: rect.height,
+          color: this.markSetting.color
         });
-        // mark のソートは不評だったのでやめた
-        // this.marks.sort(function(a, b) {
-        //   if (a.y > b.y) return 1;
-        //   if (a.y < b.y) return -1;
-        //   return 0;
-        // });
-        // this.marks.sort(function(a, b) {
-        //   if (a.x > b.x) return 1;
-        //   if (a.x < b.x) return -1;
-        //   return 0;
-        // });
-        this.renderMark(x, y, rect.height, rect.width, this.markSetting.color);
       }
       this.isDrag = false;
       this.markon = null;
@@ -293,13 +329,7 @@ const canvasEditor = Vue.component("canvas-editor", {
         if (item.id === id) {
           this.renderMark(item.x, item.y, item.height, item.width, color);
         } else {
-          this.renderMark(
-            item.x,
-            item.y,
-            item.heigh,
-            item.width,
-            this.markSetting.color
-          );
+          this.renderMark(item.x, item.y, item.heigh, item.width, item.color);
         }
       }
     },
@@ -308,13 +338,7 @@ const canvasEditor = Vue.component("canvas-editor", {
       const canvas = this.$refs["mark-canvas"];
       canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
       for (const item of this.marks) {
-        this.renderMark(
-          item.x,
-          item.y,
-          item.height,
-          item.width,
-          this.markSetting.color
-        );
+        this.renderMark(item.x, item.y, item.height, item.width, item.color);
       }
     },
     markRemove: function(id) {
@@ -329,13 +353,7 @@ const canvasEditor = Vue.component("canvas-editor", {
         }
       }
       for (const item of this.marks) {
-        this.renderMark(
-          item.x,
-          item.y,
-          item.height,
-          item.width,
-          this.markSetting.color
-        );
+        this.renderMark(item.x, item.y, item.height, item.width, item.color);
       }
     },
     markDownload() {
@@ -346,7 +364,7 @@ const canvasEditor = Vue.component("canvas-editor", {
        */
       const canvas = this.$refs["video-canvas"];
       console.log("Mark: Download");
-      let csv = "id,basename,time,frame,x,y\n";
+      let csv = "id,basename,time,frame,x,y,color\n";
       this.show_marks.forEach(item => {
         const line =
           [
@@ -355,7 +373,8 @@ const canvasEditor = Vue.component("canvas-editor", {
             this.canvas.target.data.time,
             this.canvas.target.data.frame,
             item.x,
-            item.y
+            item.y,
+            item.color
           ].join(",") + "\n";
         csv += line;
       });
@@ -469,7 +488,8 @@ const canvasEditor = Vue.component("canvas-editor", {
                   <v-data-table
                     :headers="markSetting.headers"
                     :items="show_marks"
-                    class="elevation-1">
+                    class="elevation-1"
+                  >
                     <template slot="headerCell" slot-scope="props">
                       <v-tooltip bottom>
                         <span slot="activator">
@@ -486,17 +506,22 @@ const canvasEditor = Vue.component("canvas-editor", {
                         @mouseleave="markDescriptionNomal">
                         {{ props.item.id }}
                       </td>
-                      <td class="text-xs-right"
+                      <td
                         @mouseenter="markDescription(props.item.id)"
                         @mouseleave="markDescriptionNomal">
                         {{ props.item.x }}
                       </td>
-                      <td class="text-xs-right"
+                      <td
                         @mouseenter="markDescription(props.item.id)"
                         @mouseleave="markDescriptionNomal">
                         {{ props.item.y }}
                       </td>
-                      <td class="text-xs-right"
+                      <td
+                        @mouseenter="markDescription(props.item.id)"
+                        @mouseleave="markDescriptionNomal">
+                        {{ props.item.color }}
+                      </td>
+                      <td
                         @mouseenter="markDescription(props.item.id)"
                         @mouseleave="markDescriptionNomal">
                         <v-btn color="error" @click="markRemove(props.item.id)">
