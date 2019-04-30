@@ -1051,7 +1051,7 @@ Vue.component("video-player", {
               </menuitem>
             </menu>
           </menu>
-          <v-flex xs12 sm9>
+          <v-flex xs12 sm7 md9>
             <v-card class="ma-2" contextmenu="player-menu">
               <v-toolbar color="accent" dark>
                 <v-toolbar-title>{{basename}}</v-toolbar-title>
@@ -1257,7 +1257,7 @@ Vue.component("video-player", {
               </v-card-title>
             </v-card>
           </v-flex>
-          <v-flex xs12 sm3>
+          <v-flex xs12 sm5 md3>
             <v-card flat v-if="regions.length !== 0" class="ma-2">
               <v-toolbar color="accent" dark>
                 <v-toolbar-title>Region</v-toolbar-title>
