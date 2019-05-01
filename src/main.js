@@ -10,31 +10,6 @@ const canvasEditor = Vue.component("canvas-editor", {
     return {
       dialog: false,
       redy: false,
-      marks: [],
-      regions: [],
-      canvas_size: {},
-      imageSetting: {
-        x: 256,
-        y: 256
-      },
-      markSetting: {
-        color: "rgba(244,81,30 ,1)",
-        pointSize: 5,
-        maxSize: 68,
-        headers: [
-          {
-            text: "ID",
-            align: "left",
-            sortable: false,
-            value: "id"
-          },
-          { text: "x", value: "x" },
-          { text: "y", value: "y" },
-          { text: "color", value: "color" },
-          { text: "actions", sortable: false }
-        ]
-      },
-      markon: null,
       isDrag: false,
       backgroundToggle: true,
       colors: [
@@ -55,15 +30,36 @@ const canvasEditor = Vue.component("canvas-editor", {
         { text: "orange", val: "rgba(255,87,34,1)" },
         { text: "deep orange", val: "rgba(121, 85, 72, 1)" }
       ],
-      video: null,
-      cachename: null,
       canvasStyle: {
         cursor: "default",
         position: "absolute",
         border: "solid 3px #000000",
         top: 0,
         left: 0
-      }
+      },
+      markSetting: {
+        color: "rgba(244,81,30 ,1)",
+        pointSize: 5,
+        maxSize: 68,
+        headers: [
+          {
+            text: "ID",
+            align: "left",
+            sortable: false,
+            value: "id"
+          },
+          { text: "x", value: "x" },
+          { text: "y", value: "y" },
+          { text: "color", value: "color" },
+          { text: "actions", sortable: false }
+        ]
+      },
+      video: null,
+      markon: null,
+      cachename: null,
+      marks: [],
+      regions: [],
+      canvas_size: {}
     };
   },
   props: ["canvas", "basename"],
@@ -392,7 +388,7 @@ const canvasEditor = Vue.component("canvas-editor", {
             Time: {{canvas.target.data.time}} sec
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-menu offset-y>
+          <v-menu offset-y :nudge-width="200">
             <v-btn icon dark slot="activator">
               <v-icon>cloud_download</v-icon>
             </v-btn>
