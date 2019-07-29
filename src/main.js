@@ -10,33 +10,9 @@ const canvasEditor = Vue.component("canvas-editor", {
     return {
       dialog: false,
       redy: false,
-      marks: [],
-      regions: [],
-      canvas_size: {},
-      imageSetting: {
-        x: 256,
-        y: 256
-      },
-      markSetting: {
-        color: "rgba(244,81,30 ,1)",
-        pointSize: 5,
-        maxSize: 68,
-        headers: [
-          {
-            text: "ID",
-            align: "left",
-            sortable: false,
-            value: "id"
-          },
-          { text: "x", value: "x" },
-          { text: "y", value: "y" },
-          { text: "color", value: "color" },
-          { text: "actions", sortable: false }
-        ]
-      },
-      markon: null,
-      isDrag: false,
-      backgroundToggle: true,
+      show_canvas_menu: false,
+      is_drag: false,
+      background_toggle: true,
       colors: [
         { text: "red", val: "rgba(244,81,30 ,1)" },
         { text: "pink", val: "rgba(233,30,99,1)" },
@@ -55,31 +31,57 @@ const canvasEditor = Vue.component("canvas-editor", {
         { text: "orange", val: "rgba(255,87,34,1)" },
         { text: "deep orange", val: "rgba(121, 85, 72, 1)" }
       ],
-      video: null,
-      cachename: null,
-      canvasStyle: {
+      canvas_style: {
         cursor: "default",
         position: "absolute",
         border: "solid 3px #000000",
         top: 0,
         left: 0
-      }
+      },
+      mark_setting: {
+        color: "rgba(244,81,30 ,1)",
+        pointSize: 5,
+        maxSize: 68,
+        headers: [
+          {
+            text: "ID",
+            align: "left",
+            sortable: false,
+            value: "id"
+          },
+          { text: "x", value: "x" },
+          { text: "y", value: "y" },
+          { text: "color", value: "color" },
+          { text: "actions", sortable: false }
+        ]
+      },
+      video: null,
+      cachename: null,
+      marks: [],
+      cursor: {
+        x: null,
+        y: null
+      },
+      is_on_mark: false,
+      on_mark: {},
+      regions: [],
+      canvas_size: {}
     };
   },
   props: ["canvas", "basename"],
   watch: {
-    backgroundToggle: function(val) {
-      this.init_canvas();
+    background_toggle: function(val) {
+      this.initCanvas();
       if (val === false) {
         const canvas = this.$refs["video-canvas"];
         canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
       }
     },
-    isDrag: function(val) {
+    is_drag: function(val) {
       if (val === true) {
-        this.canvasStyle.cursor = "move";
+        this.canvas_style.cursor = "move";
       } else {
-        this.canvasStyle.cursor = "default";
+        this.canvas_style.cursor = "default";
       }
     },
     marks: function(val) {
@@ -87,13 +89,13 @@ const canvasEditor = Vue.component("canvas-editor", {
     }
   },
   computed: {
-    show_marks() {
+    normalizedMarks() {
       const data = [];
       for (const item of this.marks) {
         const ww = 256 / item.width;
         const wh = 256 / item.height;
-        const x = item.x * ww;
-        const y = item.y * wh;
+        const x = Math.round(item.x * ww);
+        const y = Math.round(item.y * wh);
         let color = this.colors.find(x => {
           return x.val == item.color;
         });
@@ -111,11 +113,24 @@ const canvasEditor = Vue.component("canvas-editor", {
             id: item.id,
             x: x,
             y: y,
-            color: this.markSetting.color,
+            color: this.mark_setting.color,
             width: 256,
             height: 256
           });
         }
+      }
+      return data;
+    },
+    normalizedCanvasCoordinate() {
+      const data = {};
+      if (this.cursor.x) {
+        const canvas = this.$refs["mark-canvas"];
+        const rect = canvas.getBoundingClientRect();
+        const w = 256 / canvas.width;
+        x = this.cursor.x - rect.left;
+        y = this.cursor.y - rect.top;
+        data.x = Math.round(x * w);
+        data.y = Math.round(y * w);
       }
       return data;
     },
@@ -157,7 +172,7 @@ const canvasEditor = Vue.component("canvas-editor", {
       }
       return style;
     },
-    draffOfSet() {
+    collisionOffset() {
       const bp = this.$vuetify.breakpoint.name;
       if (bp == "xs") {
         return 3;
@@ -173,7 +188,7 @@ const canvasEditor = Vue.component("canvas-editor", {
     }
   },
   methods: {
-    init_canvas: function() {
+    initCanvas: function() {
       if (this.video) {
         const canvas = this.$refs["video-canvas"];
         const markCanvas = this.$refs["mark-canvas"];
@@ -189,7 +204,7 @@ const canvasEditor = Vue.component("canvas-editor", {
         if (this.marks) {
           if (this.marks.length > 0) {
             for (const item of this.marks) {
-              let color = this.markSetting.color;
+              let color = this.mark_setting.color;
               if (item.color) {
                 color = item.color;
               }
@@ -217,9 +232,26 @@ const canvasEditor = Vue.component("canvas-editor", {
         this.marks = cache;
       }
       setTimeout(() => {
-        this.init_canvas();
+        this.initCanvas();
         this.redy = true;
       }, 1000);
+    },
+    downloadImages(elmnames) {
+      const createImage = function(canvas) {
+        const image = new Image();
+        image.src = canvas.toDataURL();
+        return image;
+      };
+      const filename = `${this.basename}_${this.canvas.target.data.frame}.png`;
+      const main_canvas = document.createElement("canvas");
+      const main_context = main_canvas.getContext("2d");
+      for (elmname of elmnames) {
+        const canvas = this.$refs[elmname];
+        main_context.drawImage(createImage(canvas), 0, 0);
+      }
+      img = createImage(main_canvas);
+      console.log(img);
+      //downloadPng(main_canvas, filename);
     },
     downloadImage(elmname) {
       const canvas = this.$refs[elmname];
@@ -240,7 +272,7 @@ const canvasEditor = Vue.component("canvas-editor", {
        * この関数が画像領域の描画に注力することに注意してください.
        */
       if (color === undefined) {
-        color = this.markSetting.color;
+        color = this.mark_setting.color;
       }
       const canvas = this.$refs["mark-canvas"];
       const ctx = canvas.getContext("2d");
@@ -251,53 +283,92 @@ const canvasEditor = Vue.component("canvas-editor", {
       ctx.arc(
         x * wx,
         y * wy,
-        this.markSetting.pointSize,
+        this.mark_setting.pointSize,
         0,
         Math.PI * 2,
         false
       );
       ctx.fill();
     },
+    showCanvasMemu: function(event) {
+      event.preventDefault();
+      this.show_canvas_menu = false;
+      this.cursor = {
+        x: event.clientX,
+        y: event.clientY
+      };
+      this.$nextTick(() => {
+        this.show_canvas_menu = true;
+      });
+    },
     isMarked: function(event) {
       /**
        * 画像領域ホバー中に, 既に描画が行われているか否かを判定します.
+       *
+       * 加えて this.cursor に現在の値を挿入することに注意してください.
        */
-      if (this.isDrag === false) {
-        let isMarked = false;
-        let markon = null;
-        const rect = this.$refs["mark-canvas"].getBoundingClientRect();
+      this.is_on_mark = false;
+      this.on_mark = {};
+      this.canvas_style.cursor = "default";
+
+      if (this.is_drag === false) {
+        // キャンバス上の座標軸を取得
+        const canvas = this.$refs["mark-canvas"];
+        const rect = canvas.getBoundingClientRect();
+        this.cursor = {
+          x: event.clientX,
+          y: event.clientY
+        };
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
+
         for (const item of this.marks) {
-          const diffx = Math.abs(x - item.x);
-          const diffy = Math.abs(y - item.y);
-          console.info(diffx, diffy);
-          if (diffx < this.draffOfSet && diffy < this.draffOfSet) {
-            isMarked = true;
-            markon = item;
+          // 既存のマークに対する当たり判定
+          const wx = canvas.width / item.width;
+          const wy = canvas.height / item.height;
+
+          const diffx = Math.abs(x - item.x * wx);
+          const diffy = Math.abs(y - item.y * wy);
+          if (diffx < this.collisionOffset && diffy < this.collisionOffset) {
+            // 現在のカーソルが this.collisionOffset より小さい最初マークが選択されます.
+            this.is_on_mark = true;
+            this.on_mark = item;
+            this.canvas_style.cursor = "move";
+            break;
           }
-        }
-        if (isMarked === true) {
-          this.canvasStyle.cursor = "move";
-          this.markon = markon;
-        } else {
-          this.canvasStyle.cursor = "default";
-          this.isDrag = false;
-          this.markon = null;
         }
       }
     },
     markDrag: function(event) {
-      if (this.markon !== null) {
-        this.isDrag = true;
-        this.markRemove(this.markon.id);
+      if (this.on_mark) {
+        this.is_drag = true;
+        this.markRemove(this.on_mark.id);
       } else {
-        this.isDrag = false;
+        this.is_drag = false;
       }
     },
     markCange: function(event) {
-      this.isDrag = false;
-      this.markon = null;
+      this.is_drag = false;
+      this.on_mark = {};
+    },
+    _markAdd: function(x, y, width, height) {
+      if (this.marks.length < this.mark_setting.maxSize) {
+        this.renderMark(x, y, height, width, this.mark_setting.color);
+        this.marks.push({
+          id: generateUuid(),
+          x: x,
+          y: y,
+          width: width,
+          height: height,
+          color: this.mark_setting.color
+        });
+        this.is_drag = false;
+        if (this.show_canvas_menu) {
+          this.on_mark = {};
+          this.show_canvas_menu = false;
+          this.is_on_mark = false;
+        }
+      }
     },
     markAdd: function(event) {
       /**
@@ -306,22 +377,10 @@ const canvasEditor = Vue.component("canvas-editor", {
       const rect = this.$refs["mark-canvas"].getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
-      if (this.marks.length < this.markSetting.maxSize) {
-        this.renderMark(x, y, rect.height, rect.width, this.markSetting.color);
-        this.marks.push({
-          id: generateUuid(),
-          x: x,
-          y: y,
-          width: rect.width,
-          height: rect.height,
-          color: this.markSetting.color
-        });
-      }
-      this.isDrag = false;
-      this.markon = null;
+      this._markAdd(x, y, rect.height, rect.width);
     },
     markDescription: function(id) {
-      this.init_canvas();
+      this.initCanvas();
       const color = "rgba(241,196,15 ,1)";
       const canvas = this.$refs["mark-canvas"];
       canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
@@ -334,7 +393,7 @@ const canvasEditor = Vue.component("canvas-editor", {
       }
     },
     markDescriptionNomal: function(event) {
-      this.init_canvas();
+      this.initCanvas();
       const canvas = this.$refs["mark-canvas"];
       canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
       for (const item of this.marks) {
@@ -342,7 +401,7 @@ const canvasEditor = Vue.component("canvas-editor", {
       }
     },
     markRemove: function(id) {
-      this.init_canvas();
+      this.initCanvas();
       const canvas = this.$refs["mark-canvas"];
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -355,6 +414,10 @@ const canvasEditor = Vue.component("canvas-editor", {
       for (const item of this.marks) {
         this.renderMark(item.x, item.y, item.height, item.width, item.color);
       }
+      if (this.show_canvas_menu) {
+        this.show_canvas_menu = false;
+        this.is_on_mark = false;
+      }
     },
     markDownload() {
       /**
@@ -365,7 +428,7 @@ const canvasEditor = Vue.component("canvas-editor", {
       const canvas = this.$refs["video-canvas"];
       console.log("Mark: Download");
       let csv = "id,basename,time,frame,x,y,color\n";
-      this.show_marks.forEach(item => {
+      this.normalizedMarks.forEach(item => {
         const line =
           [
             item.id,
@@ -392,41 +455,111 @@ const canvasEditor = Vue.component("canvas-editor", {
             Time: {{canvas.target.data.time}} sec
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-menu offset-y>
-            <v-btn icon dark slot="activator">
-              <v-icon>cloud_download</v-icon>
-            </v-btn>
+          <v-menu offset-y :nudge-width="200">
+            <template v-slot:activator="{ on }">
+              <v-btn icon dark v-on="on" slot="activator">
+                <v-icon>cloud_download</v-icon>
+              </v-btn>
+            </template>
             <v-list>
               <v-subheader>Video</v-subheader>
               <v-divider></v-divider>
-              <v-list-tile @click="downloadImage('video-canvas')">
-                <v-list-tile-title>PNG</v-list-tile-title>
-              </v-list-tile>
+              <v-list-item @click="downloadImages(['video-canvas', 'mark-canvas'])">
+                <v-list-item-title>PNG(全体)</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="downloadImage('video-canvas')">
+                <v-list-item-title>PNG(背景)</v-list-item-title>
+              </v-list-item>
               <v-divider></v-divider>
               <v-subheader>Marks</v-subheader>
               <v-divider></v-divider>
-              <v-list-tile @click="markDownload">
-                <v-list-tile-title>CSV</v-list-tile-title>
-              </v-list-tile>
-              <v-list-tile @click="downloadImage('mark-canvas')">
-                <v-list-tile-title>PNG</v-list-tile-title>
-              </v-list-tile>
+              <v-list-item @click="markDownload">
+                <v-list-item-title>CSV</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="downloadImage('mark-canvas')">
+                <v-list-item-title>PNG(マーク)</v-list-item-title>
+              </v-list-item>
             </v-list>
           </v-menu>
           <v-btn icon dark @click.native="dialog = false">
             <v-icon>close</v-icon>
           </v-btn>
         </v-toolbar>
+
+        <v-menu 
+          v-model="show_canvas_menu"
+          :position-x="cursor.x"
+          :position-y="cursor.y"
+          :close-on-content-click="false"
+          :nudge-width="200"
+          absolute
+          offset-y
+        >
+          <v-card>
+            <v-list three-line>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    座標情報
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    <span v-if="is_on_mark">
+                      X: {{ normalizedMarks.find(x => x.id==on_mark.id).x }}
+                    </span>
+                    <span v-else>
+                      X: {{ normalizedCanvasCoordinate.x }}
+                    </span>
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    <span v-if="is_on_mark">
+                      Y: {{ normalizedMarks.find(x => x.id==on_mark.id).y }}
+                    </span>
+                    <span v-else>
+                      Y: {{ normalizedCanvasCoordinate.y }}
+                    </span>
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+            <v-divider></v-divider>
+            <v-list class="pa-0 ma-0">
+              <v-list-item @click="markRemove(on_mark.id)"  v-if="is_on_mark">
+                <v-list-item-content>
+                  <v-list-item-title>remove</v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-icon color="red">remove_circle</v-icon>
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item
+                v-else
+                @click.stop="_markAdd(normalizedCanvasCoordinate.x, normalizedCanvasCoordinate.y, 256, 256)"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>add</v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-icon color="blue">add_circle</v-icon>
+                </v-list-item-action>
+              </v-list-item>
+            </v-list>
+            <v-divider></v-divider>
+          </v-card>
+        </v-menu>
+
         <v-card>
           <v-container fluid grid-list-md>
-            <v-layout row wrap v-resize="init_canvas">
+            <v-layout row wrap v-resize="initCanvas">
               <v-flex xs12 sm6>
                 <v-card>
                   <v-card-title>
                     <div :style="canvasWrapperStyle" v-show="redy">
-                      <canvas :style="canvasStyle" ref="video-canvas" id="video-canvas" />
-                      <canvas :style="canvasStyle"
-                        ref="mark-canvas" id="mark-canvas"
+                      <canvas :style="canvas_style" ref="video-canvas" id="video-canvas" />
+                      <canvas
+                        id="mark-canvas"
+                        ref="mark-canvas"
+                        :style="canvas_style"
+                        @contextmenu="showCanvasMemu"
                         @mousemove="isMarked"
                         @mousedown="markDrag"
                         @mouseup="markCange"
@@ -452,25 +585,25 @@ const canvasEditor = Vue.component("canvas-editor", {
                       <v-form>
                         <v-select
                           :items="colors"
-                          v-model="markSetting.color"
+                          v-model="mark_setting.color"
                           label="Color"
                           item-text="text"
                           item-value="val"
                           single-line>
                         </v-select>
                         <v-text-field
-                          v-model="markSetting.pointSize"
+                          v-model="mark_setting.pointSize"
                           label="Point Size"
                           required>
                         </v-text-field>
                         <v-text-field
-                          v-model="markSetting.maxSize"
+                          v-model="mark_setting.maxSize"
                           label="Max(n)"
                           required>
                         </v-text-field>
                         <v-switch
                           label="show backgroud"
-                          v-model="backgroundToggle">
+                          v-model="background_toggle">
                         </v-switch>
                       </v-form>
                     </v-flex>
@@ -482,19 +615,21 @@ const canvasEditor = Vue.component("canvas-editor", {
                   <v-card-title>
                     <div>
                       <h3 class="headline mb-0">Detail</h3>
-                      <div class="title">特徴点: {{marks.length}} / {{markSetting.maxSize}}</div>
+                      <div class="title">特徴点: {{marks.length}} / {{mark_setting.maxSize}}</div>
                     </div>
                   </v-card-title>
                   <v-data-table
-                    :headers="markSetting.headers"
-                    :items="show_marks"
+                    :headers="mark_setting.headers"
+                    :items="normalizedMarks"
                     class="elevation-1"
                   >
                     <template slot="headerCell" slot-scope="props">
                       <v-tooltip bottom>
-                        <span slot="activator">
-                          {{ props.header.text }}
-                        </span>
+                        <template v-slot:activator="{ on }">
+                          <span slot="activator" v-on="on">
+                            {{ props.header.text }}
+                          </span>
+                        </template>
                         <span>
                           {{ props.header.text }}
                         </span>
@@ -504,7 +639,12 @@ const canvasEditor = Vue.component("canvas-editor", {
                       <td
                         @mouseenter="markDescription(props.item.id)"
                         @mouseleave="markDescriptionNomal">
-                        {{ props.item.id }}
+                        <v-text-field
+                          v-model="props.item.id"
+                          label="Edit"
+                          single-line
+                          counter
+                        />
                       </td>
                       <td
                         @mouseenter="markDescription(props.item.id)"
@@ -1112,27 +1252,36 @@ Vue.component("video-player", {
                   :close-on-content-click="false"
                   :nudge-width="200"
                 >
-                  <v-btn icon dark slot="activator">
-                    <v-icon>settings</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn icon dark v-on="on">
+                      <v-icon>settings</v-icon>
+                    </v-btn>
+                  </template>
                   <v-card>
                     <v-card-text>
                       <v-tooltip bottom>
-                        <v-text-field
-                          @keyup.enter="reRender"
-                          slot="activator"
-                          label="fps"
-                          v-model="fps"
-                          suffix="fps"
-                        />
+                        <template v-slot:activator="{ on }">
+                          <v-text-field
+                            @keyup.enter="reRender"
+                            slot="activator"
+                            label="fps"
+                            v-model="fps"
+                            suffix="fps"
+                            v-on="on"
+                          />
+                        </template>
                         <span>動画の FPS を設定します</span>
                       </v-tooltip>
+
                       <v-tooltip bottom>
-                        <v-text-field slot="activator" label="brightness"
-                          @keyup.enter="reRender"
-                          v-model="spectrogramSetting.brightness"
-                          suffix="times"
-                        />
+                        <template v-slot:activator="{ on }">
+                          <v-text-field slot="activator" label="brightness"
+                            @keyup.enter="reRender"
+                            v-model="spectrogramSetting.brightness"
+                            suffix="times"
+                            v-on="on"
+                          />
+                        </template>
                         <span>
                           スペクトルグラムの明るさを調整します.
                           この値は 0 以上の数字で,
@@ -1141,13 +1290,16 @@ Vue.component("video-player", {
                         </span>
                       </v-tooltip>
                       <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
                         <v-text-field
                           @keyup.enter="reRender"
                           v-model="wavesurferSettings.minPxPerSec"
                           slot="activator"
                           label="minPx per sec"
                           suffix="per sec"
+                          v-on="on"
                         />
+                        </template>
                         <span>
                           1 秒を何ピクセルで表現するのかを決定します.
                           この値が大きいほど波形は拡大されます.
@@ -1169,120 +1321,163 @@ Vue.component("video-player", {
                     </v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
-                      <v-btn flat @click="menu=false">Cancel</v-btn>
-                      <v-btn color="primary" flat @click="reRender(); menu=false">
+                      <v-btn text @click="menu=false">Cancel</v-btn>
+                      <v-btn color="primary" text @click="reRender(); menu=false">
                         Save
                       </v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-menu>
-
               </v-toolbar>
               <!-- 動画表示 --> 
               <v-container v-show="isReady">
                 <v-layout row wrap>
                   <v-flex d-flex xs4>
                     <v-tooltip bottom>
-                      <video slot="activator"
-                        id="preVideo"
-                        ref="preVideo" muted
-                        v-bind:src=url
-                        v-bind:style="videoCSS"
-                        v-on:click="play">
-                      </video>
+                      <template v-slot:activator="{ on }">
+                        <video slot="activator"
+                          id="preVideo"
+                          ref="preVideo" muted
+                          v-bind:src=url
+                          v-bind:style="videoCSS"
+                          v-on:click="play"
+                          v-on="on"
+                          >
+                        </video>
+                      </template>
                       <span>{{skipLength}} sec 前の画像</span>
                     </v-tooltip>
                   </v-flex>
                   <v-flex d-flex xs4>
                     <v-tooltip bottom>
-                      <video slot="activator"
-                        id="nowVideo"
-                        ref="nowVideo"
-                        muted
-                        v-bind:src=url
-                        v-bind:style="videoCSS"
-                        v-on:click="play"
-                        v-on:timeupdate="syncVideos">
-                      </video>
+                      <template v-slot:activator="{ on }">
+                        <video slot="activator"
+                          id="nowVideo"
+                          ref="nowVideo"
+                          muted
+                          v-bind:src=url
+                          v-bind:style="videoCSS"
+                          v-on="on"
+                          v-on:click="play"
+                          v-on:timeupdate="syncVideos">
+                        </video>
+                      </template>
                       <span>現在の画像</span>
                     </v-tooltip>
                   </v-flex>
                   <v-flex d-flex xs4>
                     <v-tooltip bottom>
-                      <video slot="activator"
-                        id="posVideo"
-                        ref="posVideo"
-                        muted
-                        v-bind:src=url
-                        v-bind:style="videoCSS"
-                        v-on:click="play">
-                      </video>
+                      <template v-slot:activator="{ on }">
+                        <video slot="activator"
+                          id="posVideo"
+                          ref="posVideo"
+                          muted
+                          v-bind:src=url
+                          v-bind:style="videoCSS"
+                          v-on="on"
+                          v-on:click="play">
+                        </video>
+                      </template>
                       <span>{{skipLength}} sec 後の画像</span>
                     </v-tooltip>
                   </v-flex>
                 </v-layout>
               </v-container>
               <!-- 操作ボタン --> 
-              <v-card-actions v-show="isReady">
+              <v-card-actions>
+                <v-btn text color="orange"
+                  v-on:click="cacheDownload">
+                  Export Cache
+                </v-btn>
+                <v-btn text color="orange"
+                  v-on:click="cacheUploadDialog = true">
+                  Import Cache
+                </v-btn>
+              </v-card-actions>
+              <v-card-actions>
                 <v-tooltip bottom>
-                  <v-btn
-                    icon
-                    class="mx-3"
-                    slot="activator"
-                    color="accent"
-                    @click=startTo
-                    :small="$vuetify.breakpoint.smAndDown"
-                  >
-                    <v-icon>fast_rewind</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      icon
+                      class="mx-3"
+                      slot="activator"
+                      color="accent"
+                      v-on="on"
+                      @click=startTo
+                      :small="$vuetify.breakpoint.smAndDown"
+                    >
+                      <v-icon>fast_rewind</v-icon>
+                    </v-btn>
+                  </template>
                   <span>move to start...</span>
                 </v-tooltip>
                 <v-tooltip bottom>
-                  <v-btn
-                    icon
-                    slot="activator"
-                    color="accent"
-                    :small="$vuetify.breakpoint.smAndDown"
-                    @click=skipBackward
-                  >
-                    <v-icon>skip_previous</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      icon
+                      slot="activator"
+                      color="accent"
+                      v-on="on"
+                      :small="$vuetify.breakpoint.smAndDown"
+                      @click=skipBackward
+                    >
+                      <v-icon>skip_previous</v-icon>
+                    </v-btn>
+                  </template>
                   <span>move to previous frame...</span>
                 </v-tooltip>
                 <v-spacer></v-spacer>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator"
-                    class="mx-3"
-                    :small="$vuetify.breakpoint.smAndDown"
-                    color="accent" @click=play>
-                    <v-icon>{{playBtnIcon}}</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn icon slot="activator"
+                      class="mx-3"
+                      v-on="on"
+                      :small="$vuetify.breakpoint.smAndDown"
+                      color="accent" @click=play>
+                      <v-icon>{{playBtnIcon}}</v-icon>
+                    </v-btn>
+                  </template>
                   <span>Play or Pause</span>
                 </v-tooltip>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator"
-                    :small="$vuetify.breakpoint.smAndDown"
-                    color="accent" @click="reRender">
-                    <v-icon>refresh</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn icon slot="activator"
+                      :small="$vuetify.breakpoint.smAndDown"
+                      v-on="on"
+                      color="accent" @click="reRender">
+                      <v-icon>refresh</v-icon>
+                    </v-btn>
+                  </template>
                   <span>Redraw Sound</span>
                 </v-tooltip>
                 <v-spacer></v-spacer>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator"
-                    :small="$vuetify.breakpoint.smAndDown"
-                    color="accent" @click=skipForward>
-                    <v-icon>skip_next</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      icon
+                      color="accent"
+                      slot="activator"
+                      v-on="on"
+                      :small="$vuetify.breakpoint.smAndDown"
+                      @click=skipForward>
+                      <v-icon>skip_next</v-icon>
+                    </v-btn>
+                  </template>
                   <span>move to next frame...</span>
                 </v-tooltip>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator"
-                    class="mx-3"
-                    :small="$vuetify.breakpoint.smAndDown"
-                    color="accent" @click=endTo>
-                    <v-icon>fast_forward</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      icon
+                      slot="activator"
+                      class="mx-3"
+                      color="accent"
+                      v-on="on"
+                      :small="$vuetify.breakpoint.smAndDown"
+                      @click=endTo>
+                      <v-icon>fast_forward</v-icon>
+                    </v-btn>
+                  </template>
                   <span>move to end...</span>
                 </v-tooltip>
               </v-card-actions>
@@ -1299,26 +1494,13 @@ Vue.component("video-player", {
                   @keyup.enter="pointAdd">
                 </div>
               </v-container>
-              <v-card-actions v-if="isReady">
-                <v-btn flat color="orange"
-                  v-on:click="cacheDownload">
-                  Export Cache
-                </v-btn>
-                <v-btn flat color="orange"
-                  v-on:click="cacheUploadDialog = true">
-                  Import Cache
-                </v-btn>
-              </v-card-actions>
-              <v-card-title align-center v-else>
-                <v-container text-xs-center>
-                  <v-progress-circular
-                    :size="100"
-                    :width="7"
-                    indeterminate color="purple">
-                  </v-progress-circular>
-                  <p>Now loading...</p>
-                </v-container>
-              </v-card-title>
+              <v-progress-circular
+                v-if="!isReady"
+                :size="500"
+                :width="20"
+                color="purple"
+                indeterminate
+              />
             </v-card>
           </v-flex>
           <v-flex xs12 sm5 md3>
@@ -1333,36 +1515,36 @@ Vue.component("video-player", {
               <v-list three-line subheader
                 class="scroll-y" style="max-height:40vh; min-height:40vh;">
                 <template v-for="(item, index) in regions">
-                  <v-list-tile :key="item.id">
-                    <v-list-tile-content>
-                      <v-list-tile-sub-title>
-                        <v-text-field flat
+                  <v-list-item :key="item.id">
+                    <v-list-item-content>
+                      <v-list-item-subtitle>
+                        <v-text-field text
                           label="contents"
                           v-model="item.attributes.label"
                           @keyup.enter="labelUpdate(item)">
                         </v-text-field>
-                      </v-list-tile-sub-title>
-                      <v-list-tile-sub-title class="caption text-truncate">
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle class="caption text-truncate">
                         START: {{ item.start.toFixed(3) }} sec
-                      </v-list-tile-sub-title>
-                      <v-list-tile-sub-title class="caption text-truncate">
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle class="caption text-truncate">
                         END: {{ item.end.toFixed(3) }} sec
-                      </v-list-tile-sub-title>
-                    </v-list-tile-content>
-                    <v-list-tile-action>
-                      <v-btn outline icon color="indigo"
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-btn icon color="indigo"
                         @click="regionPlay(item)">
                         <v-icon>play_arrow</v-icon>
                       </v-btn>
-                    </v-list-tile-action>
-                    <v-list-tile-action>
-                      <v-btn outline icon
+                    </v-list-item-action>
+                    <v-list-item-action>
+                      <v-btn icon
                         color="indigo"
                         @click="regionDelete(item)">
                         <v-icon>delete_outline</v-icon>
                       </v-btn>
-                    </v-list-tile-action>
-                  </v-list-tile>
+                    </v-list-item-action>
+                  </v-list-item>
                   <v-divider></v-divider>
                 </template>
               </v-list> 
@@ -1377,11 +1559,11 @@ Vue.component("video-player", {
               </v-toolbar>
               <v-list three-line subheader
                 class="scroll-y" style="max-height:40vh; min-height:40vh;">
-                <v-list-tile>
-                  <v-list-tile-content>
-                    <v-list-tile-sub-title>No Region</v-list-tile-sub-title>
-                  </v-list-tile-content>
-                </v-list-tile>
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-subtitle>No Region</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
               </v-list> 
             </v-card>
             <v-card class="ma-2" v-if="points.length !== 0">
@@ -1395,42 +1577,40 @@ Vue.component("video-player", {
               <v-list three-line subheader
                 class="scroll-y" style="max-height:35vh;min-height:35vh;">
                 <template v-for="(item, index) in points">
-                  <v-list-tile :key="item.id">
-                    <v-list-tile-content>
-                      <v-list-tile-sub-title>
+                  <v-list-item :key="item.id">
+                    <v-list-item-content>
+                      <v-list-item-subtitle>
                         <v-text-field
                           label="contents"
                           v-model="item.attributes.label"
                           @keyup.enter="labelUpdate(item)"
-                          flat>
+                          text>
                         </v-text-field>
-                      </v-list-tile-sub-title>
-                      <v-list-tile-sub-title class="caption text-truncate">
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle class="caption text-truncate">
                         Time: {{ item.data.time.toFixed(3) }} sec
-                      </v-list-tile-sub-title>
-                      <v-list-tile-sub-title class="caption text-truncate">
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle class="caption text-truncate">
                         Frame: {{ item.data.frame.toFixed(0) }}
-                      </v-list-tile-sub-title>
-                    </v-list-tile-content>
-                    <v-list-tile-action>
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-action>
                       <v-btn
                         icon
-                        outline
                         color="indigo"
                         @click="edit(item)">
                         <v-icon>edit</v-icon>
                       </v-btn>
-                    </v-list-tile-action>
-                    <v-list-tile-action>
+                    </v-list-item-action>
+                    <v-list-item-action>
                       <v-btn
-                        outline
                         icon
                         color="indigo"
                         @click="pointDelete(item)">
                         <v-icon>delete_outline</v-icon>
                       </v-btn>
-                    </v-list-tile-action>
-                  </v-list-tile>
+                    </v-list-item-action>
+                  </v-list-item>
                   <v-divider></v-divider>
                 </template>
               </v-list> 
@@ -1445,11 +1625,11 @@ Vue.component("video-player", {
               </v-toolbar>
               <v-list three-line subheader dark
                 class="scroll-y" style="max-height:40vh;min-height:40vh;">
-                <v-list-tile>
-                  <v-list-tile-content>
-                    <v-list-tile-sub-title>No Points</v-list-tile-sub-title>
-                  </v-list-tile-content>
-                </v-list-tile>
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-subtitle>No Points</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
               </v-list> 
             </v-card>
           </v-flex>
@@ -1481,6 +1661,10 @@ Vue.component("video-player", {
                 </v-layout>
               </v-container>
             </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" flat @click="cacheUploadDialog = false">Close</v-btn>
+            </v-card-actions>
           </v-card>
         </v-dialog>
         <canvas-editor
@@ -1495,6 +1679,7 @@ Vue.component("video-player", {
 /* アプリケーション本体 */
 new Vue({
   el: "#app",
+  vuetify: new Vuetify(),
   data: {
     app: "MRI Vuewer",
     version: 1.52,

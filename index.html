@@ -2,75 +2,87 @@
 <html>
   <head>
     <link
+      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+    <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
-    >
-    <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
-    <meta charset="utf-8"/>
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css"
+      rel="stylesheet"
+    />
+    <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui"
+    />
     <style>
       #waveform {
-        outline: none !important; 
+        outline: none !important;
       }
       region.wavesurfer-region::after {
         content: attr(data-region-label);
         white-space: nowrap;
         margin-left: 2px;
       }
-      region.wavesurfer-region[data-region-type=point] {
+      region.wavesurfer-region[data-region-type="point"] {
         padding-top: 12px;
-        color: #01579b
+        color: #01579b;
       }
-      region.wavesurfer-region[data-region-type=region] {
-        color: #827717
+      region.wavesurfer-region[data-region-type="region"] {
+        color: #827717;
       }
       region.wavesurfer-region[data-region-highlight] {
-        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.05) inset, 0px 0px 8px rgba(82, 168, 236, 0.6);
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.05) inset,
+          0px 0px 8px rgba(82, 168, 236, 0.6);
       }
-      #wave-spectrogram canvas{
+      #wave-spectrogram canvas {
         left: 0;
       }
-      #specLabels{
-        position: absolute!important;
+      #specLabels {
+        position: absolute !important;
       }
       .list--three-line .list__tile {
-        height: 100px!important;
+        height: 100px !important;
       }
       .list__tile .input-group.input-group--solo label {
-        padding-left: 0px!important;
+        padding-left: 0px !important;
       }
       .list__tile .input-group.input-group--solo .input-group__input {
-        padding: 0px!important;
+        padding: 0px !important;
       }
-      .list__tile__action .btn--icon{
-        margin: 4px!important;
+      .list__tile__action .btn--icon {
+        margin: 4px !important;
       }
     </style>
   </head>
   <body>
     <div id="app">
       <v-app>
-        <!-- サイドバー --> 
+        <!-- サイドバー -->
         <v-navigation-drawer
           style="z-index: 11;"
           v-model="drawer"
+          temporary
           fixed
           right
           app
         >
-          <v-list>
-            <!-- ファイルアップロード --> 
-            <v-divider></v-divider>
-            <v-list-tile ripple @click="movieImport">
-              <v-list-tile-action>
+          <v-list dense nav>
+            <v-list-item ripple @click="movieImport">
+              <v-list-item-action>
                 <v-icon>playlist_add</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-title>
-                <v-list-tile-title>
+              </v-list-item-action>
+              <v-list-item-title>
+                <v-list-item-title>
                   File Upload
-                </v-list-tile-title>
+                </v-list-item-title>
                 <input
                   v-bind:style="fileInputStyle"
                   v-on:change="movieSelected"
@@ -80,68 +92,74 @@
                   ref="movieImport"
                 />
                 <output id="list"></output>
-              </v-list-tile-content>
-            </v-list-tile>
-
-            <!-- リンク --> 
+              </v-list-item-content>
+            </v-list-item>
             <v-list-group prepend-icon="playlist_add_check" value="true">
-              <v-list-tile slot="activator">
-                <v-list-tile-title>Files</v-list-tile-title>
-              </v-list-tile>
-              <v-list-tile ripple
-                v-for="item in files" :key="item.url"
-                v-on:click="selectFile(item)">
-                <v-list-tile-action>
-                  <v-icon color="red" v-if="item.url===target.url">movie</v-icon>
+              <v-list-item slot="activator">
+                <v-list-item-title>Files</v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                ripple
+                v-for="item in files"
+                :key="item.url"
+                v-on:click="selectFile(item)"
+              >
+                <v-list-item-action>
+                  <v-icon color="red" v-if="item.url===target.url">
+                    movie
+                  </v-icon>
                   <v-icon v-else>movie</v-icon>
-                </v-list-tile-action>
-                <v-list-tile-content v-if="item.name">
-                  <v-list-tile-title>{{item.name}}</v-list-tile-title>
-                </v-list-tile-content>
-                <v-list-tile-content v-else>
-                  <v-list-tile-title>{{item.url}}</v-list-tile-title>
-                </v-list-tile-content>
-              </v-list-tile>
+                </v-list-item-action>
+                <v-list-item-content v-if="item.name">
+                  <v-list-item-title>{{item.name}}</v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-content v-else>
+                  <v-list-item-title>{{item.url}}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
             </v-list-group>
-            <v-list-tile ripple @click="clear">
-              <v-list-tile-action>
+
+            <v-list-item link>
+              <v-list-item-icon ripple @click="clear">
                 <v-icon>delete_sweep</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>
                   キャッシュの削除(すべて)
-                </v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-divider></v-divider>
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </v-navigation-drawer>
 
-        <!-- ツールバー --> 
-        <v-toolbar color="indigo" style="z-index: 10;" dark fixed app>
+        <!-- ツールバー -->
+        <v-app-bar color="indigo" dark app>
           <v-toolbar-title>
-            {{app}} ver.{{version}} 
+            {{app}} ver.{{version}}
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-toolbar-side-icon @click.stop="drawer = !drawer" />
-        </v-toolbar>
+          <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+        </v-app-bar>
 
-        <!-- コンテンツ --> 
+        <!-- コンテンツ -->
         <v-content>
           <v-container fluid fill-height v-if="target.url">
             <v-layout justify-center align-center>
               <video-player
                 ref="video-player"
-                v-bind:url=target.url
-                v-bind:filename=target.name
-                v-bind:fps=target.fps />
+                v-bind:url="target.url"
+                v-bind:filename="target.name"
+                v-bind:fps="target.fps"
+              />
             </v-layout>
           </v-container>
           <v-responsive v-else>
-            <v-container fill-height>
+            <v-container>
               <v-layout align-center>
                 <v-flex>
-                  <h3 :class="`display-${$vuetify.breakpoint.smAndDown ? 1: 3}`">
+                  <h3
+                    :class="`display-${$vuetify.breakpoint.smAndDown ? 1: 3}`"
+                  >
                     {{app}} ver.{{version}}
                   </h3>
                   <div class="subheading">
@@ -149,7 +167,12 @@
                   </div>
                   <v-divider class="my-3"></v-divider>
                   <div class="title mb-3">動画アップロード</div>
-                  <v-btn class="mx-0" color="primary" large @click="movieImport">
+                  <v-btn
+                    class="mx-0"
+                    color="primary"
+                    large
+                    @click="movieImport"
+                  >
                     Open your movie
                   </v-btn>
                   <div class="caption">
@@ -159,7 +182,12 @@
                   </div>
                   <v-divider class="my-3"></v-divider>
                   <div class="title mb-3">サンプル</div>
-                  <v-btn class="mx-0" color="primary" large @click="sampleImport">
+                  <v-btn
+                    class="mx-0"
+                    color="primary"
+                    large
+                    @click="sampleImport"
+                  >
                     Go to sample movie
                   </v-btn>
                   <div class="caption">
@@ -183,12 +211,7 @@
             {{ snackbar.message }}
           </span>
         </v-snackbar>
-        <v-footer
-          color="indigo"
-          style="z-index: 11;"
-          app
-          inset
-        >
+        <v-footer color="indigo" style="z-index: 11;" app inset>
           <v-layout justify-center align-center text-center>
             <span class="white--text">
               {{app}} ver.{{version}} &copy; 2018 qh73xe@ruri.waseda.jp
@@ -198,18 +221,18 @@
       </v-app>
     </div>
 
-    <!-- vue 関係の読み込み --> 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.18/dist/vue.js"></script>
-    <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
+    <!-- vue 関係の読み込み -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
 
-    <!-- Wavesufer.js の読み込み --> 
+    <!-- Wavesufer.js の読み込み -->
     <script src="lib/wavesurfer/wavesurfer.js"></script>
     <script src="lib/wavesurfer/plugin/wavesurfer.regions.js"></script>
     <script src="lib/wavesurfer/plugin/wavesurfer.spectrogram.js"></script>
     <script src="lib/wavesurfer/plugin/wavesurfer.minimap.js"></script>
     <script src="lib/wavesurfer/plugin/wavesurfer.timeline.js"></script>
 
-    <!-- 本体の読み込み --> 
+    <!-- 本体の読み込み -->
     <script src="src/main.js"></script>
   </body>
 </html>
