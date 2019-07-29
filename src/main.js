@@ -456,27 +456,29 @@ const canvasEditor = Vue.component("canvas-editor", {
           </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-menu offset-y :nudge-width="200">
-            <v-btn icon dark slot="activator">
-              <v-icon>cloud_download</v-icon>
-            </v-btn>
+            <template v-slot:activator="{ on }">
+              <v-btn icon dark v-on="on" slot="activator">
+                <v-icon>cloud_download</v-icon>
+              </v-btn>
+            </template>
             <v-list>
               <v-subheader>Video</v-subheader>
               <v-divider></v-divider>
-              <v-list-tile @click="downloadImages(['video-canvas', 'mark-canvas'])">
-                <v-list-tile-title>PNG(全体)</v-list-tile-title>
-              </v-list-tile>
-              <v-list-tile @click="downloadImage('video-canvas')">
-                <v-list-tile-title>PNG(背景)</v-list-tile-title>
-              </v-list-tile>
+              <v-list-item @click="downloadImages(['video-canvas', 'mark-canvas'])">
+                <v-list-item-title>PNG(全体)</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="downloadImage('video-canvas')">
+                <v-list-item-title>PNG(背景)</v-list-item-title>
+              </v-list-item>
               <v-divider></v-divider>
               <v-subheader>Marks</v-subheader>
               <v-divider></v-divider>
-              <v-list-tile @click="markDownload">
-                <v-list-tile-title>CSV</v-list-tile-title>
-              </v-list-tile>
-              <v-list-tile @click="downloadImage('mark-canvas')">
-                <v-list-tile-title>PNG(マーク)</v-list-tile-title>
-              </v-list-tile>
+              <v-list-item @click="markDownload">
+                <v-list-item-title>CSV</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="downloadImage('mark-canvas')">
+                <v-list-item-title>PNG(マーク)</v-list-item-title>
+              </v-list-item>
             </v-list>
           </v-menu>
           <v-btn icon dark @click.native="dialog = false">
@@ -495,51 +497,51 @@ const canvasEditor = Vue.component("canvas-editor", {
         >
           <v-card>
             <v-list three-line>
-              <v-list-tile>
-                <v-list-tile-content>
-                  <v-list-tile-title>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title>
                     座標情報
-                  </v-list-tile-title>
-                  <v-list-tile-sub-title>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
                     <span v-if="is_on_mark">
                       X: {{ normalizedMarks.find(x => x.id==on_mark.id).x }}
                     </span>
                     <span v-else>
                       X: {{ normalizedCanvasCoordinate.x }}
                     </span>
-                  </v-list-tile-sub-title>
-                  <v-list-tile-sub-title>
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle>
                     <span v-if="is_on_mark">
                       Y: {{ normalizedMarks.find(x => x.id==on_mark.id).y }}
                     </span>
                     <span v-else>
                       Y: {{ normalizedCanvasCoordinate.y }}
                     </span>
-                  </v-list-tile-sub-title>
-                </v-list-tile-content>
-              </v-list-tile>
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
             </v-list>
             <v-divider></v-divider>
             <v-list class="pa-0 ma-0">
-              <v-list-tile @click="markRemove(on_mark.id)"  v-if="is_on_mark">
-                <v-list-tile-content>
-                  <v-list-tile-title>remove</v-list-tile-title>
-                </v-list-tile-content>
-                <v-list-tile-action>
+              <v-list-item @click="markRemove(on_mark.id)"  v-if="is_on_mark">
+                <v-list-item-content>
+                  <v-list-item-title>remove</v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-action>
                   <v-icon color="red">remove_circle</v-icon>
-                </v-list-tile-action>
-              </v-list-tile>
-              <v-list-tile
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item
                 v-else
                 @click.stop="_markAdd(normalizedCanvasCoordinate.x, normalizedCanvasCoordinate.y, 256, 256)"
               >
-                <v-list-tile-content>
-                  <v-list-tile-title>add</v-list-tile-title>
-                </v-list-tile-content>
-                <v-list-tile-action>
+                <v-list-item-content>
+                  <v-list-item-title>add</v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-action>
                   <v-icon color="blue">add_circle</v-icon>
-                </v-list-tile-action>
-              </v-list-tile>
+                </v-list-item-action>
+              </v-list-item>
             </v-list>
             <v-divider></v-divider>
           </v-card>
@@ -623,9 +625,11 @@ const canvasEditor = Vue.component("canvas-editor", {
                   >
                     <template slot="headerCell" slot-scope="props">
                       <v-tooltip bottom>
-                        <span slot="activator">
-                          {{ props.header.text }}
-                        </span>
+                        <template v-slot:activator="{ on }">
+                          <span slot="activator" v-on="on">
+                            {{ props.header.text }}
+                          </span>
+                        </template>
                         <span>
                           {{ props.header.text }}
                         </span>
@@ -1243,27 +1247,36 @@ Vue.component("video-player", {
                   :close-on-content-click="false"
                   :nudge-width="200"
                 >
-                  <v-btn icon dark slot="activator">
-                    <v-icon>settings</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn icon dark v-on="on">
+                      <v-icon>settings</v-icon>
+                    </v-btn>
+                  </template>
                   <v-card>
                     <v-card-text>
                       <v-tooltip bottom>
-                        <v-text-field
-                          @keyup.enter="reRender"
-                          slot="activator"
-                          label="fps"
-                          v-model="fps"
-                          suffix="fps"
-                        />
+                        <template v-slot:activator="{ on }">
+                          <v-text-field
+                            @keyup.enter="reRender"
+                            slot="activator"
+                            label="fps"
+                            v-model="fps"
+                            suffix="fps"
+                            v-on="on"
+                          />
+                        </template>
                         <span>動画の FPS を設定します</span>
                       </v-tooltip>
+
                       <v-tooltip bottom>
-                        <v-text-field slot="activator" label="brightness"
-                          @keyup.enter="reRender"
-                          v-model="spectrogramSetting.brightness"
-                          suffix="times"
-                        />
+                        <template v-slot:activator="{ on }">
+                          <v-text-field slot="activator" label="brightness"
+                            @keyup.enter="reRender"
+                            v-model="spectrogramSetting.brightness"
+                            suffix="times"
+                            v-on="on"
+                          />
+                        </template>
                         <span>
                           スペクトルグラムの明るさを調整します.
                           この値は 0 以上の数字で,
@@ -1272,13 +1285,16 @@ Vue.component("video-player", {
                         </span>
                       </v-tooltip>
                       <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
                         <v-text-field
                           @keyup.enter="reRender"
                           v-model="wavesurferSettings.minPxPerSec"
                           slot="activator"
                           label="minPx per sec"
                           suffix="per sec"
+                          v-on="on"
                         />
+                        </template>
                         <span>
                           1 秒を何ピクセルで表現するのかを決定します.
                           この値が大きいほど波形は拡大されます.
@@ -1300,120 +1316,163 @@ Vue.component("video-player", {
                     </v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
-                      <v-btn flat @click="menu=false">Cancel</v-btn>
-                      <v-btn color="primary" flat @click="reRender(); menu=false">
+                      <v-btn text @click="menu=false">Cancel</v-btn>
+                      <v-btn color="primary" text @click="reRender(); menu=false">
                         Save
                       </v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-menu>
-
               </v-toolbar>
               <!-- 動画表示 --> 
               <v-container v-show="isReady">
                 <v-layout row wrap>
                   <v-flex d-flex xs4>
                     <v-tooltip bottom>
-                      <video slot="activator"
-                        id="preVideo"
-                        ref="preVideo" muted
-                        v-bind:src=url
-                        v-bind:style="videoCSS"
-                        v-on:click="play">
-                      </video>
+                      <template v-slot:activator="{ on }">
+                        <video slot="activator"
+                          id="preVideo"
+                          ref="preVideo" muted
+                          v-bind:src=url
+                          v-bind:style="videoCSS"
+                          v-on:click="play"
+                          v-on="on"
+                          >
+                        </video>
+                      </template>
                       <span>{{skipLength}} sec 前の画像</span>
                     </v-tooltip>
                   </v-flex>
                   <v-flex d-flex xs4>
                     <v-tooltip bottom>
-                      <video slot="activator"
-                        id="nowVideo"
-                        ref="nowVideo"
-                        muted
-                        v-bind:src=url
-                        v-bind:style="videoCSS"
-                        v-on:click="play"
-                        v-on:timeupdate="syncVideos">
-                      </video>
+                      <template v-slot:activator="{ on }">
+                        <video slot="activator"
+                          id="nowVideo"
+                          ref="nowVideo"
+                          muted
+                          v-bind:src=url
+                          v-bind:style="videoCSS"
+                          v-on="on"
+                          v-on:click="play"
+                          v-on:timeupdate="syncVideos">
+                        </video>
+                      </template>
                       <span>現在の画像</span>
                     </v-tooltip>
                   </v-flex>
                   <v-flex d-flex xs4>
                     <v-tooltip bottom>
-                      <video slot="activator"
-                        id="posVideo"
-                        ref="posVideo"
-                        muted
-                        v-bind:src=url
-                        v-bind:style="videoCSS"
-                        v-on:click="play">
-                      </video>
+                      <template v-slot:activator="{ on }">
+                        <video slot="activator"
+                          id="posVideo"
+                          ref="posVideo"
+                          muted
+                          v-bind:src=url
+                          v-bind:style="videoCSS"
+                          v-on="on"
+                          v-on:click="play">
+                        </video>
+                      </template>
                       <span>{{skipLength}} sec 後の画像</span>
                     </v-tooltip>
                   </v-flex>
                 </v-layout>
               </v-container>
               <!-- 操作ボタン --> 
-              <v-card-actions v-show="isReady">
+              <v-card-actions>
+                <v-btn text color="orange"
+                  v-on:click="cacheDownload">
+                  Export Cache
+                </v-btn>
+                <v-btn text color="orange"
+                  v-on:click="cacheUploadDialog = true">
+                  Import Cache
+                </v-btn>
+              </v-card-actions>
+              <v-card-actions>
                 <v-tooltip bottom>
-                  <v-btn
-                    icon
-                    class="mx-3"
-                    slot="activator"
-                    color="accent"
-                    @click=startTo
-                    :small="$vuetify.breakpoint.smAndDown"
-                  >
-                    <v-icon>fast_rewind</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      icon
+                      class="mx-3"
+                      slot="activator"
+                      color="accent"
+                      v-on="on"
+                      @click=startTo
+                      :small="$vuetify.breakpoint.smAndDown"
+                    >
+                      <v-icon>fast_rewind</v-icon>
+                    </v-btn>
+                  </template>
                   <span>move to start...</span>
                 </v-tooltip>
                 <v-tooltip bottom>
-                  <v-btn
-                    icon
-                    slot="activator"
-                    color="accent"
-                    :small="$vuetify.breakpoint.smAndDown"
-                    @click=skipBackward
-                  >
-                    <v-icon>skip_previous</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      icon
+                      slot="activator"
+                      color="accent"
+                      v-on="on"
+                      :small="$vuetify.breakpoint.smAndDown"
+                      @click=skipBackward
+                    >
+                      <v-icon>skip_previous</v-icon>
+                    </v-btn>
+                  </template>
                   <span>move to previous frame...</span>
                 </v-tooltip>
                 <v-spacer></v-spacer>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator"
-                    class="mx-3"
-                    :small="$vuetify.breakpoint.smAndDown"
-                    color="accent" @click=play>
-                    <v-icon>{{playBtnIcon}}</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn icon slot="activator"
+                      class="mx-3"
+                      v-on="on"
+                      :small="$vuetify.breakpoint.smAndDown"
+                      color="accent" @click=play>
+                      <v-icon>{{playBtnIcon}}</v-icon>
+                    </v-btn>
+                  </template>
                   <span>Play or Pause</span>
                 </v-tooltip>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator"
-                    :small="$vuetify.breakpoint.smAndDown"
-                    color="accent" @click="reRender">
-                    <v-icon>refresh</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn icon slot="activator"
+                      :small="$vuetify.breakpoint.smAndDown"
+                      v-on="on"
+                      color="accent" @click="reRender">
+                      <v-icon>refresh</v-icon>
+                    </v-btn>
+                  </template>
                   <span>Redraw Sound</span>
                 </v-tooltip>
                 <v-spacer></v-spacer>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator"
-                    :small="$vuetify.breakpoint.smAndDown"
-                    color="accent" @click=skipForward>
-                    <v-icon>skip_next</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      icon
+                      color="accent"
+                      slot="activator"
+                      v-on="on"
+                      :small="$vuetify.breakpoint.smAndDown"
+                      @click=skipForward>
+                      <v-icon>skip_next</v-icon>
+                    </v-btn>
+                  </template>
                   <span>move to next frame...</span>
                 </v-tooltip>
                 <v-tooltip bottom>
-                  <v-btn icon slot="activator"
-                    class="mx-3"
-                    :small="$vuetify.breakpoint.smAndDown"
-                    color="accent" @click=endTo>
-                    <v-icon>fast_forward</v-icon>
-                  </v-btn>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      icon
+                      slot="activator"
+                      class="mx-3"
+                      color="accent"
+                      v-on="on"
+                      :small="$vuetify.breakpoint.smAndDown"
+                      @click=endTo>
+                      <v-icon>fast_forward</v-icon>
+                    </v-btn>
+                  </template>
                   <span>move to end...</span>
                 </v-tooltip>
               </v-card-actions>
@@ -1430,26 +1489,13 @@ Vue.component("video-player", {
                   @keyup.enter="pointAdd">
                 </div>
               </v-container>
-              <v-card-actions v-if="isReady">
-                <v-btn flat color="orange"
-                  v-on:click="cacheDownload">
-                  Export Cache
-                </v-btn>
-                <v-btn flat color="orange"
-                  v-on:click="cacheUploadDialog = true">
-                  Import Cache
-                </v-btn>
-              </v-card-actions>
-              <v-card-title align-center v-else>
-                <v-container text-xs-center>
-                  <v-progress-circular
-                    :size="100"
-                    :width="7"
-                    indeterminate color="purple">
-                  </v-progress-circular>
-                  <p>Now loading...</p>
-                </v-container>
-              </v-card-title>
+              <v-progress-circular
+                v-if="!isReady"
+                :size="500"
+                :width="20"
+                color="purple"
+                indeterminate
+              />
             </v-card>
           </v-flex>
           <v-flex xs12 sm5 md3>
@@ -1464,36 +1510,36 @@ Vue.component("video-player", {
               <v-list three-line subheader
                 class="scroll-y" style="max-height:40vh; min-height:40vh;">
                 <template v-for="(item, index) in regions">
-                  <v-list-tile :key="item.id">
-                    <v-list-tile-content>
-                      <v-list-tile-sub-title>
-                        <v-text-field flat
+                  <v-list-item :key="item.id">
+                    <v-list-item-content>
+                      <v-list-item-subtitle>
+                        <v-text-field text
                           label="contents"
                           v-model="item.attributes.label"
                           @keyup.enter="labelUpdate(item)">
                         </v-text-field>
-                      </v-list-tile-sub-title>
-                      <v-list-tile-sub-title class="caption text-truncate">
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle class="caption text-truncate">
                         START: {{ item.start.toFixed(3) }} sec
-                      </v-list-tile-sub-title>
-                      <v-list-tile-sub-title class="caption text-truncate">
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle class="caption text-truncate">
                         END: {{ item.end.toFixed(3) }} sec
-                      </v-list-tile-sub-title>
-                    </v-list-tile-content>
-                    <v-list-tile-action>
-                      <v-btn outline icon color="indigo"
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-btn icon color="indigo"
                         @click="regionPlay(item)">
                         <v-icon>play_arrow</v-icon>
                       </v-btn>
-                    </v-list-tile-action>
-                    <v-list-tile-action>
-                      <v-btn outline icon
+                    </v-list-item-action>
+                    <v-list-item-action>
+                      <v-btn icon
                         color="indigo"
                         @click="regionDelete(item)">
                         <v-icon>delete_outline</v-icon>
                       </v-btn>
-                    </v-list-tile-action>
-                  </v-list-tile>
+                    </v-list-item-action>
+                  </v-list-item>
                   <v-divider></v-divider>
                 </template>
               </v-list> 
@@ -1508,11 +1554,11 @@ Vue.component("video-player", {
               </v-toolbar>
               <v-list three-line subheader
                 class="scroll-y" style="max-height:40vh; min-height:40vh;">
-                <v-list-tile>
-                  <v-list-tile-content>
-                    <v-list-tile-sub-title>No Region</v-list-tile-sub-title>
-                  </v-list-tile-content>
-                </v-list-tile>
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-subtitle>No Region</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
               </v-list> 
             </v-card>
             <v-card class="ma-2" v-if="points.length !== 0">
@@ -1526,42 +1572,40 @@ Vue.component("video-player", {
               <v-list three-line subheader
                 class="scroll-y" style="max-height:35vh;min-height:35vh;">
                 <template v-for="(item, index) in points">
-                  <v-list-tile :key="item.id">
-                    <v-list-tile-content>
-                      <v-list-tile-sub-title>
+                  <v-list-item :key="item.id">
+                    <v-list-item-content>
+                      <v-list-item-subtitle>
                         <v-text-field
                           label="contents"
                           v-model="item.attributes.label"
                           @keyup.enter="labelUpdate(item)"
-                          flat>
+                          text>
                         </v-text-field>
-                      </v-list-tile-sub-title>
-                      <v-list-tile-sub-title class="caption text-truncate">
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle class="caption text-truncate">
                         Time: {{ item.data.time.toFixed(3) }} sec
-                      </v-list-tile-sub-title>
-                      <v-list-tile-sub-title class="caption text-truncate">
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle class="caption text-truncate">
                         Frame: {{ item.data.frame.toFixed(0) }}
-                      </v-list-tile-sub-title>
-                    </v-list-tile-content>
-                    <v-list-tile-action>
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-action>
                       <v-btn
                         icon
-                        outline
                         color="indigo"
                         @click="edit(item)">
                         <v-icon>edit</v-icon>
                       </v-btn>
-                    </v-list-tile-action>
-                    <v-list-tile-action>
+                    </v-list-item-action>
+                    <v-list-item-action>
                       <v-btn
-                        outline
                         icon
                         color="indigo"
                         @click="pointDelete(item)">
                         <v-icon>delete_outline</v-icon>
                       </v-btn>
-                    </v-list-tile-action>
-                  </v-list-tile>
+                    </v-list-item-action>
+                  </v-list-item>
                   <v-divider></v-divider>
                 </template>
               </v-list> 
@@ -1576,11 +1620,11 @@ Vue.component("video-player", {
               </v-toolbar>
               <v-list three-line subheader dark
                 class="scroll-y" style="max-height:40vh;min-height:40vh;">
-                <v-list-tile>
-                  <v-list-tile-content>
-                    <v-list-tile-sub-title>No Points</v-list-tile-sub-title>
-                  </v-list-tile-content>
-                </v-list-tile>
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-subtitle>No Points</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
               </v-list> 
             </v-card>
           </v-flex>
