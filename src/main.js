@@ -639,7 +639,12 @@ const canvasEditor = Vue.component("canvas-editor", {
                       <td
                         @mouseenter="markDescription(props.item.id)"
                         @mouseleave="markDescriptionNomal">
-                        {{ props.item.id }}
+                        <v-text-field
+                          v-model="props.item.id"
+                          label="Edit"
+                          single-line
+                          counter
+                        />
                       </td>
                       <td
                         @mouseenter="markDescription(props.item.id)"
@@ -1656,6 +1661,10 @@ Vue.component("video-player", {
                 </v-layout>
               </v-container>
             </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" flat @click="cacheUploadDialog = false">Close</v-btn>
+            </v-card-actions>
           </v-card>
         </v-dialog>
         <canvas-editor
