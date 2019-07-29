@@ -250,8 +250,7 @@ const canvasEditor = Vue.component("canvas-editor", {
         main_context.drawImage(createImage(canvas), 0, 0);
       }
       img = createImage(main_canvas);
-      console.log(img);
-      //downloadPng(main_canvas, filename);
+      downloadPng(main_canvas, filename);
     },
     downloadImage(elmname) {
       const canvas = this.$refs[elmname];
