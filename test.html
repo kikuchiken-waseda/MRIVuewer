@@ -1,0 +1,23 @@
+            <!-- ファイルアップロード --> 
+            <v-divider></v-divider>
+            <v-list-item ripple @click="movieImport">
+              <v-list-item-action>
+                <v-icon>playlist_add</v-icon>
+              </v-list-item-action>
+              <v-list-item-title>
+                <v-list-item-title>
+                  File Upload
+                </v-list-item-title>
+                <input
+                  v-bind:style="fileInputStyle"
+                  v-on:change="movieSelected"
+                  type="file"
+                  accept='video/*'
+                  name="movieImport"
+                  ref="movieImport"
+                />
+                <output id="list"></output>
+              </v-list-item-content>
+            </v-list-item>
+
+

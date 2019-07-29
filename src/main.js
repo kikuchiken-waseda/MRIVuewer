@@ -236,6 +236,23 @@ const canvasEditor = Vue.component("canvas-editor", {
         this.redy = true;
       }, 1000);
     },
+    downloadImages(elmnames) {
+      const createImage = function(canvas) {
+        const image = new Image();
+        image.src = canvas.toDataURL();
+        return image;
+      };
+      const filename = `${this.basename}_${this.canvas.target.data.frame}.png`;
+      const main_canvas = document.createElement("canvas");
+      const main_context = main_canvas.getContext("2d");
+      for (elmname of elmnames) {
+        const canvas = this.$refs[elmname];
+        main_context.drawImage(createImage(canvas), 0, 0);
+      }
+      img = createImage(main_canvas);
+      console.log(img);
+      //downloadPng(main_canvas, filename);
+    },
     downloadImage(elmname) {
       const canvas = this.$refs[elmname];
       const type = elmname.split("-")[0];
@@ -445,8 +462,11 @@ const canvasEditor = Vue.component("canvas-editor", {
             <v-list>
               <v-subheader>Video</v-subheader>
               <v-divider></v-divider>
+              <v-list-tile @click="downloadImages(['video-canvas', 'mark-canvas'])">
+                <v-list-tile-title>PNG(全体)</v-list-tile-title>
+              </v-list-tile>
               <v-list-tile @click="downloadImage('video-canvas')">
-                <v-list-tile-title>PNG</v-list-tile-title>
+                <v-list-tile-title>PNG(背景)</v-list-tile-title>
               </v-list-tile>
               <v-divider></v-divider>
               <v-subheader>Marks</v-subheader>
@@ -455,7 +475,7 @@ const canvasEditor = Vue.component("canvas-editor", {
                 <v-list-tile-title>CSV</v-list-tile-title>
               </v-list-tile>
               <v-list-tile @click="downloadImage('mark-canvas')">
-                <v-list-tile-title>PNG</v-list-tile-title>
+                <v-list-tile-title>PNG(マーク)</v-list-tile-title>
               </v-list-tile>
             </v-list>
           </v-menu>
@@ -1606,6 +1626,7 @@ Vue.component("video-player", {
 /* アプリケーション本体 */
 new Vue({
   el: "#app",
+  vuetify: new Vuetify(),
   data: {
     app: "MRI Vuewer",
     version: 1.52,
