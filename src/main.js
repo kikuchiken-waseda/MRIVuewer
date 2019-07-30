@@ -1447,8 +1447,11 @@ Vue.component("video-player", {
                 </v-tooltip>
               </v-card-actions>
               <!-- 音声表示 --> 
-              <v-container style="max-height:30vh;" class="scroll-y"
-                v-show="isReady">
+              <v-container
+                style="max-height:30vh;"
+                class="overflow-y-auto"
+                v-show="isReady"
+              >
                 <div id="wave-spectrogram"></div>
                 <div id="wave-timeline"></div>
                 <div id="wave-form"
