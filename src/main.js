@@ -52,7 +52,7 @@ const canvasEditor = Vue.component("canvas-editor", {
           { text: "x", value: "x" },
           { text: "y", value: "y" },
           { text: "color", value: "color" },
-          { text: "actions", sortable: false }
+          { text: "actions", value: "action", sortable: false }
         ]
       },
       video: null,
@@ -106,7 +106,8 @@ const canvasEditor = Vue.component("canvas-editor", {
             y: y,
             color: color.text,
             width: 256,
-            height: 256
+            height: 256,
+            action: item.id
           });
         } else {
           data.push({
@@ -115,7 +116,8 @@ const canvasEditor = Vue.component("canvas-editor", {
             y: y,
             color: this.mark_setting.color,
             width: 256,
-            height: 256
+            height: 256,
+            action: item.id
           });
         }
       }
@@ -448,7 +450,12 @@ const canvasEditor = Vue.component("canvas-editor", {
     }
   },
   template: `
-      <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+      <v-dialog
+        fullscreen
+        hide-overlay
+        v-model="dialog"
+        transition="dialog-bottom-transition"
+        >
         <v-toolbar dark color="primary">
           <v-toolbar-title v-if="canvas.target">
             Time: {{canvas.target.data.time}} sec
@@ -527,7 +534,7 @@ const canvasEditor = Vue.component("canvas-editor", {
                   <v-list-item-title>remove</v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-action>
-                  <v-icon color="red">remove_circle</v-icon>
+                  <v-icon color="red">delete</v-icon>
                 </v-list-item-action>
               </v-list-item>
               <v-list-item
@@ -614,7 +621,9 @@ const canvasEditor = Vue.component("canvas-editor", {
                   <v-card-title>
                     <div>
                       <h3 class="headline mb-0">Detail</h3>
-                      <div class="title">特徴点: {{marks.length}} / {{mark_setting.maxSize}}</div>
+                      <div class="title">
+                          特徴点: {{marks.length}} / {{mark_setting.maxSize}}
+                      </div>
                     </div>
                   </v-card-title>
                   <v-data-table
@@ -622,52 +631,11 @@ const canvasEditor = Vue.component("canvas-editor", {
                     :items="normalizedMarks"
                     class="elevation-1"
                   >
-                    <template slot="headerCell" slot-scope="props">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <span slot="activator" v-on="on">
-                            {{ props.header.text }}
-                          </span>
-                        </template>
-                        <span>
-                          {{ props.header.text }}
-                        </span>
-                      </v-tooltip>
-                    </template>
-                    <template slot="items" slot-scope="props">
-                      <td
-                        @mouseenter="markDescription(props.item.id)"
-                        @mouseleave="markDescriptionNomal">
-                        <v-text-field
-                          v-model="props.item.id"
-                          label="Edit"
-                          single-line
-                          counter
-                        />
-                      </td>
-                      <td
-                        @mouseenter="markDescription(props.item.id)"
-                        @mouseleave="markDescriptionNomal">
-                        {{ props.item.x }}
-                      </td>
-                      <td
-                        @mouseenter="markDescription(props.item.id)"
-                        @mouseleave="markDescriptionNomal">
-                        {{ props.item.y }}
-                      </td>
-                      <td
-                        @mouseenter="markDescription(props.item.id)"
-                        @mouseleave="markDescriptionNomal">
-                        {{ props.item.color }}
-                      </td>
-                      <td
-                        @mouseenter="markDescription(props.item.id)"
-                        @mouseleave="markDescriptionNomal">
-                        <v-btn color="error" @click="markRemove(props.item.id)">
-                          <v-icon>remove_circle</v-icon>
-                        </v-btn>
-                      </td>
-                    </template>
+                  <template v-slot:item.action="{ item }">
+                  <v-btn color="error" @click="markRemove(item.id)">
+                    <v-icon>delete</v-icon>
+                  </v-btn>
+                  </template>
                   </v-data-table>
                 </v-card>
               </v-flex>
