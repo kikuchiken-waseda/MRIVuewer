@@ -1,8 +1,6 @@
 // 編集用設定
 const fps = 13.78310345;
-const files = [
-  // { url: './misc/6.mp4', 'fps': 13.78310345 },
-];
+const files = [];
 
 /* 動画マーク用コンポーネント */
 const canvasEditor = Vue.component("canvas-editor", {
@@ -1480,7 +1478,7 @@ Vue.component("video-player", {
                 </v-btn>
               </v-toolbar>
               <v-list three-line subheader
-                class="scroll-y" style="max-height:40vh; min-height:40vh;">
+                class="overflow-y-auto" style="max-height:40vh; min-height:40vh;">
                 <template v-for="(item, index) in regions">
                   <v-list-item :key="item.id">
                     <v-list-item-content>
@@ -1524,8 +1522,12 @@ Vue.component("video-player", {
                   <v-icon>cloud_download</v-icon>
                 </v-btn>
               </v-toolbar>
-              <v-list three-line subheader
-                class="scroll-y" style="max-height:40vh; min-height:40vh;">
+              <v-list
+                three-line
+                subheader
+                class="overflow-y-auto" 
+                style="max-height:40vh; min-height:40vh;"
+              >
                 <v-list-item>
                   <v-list-item-content>
                     <v-list-item-subtitle>No Region</v-list-item-subtitle>
@@ -1541,8 +1543,12 @@ Vue.component("video-player", {
                   <v-icon>cloud_download</v-icon>
                 </v-btn>
               </v-toolbar>
-              <v-list three-line subheader
-                class="scroll-y" style="max-height:35vh;min-height:35vh;">
+              <v-list
+                three-line
+                subheader
+                class="overflow-y-auto" 
+                style="max-height:35vh;min-height:35vh;"
+              >
                 <template v-for="(item, index) in points">
                   <v-list-item :key="item.id">
                     <v-list-item-content>
@@ -1590,8 +1596,13 @@ Vue.component("video-player", {
                   <v-icon>cloud_download</v-icon>
                 </v-btn>
               </v-toolbar>
-              <v-list three-line subheader dark
-                class="scroll-y" style="max-height:40vh;min-height:40vh;">
+              <v-list
+                three-line
+                subheader
+                dark
+                class="overflow-y-auto" 
+                style="max-height:40vh;min-height:40vh;"
+              >
                 <v-list-item>
                   <v-list-item-content>
                     <v-list-item-subtitle>No Points</v-list-item-subtitle>
