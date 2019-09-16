@@ -14,13 +14,23 @@ const urlJoin = (...args) =>
     .replace("&", "?");
 
 export default {
-  file: {
+  path: {
     get: function(path = null) {
       let url = ROOT;
       if (path) {
         url = urlJoin(url, path);
       }
       return CLIENT.filesListFolder({ path: url });
+    }
+  },
+  sharing: {
+    get: function(path) {
+      return CLIENT.sharingListSharedLinks({ path: path });
+    }
+  },
+  file: {
+    get: function(path) {
+      return CLIENT.filesDownload({ path: path });
     }
   }
 };
