@@ -20,17 +20,17 @@
             <m-tooltip-btn class="ma-1" :btn="btn2" />
           </v-card-actions>
         </v-card>
-        <m-d-filer class="mx-auto mt-4" max-width="1904" />
+        <dropbox-filer class="mx-auto mt-4" max-width="1904" />
       </v-flex>
     </v-layout>
   </v-container>
 </template>
 
 <script>
-import MTooltipBtn from "@/components/widgets/MTooltipBtn";
-import MDFiler from "@/components/MDFiler/MDFiler.vue";
+import MTooltipBtn from "@/components/widgets/m-tooltip-btn";
+import DropboxFiler from "@/components/dropbox-filer/dropbox-filer.vue";
 export default {
-  components: { MTooltipBtn, MDFiler },
+  components: { MTooltipBtn, DropboxFiler },
   data: () => ({
     btn0: {
       label: "LOGIN DROPBOX",

@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import MSnackbar from "@/components/widgets/MSnackbar.vue";
+import MSnackbar from "@/components/widgets/m-snackbar.vue";
 export default {
   name: "App",
   components: {

@@ -31,7 +31,7 @@
       </template>
       <template v-slot:expanded-item="{ item, headers }">
         <td :colspan="headers.length" class="ma-0 pa-0">
-          <m-d-f-list :url="item.path" />
+          <dropbox-file-list :url="item.path" />
         </td>
       </template>
     </v-data-table>
@@ -40,11 +40,11 @@
 
 <script>
 import DFILES from "@/api/dfiles";
-import MDFList from "@/components/MDFiler/MDFList.vue";
-import FILTER from "@/filters/MDFilter";
+import DropboxFileList from "@/components/dropbox-filer/dropbox-file-list.vue";
+import FILTER from "@/filters/file-filter.js";
 export default {
   components: {
-    MDFList
+    DropboxFileList
   },
   props: {
     MaxWidth: {
