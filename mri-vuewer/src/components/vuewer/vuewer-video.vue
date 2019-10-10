@@ -45,7 +45,8 @@ export default {
       required: true
     },
     src: {
-      type: String
+      type: String,
+      required: true
     }
   },
   computed: {
@@ -63,9 +64,7 @@ export default {
         } else {
           this.preVideo.currentTime = 0;
         }
-
         this.mainVideo.currentTime = val;
-
         const posTime = val + this.skipLength;
         if (posTime <= this.posVideo.duration) {
           this.posVideo.currentTime = posTime;
@@ -106,14 +105,14 @@ export default {
     }
   },
   mounted: function() {
-    this.$nextTick(() => {
+    if (this.src) {
       this.preVideo = this.$refs["pre-video"];
       this.preVideo.currentTime = 0;
       this.mainVideo = this.$refs["main-video"];
       this.mainVideo.currentTime = this.skipLength;
       this.posVideo = this.$refs["pos-video"];
       this.posVideo.currentTime = 2 * this.skipLength;
-    });
+    }
   }
 };
 </script>

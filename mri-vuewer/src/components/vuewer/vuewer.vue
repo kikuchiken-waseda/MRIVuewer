@@ -1,8 +1,8 @@
 <template>
   <v-container>
-    <v-layout row fill-height wrap>
-      <v-flex xs12 sm7 md9 lg7>
-        <v-card>
+    <v-layout row wrap class="mx-3">
+      <v-flex xs12 sm6>
+        <v-card v-if="!loading">
           <vuewer-video
             ref="videos"
             :src="media.url"
@@ -37,6 +37,49 @@
           </v-card-actions>
         </v-card>
       </v-flex>
+      <v-flex xs12 sm6>
+        <v-card class="ml-1">
+          <v-tabs
+            v-model="tab"
+            background-color="blue-grey darken-2"
+            center-active
+            dark
+          >
+            <v-tabs-slider></v-tabs-slider>
+            <v-tab>Setting</v-tab>
+            <v-tab>Tier1</v-tab>
+            <v-tab>Tier2</v-tab>
+          </v-tabs>
+          <v-tabs-items v-model="tab">
+            <v-tab-item>
+              <v-card flat>
+                <v-card-text>
+                  考え中
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
+            <v-tab-item>
+              <v-card flat>
+                <v-card-text>
+                  考え中1
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
+            <v-tab-item>
+              <v-card flat>
+                <v-card-text>
+                  考え中2
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
+          </v-tabs-items>
+        </v-card>
+      </v-flex>
+      <v-flex xs12 class="mt-3">
+        <v-card v-if="!loading">
+          <Vuewer-wave :src="media.url" />
+        </v-card>
+      </v-flex>
     </v-layout>
   </v-container>
 </template>
@@ -44,18 +87,21 @@
 <script>
 import dropbox from "@/api/dropbox";
 import VuewerVideo from "@/components/vuewer/vuewer-video.vue";
+import VuewerWave from "@/components/vuewer/vuewer-wave.vue";
 import MTooltipBtn from "@/components/widgets/m-tooltip-btn";
 export default {
   components: {
     VuewerVideo,
+    VuewerWave,
     MTooltipBtn
   },
   data: () => ({
+    tab: null,
     fps: 13.78310345,
     loading: false,
     media: {
       blob: null,
-      url: null
+      url: ""
     },
     videos: null,
     duration: 0,
