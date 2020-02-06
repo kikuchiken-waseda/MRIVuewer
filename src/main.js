@@ -56,14 +56,13 @@ const canvasEditor = Vue.component("canvas-editor", {
       video: null,
       cachename: null,
       marks: [],
-      cursor: {
-        x: null,
-        y: null
-      },
+      cursorX: 0,
+      cursorY: 0,
       is_on_mark: false,
       on_mark: {},
       regions: [],
-      canvas_size: {}
+      canvas_size: {},
+      canvasWidth: 256
     };
   },
   props: ["canvas", "basename"],
@@ -85,6 +84,19 @@ const canvasEditor = Vue.component("canvas-editor", {
     marks: function(val) {
       localStorage.setItem(this.cachename, JSON.stringify(this.marks));
     }
+  },
+  watch: {
+      cursorX: function(val) {
+        this.$nextTick(() => {
+          this.$refs.canvas_menu.absoluteX = val
+        })
+      },
+      cursorY: function(val) {
+        this.$nextTick(() => {
+          this.$refs.canvas_menu.absoluteY = val
+        })
+
+      },
   },
   computed: {
     normalizedMarks() {
@@ -123,37 +135,20 @@ const canvasEditor = Vue.component("canvas-editor", {
     },
     normalizedCanvasCoordinate() {
       const data = {};
-      if (this.cursor.x) {
+      if (this.cursorX) {
         const canvas = this.$refs["mark-canvas"];
         const rect = canvas.getBoundingClientRect();
         const w = 256 / canvas.width;
-        x = this.cursor.x - rect.left;
-        y = this.cursor.y - rect.top;
+        x = this.cursorX - rect.left;
+        y = this.cursorY - rect.top;
         data.x = Math.round(x * w);
         data.y = Math.round(y * w);
       }
       return data;
     },
-    canvasWidth() {
-      const baseWidth = window.innerWidth;
-      const bp = this.$vuetify.breakpoint.name;
-      console.log(bp);
-      if (bp == "xs") {
-        return baseWidth * 0.8;
-      } else if (bp == "sm") {
-        return (baseWidth / 2) * 0.85;
-      } else if (bp == "md") {
-        return (baseWidth / 2) * 0.85;
-      } else if (bp == "lg") {
-        return (baseWidth / 2) * 0.9;
-      } else if (bp == "xl") {
-        return (baseWidth / 2) * 0.9;
-      }
-    },
     canvasWrapperStyle() {
       const baseWidth = window.innerWidth;
       const bp = this.$vuetify.breakpoint.name;
-      console.log(bp);
       const style = {
         position: "relative"
       };
@@ -188,27 +183,45 @@ const canvasEditor = Vue.component("canvas-editor", {
     }
   },
   methods: {
+    setCanvasWidth: function() {
+      const baseWidth = window.innerWidth;
+      const bp = this.$vuetify.breakpoint.name;
+      if (bp == "xs") {
+        this.canvasWidth = baseWidth * 0.8;
+      } else if (bp == "sm") {
+        this.canvasWidth = (baseWidth / 2) * 0.85;
+      } else if (bp == "md") {
+        this.canvasWidth = (baseWidth / 2) * 0.85;
+      } else if (bp == "lg") {
+        this.canvasWidth = (baseWidth / 2) * 0.9;
+      } else if (bp == "xl") {
+        this.canvasWidth = (baseWidth / 2) * 0.9;
+      }
+    },
     initCanvas: function() {
       if (this.video) {
+        this.setCanvasWidth()
         const canvas = this.$refs["video-canvas"];
         const markCanvas = this.$refs["mark-canvas"];
-        canvas.width = this.canvasWidth;
-        canvas.height = this.canvasWidth;
-        markCanvas.width = canvas.width;
-        markCanvas.height = canvas.height;
-        canvas
-          .getContext("2d")
-          .drawImage(this.video, 0, 0, canvas.width, canvas.height);
-        this.canvas_size.width = canvas.width;
-        this.canvas_size.height = canvas.height;
-        if (this.marks) {
-          if (this.marks.length > 0) {
-            for (const item of this.marks) {
-              let color = this.mark_setting.color;
-              if (item.color) {
-                color = item.color;
+        if (canvas){
+          canvas.width = this.canvasWidth;
+          canvas.height = this.canvasWidth;
+          markCanvas.width = canvas.width;
+          markCanvas.height = canvas.height;
+          canvas
+            .getContext("2d")
+            .drawImage(this.video, 0, 0, canvas.width, canvas.height);
+          this.canvas_size.width = canvas.width;
+          this.canvas_size.height = canvas.height;
+          if (this.marks) {
+            if (this.marks.length > 0) {
+              for (const item of this.marks) {
+                let color = this.mark_setting.color;
+                if (item.color) {
+                  color = item.color;
+                }
+                this.renderMark(item.x, item.y, item.height, item.width, color);
               }
-              this.renderMark(item.x, item.y, item.height, item.width, color);
             }
           }
         }
@@ -290,13 +303,11 @@ const canvasEditor = Vue.component("canvas-editor", {
       ctx.fill();
     },
     showCanvasMemu: function(event) {
-      event.preventDefault();
       this.show_canvas_menu = false;
-      this.cursor = {
-        x: event.clientX,
-        y: event.clientY
-      };
+      event.preventDefault();
       this.$nextTick(() => {
+        this.cursorX = event.clientX
+        this.cursorY = event.clientY
         this.show_canvas_menu = true;
       });
     },
@@ -314,10 +325,9 @@ const canvasEditor = Vue.component("canvas-editor", {
         // キャンバス上の座標軸を取得
         const canvas = this.$refs["mark-canvas"];
         const rect = canvas.getBoundingClientRect();
-        this.cursor = {
-          x: event.clientX,
-          y: event.clientY
-        };
+        this.cursorX = event.clientX
+        this.cursorY = event.clientY
+
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
 
@@ -425,7 +435,7 @@ const canvasEditor = Vue.component("canvas-editor", {
        *
        */
       const canvas = this.$refs["video-canvas"];
-      console.log("Mark: Download");
+      console.info("Mark: Download");
       let csv = "id,basename,time,frame,x,y,color\n";
       this.normalizedMarks.forEach(item => {
         const line =
@@ -444,16 +454,21 @@ const canvasEditor = Vue.component("canvas-editor", {
       downloadCsv(csv, filename);
     },
     regionAdd: function(event) {
-      console.log("ctrl");
+      console.info("ctrl");
     }
   },
+  mounted: function() {
+    this.cursorX = 0
+    this.cursorY = 0
+  },
   template: `
-      <v-dialog
-        fullscreen
-        hide-overlay
-        v-model="dialog"
-        transition="dialog-bottom-transition"
-        >
+    <v-dialog
+      v-model="dialog"
+      fullscreen
+      hide-overlay
+      transition="dialog-bottom-transition"
+    >
+      <v-card>
         <v-toolbar dark color="primary">
           <v-toolbar-title v-if="canvas.target">
             Time: {{canvas.target.data.time}} sec
@@ -468,7 +483,8 @@ const canvasEditor = Vue.component("canvas-editor", {
             <v-list>
               <v-subheader>Video</v-subheader>
               <v-divider></v-divider>
-              <v-list-item @click="downloadImages(['video-canvas', 'mark-canvas'])">
+              <v-list-item
+                @click="downloadImages(['video-canvas', 'mark-canvas'])">
                 <v-list-item-title>PNG(全体)</v-list-item-title>
               </v-list-item>
               <v-list-item @click="downloadImage('video-canvas')">
@@ -490,157 +506,158 @@ const canvasEditor = Vue.component("canvas-editor", {
           </v-btn>
         </v-toolbar>
 
-        <v-menu 
-          v-model="show_canvas_menu"
-          :position-x="cursor.x"
-          :position-y="cursor.y"
-          :close-on-content-click="false"
-          :nudge-width="200"
-          absolute
-          offset-y
-        >
-          <v-card>
-            <v-list three-line>
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    座標情報
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    <span v-if="is_on_mark">
-                      X: {{ normalizedMarks.find(x => x.id==on_mark.id).x }}
-                    </span>
-                    <span v-else>
-                      X: {{ normalizedCanvasCoordinate.x }}
-                    </span>
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle>
-                    <span v-if="is_on_mark">
-                      Y: {{ normalizedMarks.find(x => x.id==on_mark.id).y }}
-                    </span>
-                    <span v-else>
-                      Y: {{ normalizedCanvasCoordinate.y }}
-                    </span>
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-            <v-divider></v-divider>
-            <v-list class="pa-0 ma-0">
-              <v-list-item @click="markRemove(on_mark.id)"  v-if="is_on_mark">
-                <v-list-item-content>
-                  <v-list-item-title>remove</v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-icon color="red">delete</v-icon>
-                </v-list-item-action>
-              </v-list-item>
-              <v-list-item
-                v-else
-                @click.stop="_markAdd(normalizedCanvasCoordinate.x, normalizedCanvasCoordinate.y, 256, 256)"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>add</v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-icon color="blue">add_circle</v-icon>
-                </v-list-item-action>
-              </v-list-item>
-            </v-list>
-            <v-divider></v-divider>
-          </v-card>
-        </v-menu>
-
-        <v-card>
-          <v-container fluid grid-list-md>
-            <v-layout row wrap v-resize="initCanvas">
-              <v-flex xs12 sm6>
-                <v-card>
-                  <v-card-title>
-                    <div :style="canvasWrapperStyle" v-show="redy">
-                      <canvas :style="canvas_style" ref="video-canvas" id="video-canvas" />
-                      <canvas
-                        id="mark-canvas"
-                        ref="mark-canvas"
-                        :style="canvas_style"
-                        @contextmenu="showCanvasMemu"
-                        @mousemove="isMarked"
-                        @mousedown="markDrag"
-                        @mouseup="markCange"
-                        @click="markAdd"
-                      />
-                    </div>
-                    <v-container text-xs-center v-if="!redy">
-                      <v-progress-circular
-                        :size="100"
-                        :width="7"
-                        indeterminate color="purple">
-                      </v-progress-circular>
-                      <p>Now loading...</p>
-                    </v-container>
-                  </v-card-title>
-                </v-card>
-              </v-flex>
-              <v-flex xs12 sm6>
-                <v-card>
-                  <v-card-title primary-title :style="canvasWrapperStyle" >
-                    <v-flex xs12>
-                      <h3 class="headline mb-0">Settings</h3>
-                      <v-form>
-                        <v-select
-                          :items="colors"
-                          v-model="mark_setting.color"
-                          label="Color"
-                          item-text="text"
-                          item-value="val"
-                          single-line>
-                        </v-select>
-                        <v-text-field
-                          v-model="mark_setting.pointSize"
-                          label="Point Size"
-                          required>
-                        </v-text-field>
-                        <v-text-field
-                          v-model="mark_setting.maxSize"
-                          label="Max(n)"
-                          required>
-                        </v-text-field>
-                        <v-switch
-                          label="show backgroud"
-                          v-model="background_toggle">
-                        </v-switch>
-                      </v-form>
-                    </v-flex>
-                  </v-card-title>
-                </v-card>
-              </v-flex>
-              <v-flex xs12>
-                <v-card>
-                  <v-card-title>
-                    <div>
-                      <h3 class="headline mb-0">Detail</h3>
-                      <div class="title">
-                          特徴点: {{marks.length}} / {{mark_setting.maxSize}}
-                      </div>
-                    </div>
-                  </v-card-title>
-                  <v-data-table
-                    :headers="mark_setting.headers"
-                    :items="normalizedMarks"
-                    class="elevation-1"
+        <v-container fluid grid-list-md>
+          <v-layout row wrap v-resize="initCanvas">
+            <v-flex xs12 sm6>
+              <v-card>
+                <v-card-title>
+                  <v-menu
+                    ref="canvas_menu"
+                    v-model="show_canvas_menu"
+                    :close-on-content-click="false"
+                    :nudge-width="200"
+                    absolute
+                    offset-y
                   >
-                  <template v-slot:item.action="{ item }">
-                  <v-btn color="error" @click="markRemove(item.id)">
-                    <v-icon>delete</v-icon>
-                  </v-btn>
-                  </template>
-                  </v-data-table>
-                </v-card>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-card>
-      </v-dialog>
+                    <v-card>
+                      <v-list three-line>
+                        <v-list-item>
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              座標情報
+                            </v-list-item-title>
+                            <v-list-item-subtitle>
+                              <span v-if="is_on_mark">
+                                X: {{ normalizedMarks.find(x => x.id==on_mark.id).x }}
+                              </span>
+                              <span v-else>
+                                X: {{ normalizedCanvasCoordinate.x }}
+                              </span>
+                            </v-list-item-subtitle>
+                            <v-list-item-subtitle>
+                              <span v-if="is_on_mark">
+                                Y: {{ normalizedMarks.find(x => x.id==on_mark.id).y }}
+                              </span>
+                              <span v-else>
+                                Y: {{ normalizedCanvasCoordinate.y }}
+                              </span>
+                            </v-list-item-subtitle>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </v-list>
+                      <v-divider></v-divider>
+                      <v-list class="pa-0 ma-0">
+                        <v-list-item @click="markRemove(on_mark.id)"  v-if="is_on_mark">
+                          <v-list-item-content>
+                            <v-list-item-title>remove</v-list-item-title>
+                          </v-list-item-content>
+                          <v-list-item-action>
+                            <v-icon color="red">delete</v-icon>
+                          </v-list-item-action>
+                        </v-list-item>
+                        <v-list-item
+                          v-else
+                          @click.stop="_markAdd(normalizedCanvasCoordinate.x, normalizedCanvasCoordinate.y, 256, 256)"
+                        >
+                          <v-list-item-content>
+                            <v-list-item-title>add</v-list-item-title>
+                          </v-list-item-content>
+                          <v-list-item-action>
+                            <v-icon color="blue">add_circle</v-icon>
+                          </v-list-item-action>
+                        </v-list-item>
+                      </v-list>
+                      <v-divider></v-divider>
+                    </v-card>
+                  </v-menu>
+
+                  <div :style="canvasWrapperStyle" v-show="redy">
+                    <canvas
+                      :style="canvas_style"
+                      ref="video-canvas"
+                      id="video-canvas" />
+                    <canvas
+                      id="mark-canvas"
+                      ref="mark-canvas"
+                      :style="canvas_style"
+                      @contextmenu="showCanvasMemu"
+                      @mousemove="isMarked"
+                      @mousedown="markDrag"
+                      @mouseup="markCange"
+                      @click="markAdd"
+                    />
+                  </div>
+                  <v-container text-xs-center v-if="!redy">
+                    <v-progress-circular
+                      :size="100"
+                      :width="7"
+                      indeterminate color="purple">
+                    </v-progress-circular>
+                    <p>Now loading...</p>
+                  </v-container>
+                </v-card-title>
+              </v-card>
+            </v-flex>
+            <v-flex xs12 sm6>
+              <v-card>
+                <v-card-title primary-title :style="canvasWrapperStyle" >
+                  <v-flex xs12>
+                    <h3 class="headline mb-0">Settings</h3>
+                    <v-form>
+                      <v-select
+                        :items="colors"
+                        v-model="mark_setting.color"
+                        label="Color"
+                        item-text="text"
+                        item-value="val"
+                        single-line>
+                      </v-select>
+                      <v-text-field
+                        v-model="mark_setting.pointSize"
+                        label="Point Size"
+                        required>
+                      </v-text-field>
+                      <v-text-field
+                        v-model="mark_setting.maxSize"
+                        label="Max(n)"
+                        required>
+                      </v-text-field>
+                      <v-switch
+                        label="show backgroud"
+                        v-model="background_toggle">
+                      </v-switch>
+                    </v-form>
+                  </v-flex>
+                </v-card-title>
+              </v-card>
+            </v-flex>
+            <v-flex xs12>
+              <v-card>
+                <v-card-title>
+                  <div>
+                    <h3 class="headline mb-0">Detail</h3>
+                    <div class="title">
+                        特徴点: {{marks.length}} / {{mark_setting.maxSize}}
+                    </div>
+                  </div>
+                </v-card-title>
+                <v-data-table
+                  :headers="mark_setting.headers"
+                  :items="normalizedMarks"
+                  class="elevation-1"
+                >
+                <template v-slot:item.action="{ item }">
+                <v-btn color="error" @click="markRemove(item.id)">
+                  <v-icon>delete</v-icon>
+                </v-btn>
+                </template>
+                </v-data-table>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-card>
+    </v-dialog>
     `
 });
 
@@ -772,7 +789,6 @@ Vue.component("video-player", {
     const url = this.url;
     const cache = JSON.parse(localStorage.getItem(this.cachename));
     if (cache !== null) {
-      console.log(cache);
       this.cache = cache;
       this.points = this.cache.points;
       this.regions = this.cache.regions;
@@ -991,7 +1007,7 @@ Vue.component("video-player", {
        * ダウンロードします.
        *
        */
-      console.log("Point: Download");
+      console.info("Point: Download");
       let csv = "time,frame,text\n";
       this.points.forEach(item => {
         const line =
@@ -1008,7 +1024,7 @@ Vue.component("video-player", {
     },
     // region 操作
     regionPlay: function(region) {
-      console.log("REGION: PLAY");
+      console.info("REGION: PLAY");
       const video = this.$refs.nowVideo;
       const duration = this.wavesurfer.getDuration();
 
@@ -1032,7 +1048,7 @@ Vue.component("video-player", {
       setTimeout(stop, (region.end - region.start) * 1000);
     },
     regionDelete: function(region) {
-      console.log("REGION: DELETE");
+      console.info("REGION: DELETE");
       // LIST から削除
       this.regions = this.regions.filter(x => x.id !== region.id);
       // wave-form から削除
@@ -1110,7 +1126,7 @@ Vue.component("video-player", {
        * region として記述した内容を CSV に変換し, ダウンロードします.
        *
        */
-      console.log("Region: Download");
+      console.info("Region: Download");
       let csv = "strat,end,text\n";
       this.regions.forEach(item => {
         const line =
@@ -1163,7 +1179,6 @@ Vue.component("video-player", {
         const cache = JSON.parse(e.target.result);
         vm.regions = cache.regions;
         vm.points = cache.points;
-        console.log(vm.cache);
       };
       fr.readAsText(file);
       this.cacheUploadDialog = false;
@@ -1644,7 +1659,7 @@ Vue.component("video-player", {
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" flat @click="cacheUploadDialog = false">Close</v-btn>
+                <v-btn color="blue darken-1" text @click="cacheUploadDialog = false">Close</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
