@@ -1678,7 +1678,7 @@ new Vue({
   vuetify: new Vuetify(),
   data: {
     app: "MRI Vuewer",
-    version: 1.52,
+    version: 1.53,
     files: files,
     target: {
       url: null,
