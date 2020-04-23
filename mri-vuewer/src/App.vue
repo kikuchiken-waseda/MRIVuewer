@@ -1,37 +1,51 @@
 <template>
   <v-app>
-    <v-app-bar app color="blue-grey darken-2" dark>
-      <v-toolbar-title class="headline text-uppercase">
-        <span>MRI</span>
-        <span class="font-weight-light">Vuewer</span>
-        <span class="font-weight-light">ver.{{ version }}</span>
-      </v-toolbar-title>
+    <v-app-bar app color="primary" dark>
+      <div class="d-flex align-center">
+        <v-img
+          alt="Vuetify Logo"
+          class="shrink mr-2"
+          contain
+          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+          transition="scale-transition"
+          width="40"
+        />
+
+        <v-img
+          alt="Vuetify Name"
+          class="shrink mt-1 hidden-sm-and-down"
+          contain
+          min-width="100"
+          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
+          width="100"
+        />
+      </div>
       <v-spacer></v-spacer>
       <v-btn
-        text
         href="https://github.com/vuetifyjs/vuetify/releases/latest"
         target="_blank"
+        text
       >
         <span class="mr-2">Latest Release</span>
+        <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
     </v-app-bar>
 
     <v-content>
-      <router-view />
+      <v-container>
+        <router-view></router-view>
+      </v-container>
     </v-content>
-    <m-snackbar />
   </v-app>
 </template>
 
 <script>
-import MSnackbar from "@/components/widgets/m-snackbar.vue";
+// import HelloWorld from "@/components/HelloWorld.vue";
 export default {
   name: "App",
-  components: {
-    MSnackbar
-  },
+  components: {},
   data: () => ({
-    version: "2.0"
+    //
   })
 };
 </script>
