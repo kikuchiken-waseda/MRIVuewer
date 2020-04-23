@@ -83,8 +83,7 @@
 
 <script>
 export default {
-  name: "HelloWorld",
-
+  name: "MWindow",
   data: () => ({
     ecosystem: [
       {
