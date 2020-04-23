@@ -1,0 +1,6 @@
+[submodule "mri-vuewer/mri-vuewer/src/assets/js/wavesurfer.js"]
+	path = mri-vuewer/mri-vuewer/src/assets/js/wavesurfer.js
+	url = git@github.com:qh73xe/wavesurfer.js.git
+[submodule "mri-vuewer/src/assets/js/wavesurfer.js"]
+	path = mri-vuewer/src/assets/js/wavesurfer.js
+	url = git@github.com:qh73xe/wavesurfer.js.git
