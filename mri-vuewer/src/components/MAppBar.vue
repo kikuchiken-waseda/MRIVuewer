@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app color="primary" dark>
+  <v-app-bar app color="blue-grey" dark>
     <v-toolbar-title>{{ name }} ver. {{ version }}</v-toolbar-title>
     <v-spacer></v-spacer>
   </v-app-bar>
