@@ -8,14 +8,16 @@
 <script>
 export default {
   name: "MAppBar",
-  props: {
+  computed: {
     name: {
-      type: String,
-      default: "MRI Vuewer"
+      get() {
+        return this.$store.state.appName;
+      }
     },
     version: {
-      type: String,
-      default: "2.0"
+      get() {
+        return this.$store.state.appVersion;
+      }
     }
   }
 };

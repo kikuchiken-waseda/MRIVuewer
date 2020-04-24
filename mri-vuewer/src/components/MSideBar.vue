@@ -47,7 +47,7 @@
         </v-list-item>
       </v-list-group>
 
-      <v-list-item ripple @click="movieImport">
+      <v-list-item ripple @click="importMovie">
         <v-list-item-action>
           <v-icon>mdi-playlist-plus</v-icon>
         </v-list-item-action>
@@ -135,8 +135,8 @@ export default {
     }
   },
   methods: {
-    movieImport: function() {
-      console.info("MSideBar:movieImport");
+    importMovie: function() {
+      console.info("MSideBar:importMovie");
     },
     selectFile: function(item) {
       console.info("MSideBar:selectFile:", item);
