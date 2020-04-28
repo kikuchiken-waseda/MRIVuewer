@@ -48,6 +48,44 @@ export default {
     am: "AM",
     pm: "PM"
   },
+  validate: {
+    required: "This field is required",
+    lessThen: "This field must be less than {0} characters",
+    moreThen: "This field must be more than {0} characters",
+    isFloat: "This is a float field"
+  },
+  movieUploadDialog: {
+    file: {
+      title: "Your movie",
+      hint: "supported format is mp4, webm and ogv"
+    },
+    name: {
+      title: "Display name",
+      hint: "Display name of your movie"
+    },
+    fps: {
+      title: "FPS",
+      hint: "Register your video fps"
+    }
+  },
+  baseFromDialog: {
+    open: "Open Dialog",
+    hint: "*indicates required field",
+    close: "Close",
+    save: "Save"
+  },
+  sidebar: {
+    files: {
+      title: "Annotation",
+      add: "File upload",
+      list: "Registered files"
+    },
+    cache: {
+      destroy: "Destroy an app cache",
+      export: "Export an app cache",
+      import: "Import an app cache"
+    }
+  },
   home: {
     disc: "Annotation tool for web videos",
     upload: {

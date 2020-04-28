@@ -2,7 +2,9 @@
   <v-dialog v-model="dialog" persistent max-width="600px">
     <template v-slot:activator="{ on }">
       <slot name="activator" v-bind:on="on">
-        <v-btn v-on="on">Open Dialog</v-btn>
+        <v-btn v-on="on">
+          {{ $vuetify.lang.t("$vuetify.baseFromDialog.open") }}
+        </v-btn>
       </slot>
     </template>
     <v-card>
@@ -12,15 +14,17 @@
         </v-card-title>
         <v-card-text>
           <slot name="form"> </slot>
-          <small>*indicates required field</small>
+          <small>
+            {{ $vuetify.lang.t("$vuetify.baseFromDialog.hint") }}
+          </small>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="reset">
-            Close
+            {{ $vuetify.lang.t("$vuetify.baseFromDialog.close") }}
           </v-btn>
           <v-btn color="blue darken-1" text @click="validate">
-            Save
+            {{ $vuetify.lang.t("$vuetify.baseFromDialog.save") }}
           </v-btn>
         </v-card-actions>
       </v-form>

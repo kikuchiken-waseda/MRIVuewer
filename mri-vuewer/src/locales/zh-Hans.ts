@@ -48,6 +48,44 @@ export default {
     am: "AM",
     pm: "PM"
   },
+  validate: {
+    required: "這是必填欄",
+    lessThen: "此字段必須少於{0}個字符",
+    moreThen: "此字段必須超過{0}個字符",
+    isFloat: "這是一個浮動字段"
+  },
+  movieUploadDialog: {
+    file: {
+      title: "您的電影",
+      hint: "支持的格式是mp4，webm和ogv"
+    },
+    name: {
+      title: "顯示名稱",
+      hint: "顯示電影的名稱"
+    },
+    fps: {
+      title: "每秒幀數",
+      hint: "註冊您的視頻fps"
+    }
+  },
+  baseFromDialog: {
+    open: "打開對話框",
+    hint: "*表示必填字段",
+    close: "取消",
+    save: "保存到"
+  },
+  sidebar: {
+    files: {
+      title: "註釋",
+      add: "新文件",
+      list: "註冊文件"
+    },
+    cache: {
+      destroy: "銷毀應用程序緩存",
+      export: "導出應用程序緩存",
+      import: "導入應用程序緩存"
+    }
+  },
   home: {
     disc: "網絡視頻註釋工具",
     upload: {

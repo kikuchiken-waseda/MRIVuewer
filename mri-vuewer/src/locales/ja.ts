@@ -48,6 +48,44 @@ export default {
     am: "AM",
     pm: "PM"
   },
+  validate: {
+    required: "このフィールドは必須です",
+    lessThen: "このフィールドは{0}文字以下でなければいけません",
+    moreThen: "このフィールドは{0}文字以上でなければいけません",
+    isFloat: "このフィールドは浮動小数型です"
+  },
+  baseFromDialog: {
+    open: "ダイアログを開く",
+    hint: "* は必須フィールドです",
+    close: "閉じる",
+    save: "保存"
+  },
+  movieUploadDialog: {
+    file: {
+      title: "動画ファイル",
+      hint: "動画ファイルは mp4, webm  または ogv 形式に対応しています"
+    },
+    name: {
+      title: "表示名",
+      hint: "動画ファイルを登録する際の表示名です"
+    },
+    fps: {
+      title: "動画フレームレート",
+      hint: "動画の FPS を登録してください"
+    }
+  },
+  sidebar: {
+    files: {
+      title: "アノテーション",
+      add: "新規ファイル",
+      list: "登録ファイル"
+    },
+    cache: {
+      destroy: "キャッシュの削除",
+      export: "キャッシュの取り出し",
+      import: "キャッシュの読み込み"
+    }
+  },
   home: {
     disc: "MP4 動画アノテーションツール",
     upload: {

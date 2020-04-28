@@ -22,13 +22,28 @@
           <v-icon>mdi-menu-open</v-icon>
         </v-list-item-action>
       </v-list-item>
-      <v-list-item-subtitle v-if="!mini">
-        アノテーション
-      </v-list-item-subtitle>
-      <v-divider></v-divider>
+      <v-list-item v-if="!mini">
+        <v-list-item-subtitle>
+          {{ $vuetify.lang.t("$vuetify.sidebar.files.title") }}
+        </v-list-item-subtitle>
+      </v-list-item>
+      <m-movie-upload-dialog>
+        <template v-slot:activator="{ on }">
+          <v-list-item ripple v-on="on">
+            <v-list-item-action>
+              <v-icon>mdi-playlist-plus</v-icon>
+            </v-list-item-action>
+            <v-list-item-title>
+              {{ $vuetify.lang.t("$vuetify.sidebar.files.add") }}
+            </v-list-item-title>
+          </v-list-item>
+        </template>
+      </m-movie-upload-dialog>
       <v-list-group :prepend-icon="menu.icon" v-model="menu.open">
         <template v-slot:activator>
-          <v-list-item-title>Files</v-list-item-title>
+          <v-list-item-title>
+            {{ $vuetify.lang.t("$vuetify.sidebar.files.list") }}
+          </v-list-item-title>
         </template>
         <v-list-item
           v-for="(item, i) in files.filter(x => {
@@ -46,31 +61,14 @@
           </v-list-item-action>
         </v-list-item>
       </v-list-group>
-      <m-movie-upload-dialog>
-        <template v-slot:activator="{ on }">
-          <v-list-item ripple v-on="on">
-            <v-list-item-action>
-              <v-icon>mdi-playlist-plus</v-icon>
-            </v-list-item-action>
-            <v-list-item-title>
-              File Upload
-            </v-list-item-title>
-          </v-list-item>
-        </template>
-      </m-movie-upload-dialog>
-
-      <v-list-item-subtitle v-if="!mini">
-        キャッシュ
-      </v-list-item-subtitle>
       <v-divider></v-divider>
-
       <v-list-item ripple @click="clearCache">
         <v-list-item-action>
           <v-icon>mdi-database-remove</v-icon>
         </v-list-item-action>
         <v-list-item-content>
           <v-list-item-title>
-            キャッシュの削除(すべて)
+            {{ $vuetify.lang.t("$vuetify.sidebar.cache.destroy") }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
@@ -80,7 +78,7 @@
         </v-list-item-action>
         <v-list-item-content>
           <v-list-item-title>
-            キャッシュの取り込み
+            {{ $vuetify.lang.t("$vuetify.sidebar.cache.import") }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
@@ -91,7 +89,7 @@
         </v-list-item-action>
         <v-list-item-content>
           <v-list-item-title>
-            キャッシュの取り出し
+            {{ $vuetify.lang.t("$vuetify.sidebar.cache.export") }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>

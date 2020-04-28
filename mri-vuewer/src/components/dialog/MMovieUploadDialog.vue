@@ -2,15 +2,19 @@
   <m-base-form-dialog ref="form" title="Movie Upload" @valid="onValid">
     <template v-slot:activator="{ on }">
       <slot name="activator" v-bind:on="on">
-        <v-btn color="primary" dark v-on="on">Open Dialog</v-btn>
+        <v-btn color="primary" dark v-on="on">
+          {{ $vuetify.lang.t("$vuetify.baseFromDialog.save") }}
+        </v-btn>
       </slot>
     </template>
     <template v-slot:form>
       <v-container>
         <v-file-input
-          label="Movie*"
+          :label="
+            `${$vuetify.lang.t('$vuetify.movieUploadDialog.file.title')}*`
+          "
           v-model="file"
-          hint="mp4 or webm or ogv"
+          :hint="$vuetify.lang.t('$vuetify.movieUploadDialog.file.hint')"
           prepend-icon="mdi-file-video"
           accept="video/*"
           show-size
@@ -18,19 +22,21 @@
           @change="onChangeFileInput"
         />
         <v-text-field
-          label="Name*"
+          :label="
+            `${$vuetify.lang.t('$vuetify.movieUploadDialog.name.title')}*`
+          "
           v-model="name"
           :counter="nameMaxSize"
           :rules="nameRules"
           prepend-icon="mdi-movie"
-          hint="動画識別用の名前です"
+          :hint="$vuetify.lang.t('$vuetify.movieUploadDialog.name.hint')"
           required
         />
         <v-text-field
-          label="FPS*"
+          :label="`${$vuetify.lang.t('$vuetify.movieUploadDialog.fps.title')}*`"
           v-model="fps"
           :rules="fpsRules"
-          hint="動画のFPSを指定してください"
+          :hint="$vuetify.lang.t('$vuetify.movieUploadDialog.fps.hint')"
           prepend-icon="mdi-movie-edit"
           required
         />
@@ -61,26 +67,9 @@ export default {
     fileText: null,
     name: null,
     nameMaxSize: nameMaxSize,
-    nameRules: [
-      v => !!v || "Name is required",
-      v =>
-        (v && v.length <= nameMaxSize) ||
-        `Name must be less than ${nameMaxSize} characters`
-    ],
+    nameRules: null,
     fps: 0,
-    fpsRules: [
-      v => !!v || "fps is required",
-      v => {
-        const regex = /^([1-9]\d*|0)(\.\d+)?$/;
-        if (v) {
-          if (!regex.test(v)) {
-            return "Fps is number";
-          }
-          return true;
-        }
-        return "fps is required";
-      }
-    ]
+    fpsRules: null
   }),
   methods: {
     onChangeFileInput: function(e) {
@@ -100,6 +89,27 @@ export default {
       console.info(tag, item);
       this.$refs.form.reset();
     }
+  },
+  mounted: function() {
+    this.fpsRules = [
+      v => !!v || this.$vuetify.lang.t("$vuetify.validate.required"),
+      v => {
+        const regex = /^([1-9]\d*|0)(\.\d+)?$/;
+        if (v) {
+          if (!regex.test(v)) {
+            return this.$vuetify.lang.t("$vuetify.validate.isFloat");
+          }
+          return true;
+        }
+        return true;
+      }
+    ];
+    this.nameRules = [
+      v => !!v || this.$vuetify.lang.t("$vuetify.validate.required"),
+      v =>
+        (v && v.length < nameMaxSize) ||
+        this.$vuetify.lang.t("$vuetify.validate.lessThen", nameMaxSize)
+    ];
   }
 };
 </script>
