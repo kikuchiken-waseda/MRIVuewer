@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import Current from "./current.js";
 
 Vue.use(Vuex);
 
@@ -10,5 +11,5 @@ export default new Vuex.Store({
   },
   mutations: {},
   actions: {},
-  modules: {}
+  modules: { Current }
 });

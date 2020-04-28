@@ -42,19 +42,22 @@
         >
           <v-list-item-title v-text="item.name"></v-list-item-title>
           <v-list-item-action>
-            <v-icon>mdi-movie</v-icon>
+            <v-icon>mdi-file-video</v-icon>
           </v-list-item-action>
         </v-list-item>
       </v-list-group>
-
-      <v-list-item ripple @click="importMovie">
-        <v-list-item-action>
-          <v-icon>mdi-playlist-plus</v-icon>
-        </v-list-item-action>
-        <v-list-item-title>
-          File Upload
-        </v-list-item-title>
-      </v-list-item>
+      <m-movie-upload-dialog>
+        <template v-slot:activator="{ on }">
+          <v-list-item ripple v-on="on">
+            <v-list-item-action>
+              <v-icon>mdi-playlist-plus</v-icon>
+            </v-list-item-action>
+            <v-list-item-title>
+              File Upload
+            </v-list-item-title>
+          </v-list-item>
+        </template>
+      </m-movie-upload-dialog>
 
       <v-list-item-subtitle v-if="!mini">
         キャッシュ
@@ -97,7 +100,12 @@
 </template>
 
 <script>
+import MMovieUploadDialog from "@/components/dialog/MMovieUploadDialog.vue";
 export default {
+  name: "MSideBar",
+  components: {
+    MMovieUploadDialog
+  },
   data: () => ({
     name: "MSideBar",
     mini: true,

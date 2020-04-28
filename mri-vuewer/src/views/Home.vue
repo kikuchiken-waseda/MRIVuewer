@@ -8,9 +8,13 @@
       <v-divider class="my-3"></v-divider>
     </div>
     <div class="title mb-3">動画読み込み</div>
-    <v-btn class="mx-0" color="blue-grey" dark large @click="movieImport">
-      Open your movie
-    </v-btn>
+    <m-movie-upload-dialog>
+      <template v-slot:activator="{ on }">
+        <v-btn class="mx-0" color="blue-grey" dark large v-on="on">
+          Open your movie
+        </v-btn>
+      </template>
+    </m-movie-upload-dialog>
     <div class="caption py-1">
       <v-icon>mdi-information</v-icon>
       任意の動画ファイルをアノテーション用に取り込みます.
@@ -30,9 +34,12 @@
 
 <script>
 // @ is an alias to /src
-// import HelloWorld from "@/components/HelloWorld.vue";
+import MMovieUploadDialog from "@/components/dialog/MMovieUploadDialog.vue";
 export default {
   name: "Home",
+  components: {
+    MMovieUploadDialog
+  },
   computed: {
     name: {
       get() {
@@ -46,11 +53,9 @@ export default {
     }
   },
   methods: {
-    importMovie: function() {
-      console.info("Home:importMovie");
-    },
     importSampleMovie: function() {
-      console.info("Home:importSampleMovie");
+      const tag = `${this.$options.name}:importSampleMovie`;
+      console.info(tag);
     }
   }
 };
