@@ -3,31 +3,35 @@
     <div v-if="!$vuetify.breakpoint.smAndDown">
       <h3 class="display-3">{{ name }} ver.{{ version }}</h3>
       <div class="subheading">
-        MP4 動画アノテーションツール
+        {{ $vuetify.lang.t("$vuetify.home.disc") }}
       </div>
       <v-divider class="my-3"></v-divider>
     </div>
-    <div class="title mb-3">動画読み込み</div>
+    <div class="title mb-3">
+      {{ $vuetify.lang.t("$vuetify.home.upload.title") }}
+    </div>
     <m-movie-upload-dialog>
       <template v-slot:activator="{ on }">
         <v-btn class="mx-0" color="blue-grey" dark large v-on="on">
-          Open your movie
+          {{ $vuetify.lang.t("$vuetify.home.upload.btn") }}
         </v-btn>
       </template>
     </m-movie-upload-dialog>
     <div class="caption py-1">
       <v-icon>mdi-information</v-icon>
-      任意の動画ファイルをアノテーション用に取り込みます.
+      {{ $vuetify.lang.t("$vuetify.home.upload.hint") }}
     </div>
     <v-divider class="my-3"></v-divider>
 
-    <div class="title mb-3">サンプル</div>
+    <div class="title mb-3">
+      {{ $vuetify.lang.t("$vuetify.home.demo.title") }}
+    </div>
     <v-btn class="mx-0" color="blue-grey" dark large @click="importSampleMovie">
-      Go to sample movie
+      {{ $vuetify.lang.t("$vuetify.home.demo.btn") }}
     </v-btn>
     <div class="caption">
       <v-icon>mdi-information</v-icon>
-      サンプル動画を使いアノテーション機能を試します.
+      {{ $vuetify.lang.t("$vuetify.home.demo.hint") }}
     </div>
   </div>
 </template>

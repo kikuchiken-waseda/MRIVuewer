@@ -18,6 +18,17 @@ export default {
   components: { MAppBar, MSideBar },
   data: () => ({
     //
-  })
+  }),
+  mounted: function() {
+    const lang = navigator.language;
+    if (lang == "ja") {
+      this.$vuetify.lang.current = "ja";
+    } else if (~lang.indexOf("zh")) {
+      this.$vuetify.lang.current = "zhHans";
+    } else {
+      this.$vuetify.lang.current = "en";
+    }
+    console.log();
+  }
 };
 </script>
