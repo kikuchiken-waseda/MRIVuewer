@@ -99,6 +99,7 @@
 
 <script>
 import MMovieUploadDialog from "@/components/dialog/MMovieUploadDialog.vue";
+import Cache from "@/utils/cache.js";
 export default {
   name: "MSideBar",
   components: {
@@ -148,13 +149,21 @@ export default {
       console.info("MSideBar:selectFile:", item);
     },
     clearCache: function() {
+      Cache.destroy();
       console.info("MSideBar:clearCache");
     },
     importCache: function() {
       console.info("MSideBar:importCache");
     },
     exportCache: function() {
-      console.info("MSideBar:exportCache");
+      const cache = Cache.get();
+      const json = JSON.stringify(cache);
+      const blob = new Blob([json], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+      link.download = "Cache.json";
+      link.click();
+      console.info("MSideBar:exportCache", cache);
     }
   },
   mounted: function() {

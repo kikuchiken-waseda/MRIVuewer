@@ -46,15 +46,9 @@
 </template>
 
 <script>
+import FileUtil from "@/utils/file.js";
 import MBaseFormDialog from "./MBaseFormDialog.vue";
 const nameMaxSize = 30;
-const toBase64 = file =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
 
 export default {
   name: "MMovieUploadDialog",
@@ -82,12 +76,14 @@ export default {
     onValid: async function() {
       const tag = `${this.$options.name}:onValid`;
       const item = {
-        file: await toBase64(this.file),
+        dataUrl: await FileUtil.toBase64(this.file),
         name: this.name,
         fps: Number(this.fps)
       };
       console.info(tag, item);
+      this.$store.dispatch("current/setMovie", item);
       this.$refs.form.reset();
+      this.$router.push({ name: "MovieAnnotation" });
     }
   },
   mounted: function() {

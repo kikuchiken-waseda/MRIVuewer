@@ -26,13 +26,13 @@ const routes = [
     component: Config
   },
   {
-    path: "/movies/:id",
+    path: "/movies/",
     name: "MovieAnnotation",
     component: MovieAnnotation,
     props: true
   },
   {
-    path: "/movies/:movieId/:id",
+    path: "/movies/:id",
     name: "ImageAnnotation",
     component: ImageAnnotation,
     props: true

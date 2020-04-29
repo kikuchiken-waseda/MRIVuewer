@@ -1,7 +1,8 @@
 <template>
   <div class="movie-annotaion">
-    <h1>This is a movie-annotaion page</h1>
-    <p>id is {{ id }}</p>
+    <h1>{{ name }}</h1>
+    <p>{{ fps }}</p>
+    <pre>{{ dataUrl }}</pre>
   </div>
 </template>
 
@@ -11,10 +12,30 @@
 
 export default {
   name: "MovieAnnotaion",
-  props: {
-    id: {
-      type: String,
-      required: true
+  computed: {
+    name: {
+      get: function() {
+        return this.$store.state.current.name;
+      },
+      set: function(val) {
+        this.$store.dispatch("current/setMovieName", val);
+      }
+    },
+    fps: {
+      get: function() {
+        return this.$store.state.current.fps;
+      },
+      set: function(val) {
+        this.$store.dispatch("current/setMovieFps", val);
+      }
+    },
+    dataUrl: {
+      get: function() {
+        return this.$store.state.current.dataUrl;
+      },
+      set: function(val) {
+        this.$store.dispatch("current/setMovieDataUrl", val);
+      }
     }
   }
 };

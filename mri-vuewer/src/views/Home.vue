@@ -39,6 +39,7 @@
 <script>
 // @ is an alias to /src
 import MMovieUploadDialog from "@/components/dialog/MMovieUploadDialog.vue";
+import FileUtil from "@/utils/file.js";
 export default {
   name: "Home",
   components: {
@@ -57,9 +58,20 @@ export default {
     }
   },
   methods: {
-    importSampleMovie: function() {
+    importSampleMovie: async function() {
       const tag = `${this.$options.name}:importSampleMovie`;
-      console.info(tag);
+      const url = "https://kikuchiken-waseda.github.io/MRIVuewer/misc/6.mp4";
+      const file = await FileUtil.download(url, "sample.mp4", {
+        type: "video/mp4"
+      });
+      const item = {
+        dataUrl: await FileUtil.toBase64(file),
+        name: "sample.mp4",
+        fps: 13.78310345
+      };
+      console.info(tag, item);
+      this.$store.dispatch("current/setMovie", item);
+      this.$router.push({ name: "MovieAnnotation" });
     }
   }
 };
