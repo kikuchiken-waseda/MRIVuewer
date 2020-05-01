@@ -149,8 +149,9 @@ export default {
       console.info("MSideBar:selectFile:", item);
     },
     clearCache: function() {
-      Cache.destroy();
       console.info("MSideBar:clearCache");
+      Cache.destroy();
+      this.$router.push({ name: "Home" });
     },
     importCache: function() {
       console.info("MSideBar:importCache");

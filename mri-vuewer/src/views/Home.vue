@@ -26,7 +26,14 @@
     <div class="title mb-3">
       {{ $vuetify.lang.t("$vuetify.home.demo.title") }}
     </div>
-    <v-btn class="mx-0" color="blue-grey" dark large @click="importSampleMovie">
+    <v-btn
+      class="mx-0"
+      color="blue-grey"
+      dark
+      large
+      @click="importSampleMovie"
+      :loading="isRunningSampleMovie"
+    >
       {{ $vuetify.lang.t("$vuetify.home.demo.btn") }}
     </v-btn>
     <div class="caption">
@@ -40,11 +47,15 @@
 // @ is an alias to /src
 import MMovieUploadDialog from "@/components/dialog/MMovieUploadDialog.vue";
 import FileUtil from "@/utils/file.js";
+import VideoUtil from "@/utils/video.js";
 export default {
   name: "Home",
   components: {
     MMovieUploadDialog
   },
+  data: () => ({
+    isRunningSampleMovie: false
+  }),
   computed: {
     name: {
       get() {
@@ -59,19 +70,31 @@ export default {
   },
   methods: {
     importSampleMovie: async function() {
+      this.isRunningSampleMovie = true;
       const tag = `${this.$options.name}:importSampleMovie`;
       const url = "https://kikuchiken-waseda.github.io/MRIVuewer/misc/6.mp4";
       const file = await FileUtil.download(url, "sample.mp4", {
         type: "video/mp4"
       });
-      const item = {
-        dataUrl: await FileUtil.toBase64(file),
-        name: "sample.mp4",
-        fps: 13.78310345
-      };
-      console.info(tag, item);
-      this.$store.dispatch("current/setMovie", item);
-      this.$router.push({ name: "MovieAnnotation" });
+      const dataUrl = await FileUtil.toBase64(file);
+      const blob = FileUtil.toBlob(dataUrl);
+      const buff = await blob.arrayBuffer();
+      VideoUtil.info(buff, stream => {
+        let fps = 0;
+        if (stream.video) {
+          fps = stream.video.fps ? stream.video.fps : 0;
+        }
+        const item = {
+          dataUrl: dataUrl,
+          name: "sample.mp4",
+          fps: fps,
+          stream: stream
+        };
+        this.$store.dispatch("current/setMovie", item);
+        this.isRunningSampleMovie = false;
+        this.$router.push({ name: "MovieAnnotation" });
+        console.log(tag, item);
+      });
     }
   }
 };

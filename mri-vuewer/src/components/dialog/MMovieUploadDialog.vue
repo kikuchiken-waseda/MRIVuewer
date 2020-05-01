@@ -1,5 +1,10 @@
 <template>
-  <m-base-form-dialog ref="form" title="Movie Upload" @valid="onValid">
+  <m-base-form-dialog
+    ref="form"
+    title="Movie Upload"
+    @valid="onValid"
+    :loading="isRunOnValid"
+  >
     <template v-slot:activator="{ on }">
       <slot name="activator" v-bind:on="on">
         <v-btn color="primary" dark v-on="on">
@@ -47,6 +52,7 @@
 
 <script>
 import FileUtil from "@/utils/file.js";
+import VideoUtil from "@/utils/video.js";
 import MBaseFormDialog from "./MBaseFormDialog.vue";
 const nameMaxSize = 30;
 
@@ -63,24 +69,38 @@ export default {
     nameMaxSize: nameMaxSize,
     nameRules: null,
     fps: 0,
-    fpsRules: null
+    fpsRules: null,
+    stream: null,
+    isRunOnValid: false
   }),
   methods: {
-    onChangeFileInput: function(e) {
+    onChangeFileInput: async function(e) {
       const tag = `${this.$options.name}:onChangeFileInput`;
       if (!this.name && e) {
         this.name = e.name;
-        console.log(tag, e);
+        const buff = await e.arrayBuffer();
+        VideoUtil.info(buff, stream => {
+          this.stream = stream;
+          if (stream.video) {
+            this.fps = stream.video.fps ? stream.video.fps : this.fps;
+          }
+        });
+        console.log(tag, "name: ", this.name, "fps:", this.fps);
       }
     },
     onValid: async function() {
+      this.isRunOnValid = true;
       const tag = `${this.$options.name}:onValid`;
+      console.log(tag, this.file);
+      const dataUrl = await FileUtil.toBase64(this.file);
       const item = {
-        dataUrl: await FileUtil.toBase64(this.file),
         name: this.name,
-        fps: Number(this.fps)
+        dataUrl: dataUrl,
+        fps: Number(this.fps),
+        stream: this.stream
       };
       console.info(tag, item);
+      this.isRunOnValid = false;
       this.$store.dispatch("current/setMovie", item);
       this.$refs.form.reset();
       this.$router.push({ name: "MovieAnnotation" });

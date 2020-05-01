@@ -6,6 +6,28 @@ const toBase64 = file =>
     reader.onerror = error => reject(error);
   });
 
+const toBlob = dataUrl => {
+  const byteString = atob(dataUrl.split(",")[1]);
+  const mimeString = dataUrl
+    .split(",")[0]
+    .split(":")[1]
+    .split(";")[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (var i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeString });
+};
+
+const toUnit8Array = file =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(new Uint8Array(reader.result));
+    reader.onerror = error => reject(error);
+  });
+
 const download = async function(url, filename, metadata) {
   const response = await fetch(url);
   const data = await response.blob();
@@ -15,5 +37,7 @@ const download = async function(url, filename, metadata) {
 
 export default {
   toBase64: toBase64,
+  toBlob: toBlob,
+  toUnit8Array: toUnit8Array,
   download: download
 };

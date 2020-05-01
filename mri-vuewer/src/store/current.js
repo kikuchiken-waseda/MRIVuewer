@@ -11,6 +11,7 @@ export const current = {
   state: {
     name: null,
     fps: null,
+    stream: null,
     dataUrl: null
   },
   mutations: {
@@ -22,6 +23,9 @@ export const current = {
     },
     setMovieDataUrl: function(state, payload) {
       state.dataUrl = payload;
+    },
+    setMovieStreams: function(state, payload) {
+      state.stream = payload;
     }
   },
   actions: {
@@ -30,9 +34,11 @@ export const current = {
       const name = payload.name;
       const fps = payload.fps;
       const dataUrl = payload.dataUrl;
+      const stream = payload.stream;
       context.commit("setMovieName", name);
       context.commit("setMovieFps", fps);
       context.commit("setMovieDataUrl", dataUrl);
+      context.commit("setMovieStreams", stream);
     },
     setMovieName: function(context, payload) {
       console.log("current:actions:setMovieName", payload);
@@ -45,6 +51,10 @@ export const current = {
     setMovieDataUrl: function(context, payload) {
       console.log("current:actions:setMovieDataUrl", payload);
       context.commit("setMovieDataUrl", payload);
+    },
+    setMovieStream: function(context, payload) {
+      console.log("current:actions:setMovieStream", payload);
+      context.commit("setMovieStream", payload);
     }
   }
 };

@@ -23,7 +23,12 @@
           <v-btn color="blue darken-1" text @click="reset">
             {{ $vuetify.lang.t("$vuetify.baseFromDialog.close") }}
           </v-btn>
-          <v-btn color="blue darken-1" text @click="validate">
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="validate"
+            :loading="loading"
+          >
             {{ $vuetify.lang.t("$vuetify.baseFromDialog.save") }}
           </v-btn>
         </v-card-actions>
@@ -38,6 +43,10 @@ export default {
   props: {
     title: {
       type: String
+    },
+    loading: {
+      type: Boolean,
+      default: () => false
     }
   },
   data: () => ({
