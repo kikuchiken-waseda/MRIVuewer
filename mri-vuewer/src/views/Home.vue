@@ -1,7 +1,9 @@
 <template>
   <div class="home">
     <div v-if="!$vuetify.breakpoint.smAndDown">
-      <h3 class="display-3">{{ name }} ver.{{ version }}</h3>
+      <h3 class="display-3">
+        {{ name }} ver.{{ version }}
+      </h3>
       <div class="subheading">
         {{ $vuetify.lang.t("$vuetify.home.disc") }}
       </div>
@@ -12,7 +14,13 @@
     </div>
     <m-movie-upload-dialog>
       <template v-slot:activator="{ on }">
-        <v-btn class="mx-0" color="blue-grey" dark large v-on="on">
+        <v-btn
+          class="mx-0"
+          color="blue-grey"
+          dark
+          large
+          v-on="on"
+        >
           {{ $vuetify.lang.t("$vuetify.home.upload.btn") }}
         </v-btn>
       </template>
@@ -72,13 +80,17 @@ export default {
     importSampleMovie: async function() {
       this.isRunningSampleMovie = true;
       const tag = `${this.$options.name}:importSampleMovie`;
-      const url = "https://kikuchiken-waseda.github.io/MRIVuewer/misc/6.mp4";
-      const file = await FileUtil.download(url, "sample.mp4", {
-        type: "video/mp4"
-      });
+      const url =
+        "https://kikuchiken-waseda.github.io/MRIVuewer/misc/6.mp4";
+      const file = await FileUtil.download(
+        url,
+        "sample.mp4",
+        {
+          type: "video/mp4"
+        }
+      );
       const dataUrl = await FileUtil.toBase64(file);
-      const blob = FileUtil.toBlob(dataUrl);
-      const buff = await blob.arrayBuffer();
+      const buff = FileUtil.toBuff(dataUrl);
       VideoUtil.info(buff, stream => {
         let fps = 0;
         if (stream.video) {
@@ -88,13 +100,16 @@ export default {
           dataUrl: dataUrl,
           name: "sample.mp4",
           fps: fps,
+          size: stream.video.size,
           stream: stream
         };
         this.$store.dispatch("current/setMovie", item);
         this.isRunningSampleMovie = false;
         this.$router.push({ name: "MovieAnnotation" });
+        console.log(tag, result);
         console.log(tag, item);
       });
+      const result = VideoUtil.getFrames(buff);
     }
   }
 };

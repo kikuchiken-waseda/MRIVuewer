@@ -11,6 +11,8 @@ export const current = {
   state: {
     name: null,
     fps: null,
+    width: null,
+    height: null,
     stream: null,
     dataUrl: null
   },
@@ -26,6 +28,12 @@ export const current = {
     },
     setMovieStreams: function(state, payload) {
       state.stream = payload;
+    },
+    setMovieWidth: function(state, payload) {
+      state.width = payload;
+    },
+    setMovieHeight: function(state, payload) {
+      state.height = payload;
     }
   },
   actions: {
@@ -35,10 +43,13 @@ export const current = {
       const fps = payload.fps;
       const dataUrl = payload.dataUrl;
       const stream = payload.stream;
+      const size = payload.size;
       context.commit("setMovieName", name);
       context.commit("setMovieFps", fps);
       context.commit("setMovieDataUrl", dataUrl);
       context.commit("setMovieStreams", stream);
+      context.commit("setMovieWidth", size.width);
+      context.commit("setMovieHeight", size.height);
     },
     setMovieName: function(context, payload) {
       console.log("current:actions:setMovieName", payload);
@@ -49,11 +60,33 @@ export const current = {
       context.commit("setMovieFps", payload);
     },
     setMovieDataUrl: function(context, payload) {
-      console.log("current:actions:setMovieDataUrl", payload);
+      console.log(
+        "current:actions:setMovieDataUrl",
+        payload
+      );
       context.commit("setMovieDataUrl", payload);
     },
+    setMovieSize: function(context, payload) {
+      console.log("current:actions:setMovieSize", payload);
+      context.commit("setMovieWidth", payload.width);
+      context.commit("setMovieHeight", payload.height);
+    },
+    setMovieWidth: function(context, payload) {
+      console.log("current:actions:setMovieWidth", payload);
+      context.commit("setMovieWidth", payload);
+    },
+    setMovieHeight: function(context, payload) {
+      console.log(
+        "current:actions:setMovieHeight",
+        payload
+      );
+      context.commit("setMovieHeight", payload);
+    },
     setMovieStream: function(context, payload) {
-      console.log("current:actions:setMovieStream", payload);
+      console.log(
+        "current:actions:setMovieStream",
+        payload
+      );
       context.commit("setMovieStream", payload);
     }
   }

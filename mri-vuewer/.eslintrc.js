@@ -4,6 +4,9 @@ module.exports = {
     node: true,
     jest: true
   },
+  globals: {
+    cv: true
+  },
   extends: ["plugin:vue/essential", "eslint:recommended", "@vue/prettier"],
   parserOptions: {
     parser: "babel-eslint"
