@@ -326,7 +326,6 @@ export default class SpectrogramPlugin {
     };
     this._onReady = () => {
       const drawer = (this.drawer = ws.drawer);
-
       this.container =
         "string" == typeof params.container
           ? document.querySelector(params.container)
@@ -546,11 +545,6 @@ export default class SpectrogramPlugin {
   getFrequencies(callback) {
     const fftSamples = this.fftSamples;
     const buffer = (this.buffer = this.wavesurfer.backend.buffer);
-    const channelOne = buffer.getChannelData(0);
-    const bufferLength = buffer.length;
-    const sampleRate = buffer.sampleRate;
-    const frequencies = [];
-
     if (!buffer) {
       this.fireEvent(
         "error",
@@ -558,7 +552,10 @@ export default class SpectrogramPlugin {
       );
       return;
     }
-
+    const channelOne = buffer.getChannelData(0);
+    const bufferLength = buffer.length;
+    const sampleRate = buffer.sampleRate;
+    const frequencies = [];
     let noverlap = this.noverlap;
     if (!noverlap) {
       const uniqueSamplesPerPx =

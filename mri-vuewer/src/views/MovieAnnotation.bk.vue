@@ -14,80 +14,63 @@
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>
     </v-toolbar>
-    <v-card v-if="dataUrl">
-      <video
-        muted
-        ref="videoPre"
-        class="mr-1"
-        :src="dataUrl"
-      />
-      <video class="mr-1" ref="video" :src="dataUrl" />
-      <video
-        muted
-        ref="videoPos"
-        class="ml-1"
-        :src="dataUrl"
-      />
-    </v-card>
-    <v-card-actions>
-      <v-btn icon>
-        <v-icon>mdi-skip-previous</v-icon>
-        <v-icon>mdi-skip-backward</v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon @click="play">
-          mdi-play
-        </v-icon>
-        <v-icon @click="pause">
-          mdi-pause
-        </v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon>mdi-skip-next</v-icon>
-        <v-icon>mdi-skip-forward</v-icon>
-      </v-btn>
-    </v-card-actions>
-    <v-card v-if="dataUrl">
-      <v-progress-linear
-        v-if="isLoading"
-        color="deep-purple accent-4"
-        indeterminate
-        rounded
-        height="6"
-      />
-      <div v-show="!isLoading">
-        <div id="wave-spectrogram"></div>
-        <div id="waveform"></div>
-      </div>
-    </v-card>
+    <v-container v-if="dataUrl">
+      <v-row>
+        <v-card flat>
+          <video-array
+            v-if="dataUrl"
+            :width="width"
+            :height="height"
+            :fps="fps"
+            :dataUrl="dataUrl"
+            v-on:timeupdate="onTimeupdate"
+            v-on:loadeddata="onLoadeddata"
+          />
+          <v-card-actions>
+            <v-btn icon>
+              <v-icon>mdi-skip-previous</v-icon>
+              <v-icon>mdi-skip-backward</v-icon>
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn icon>
+              <v-icon v-if="!isPlaying" @click="play">
+                mdi-play
+              </v-icon>
+              <v-icon v-if="isPlaying" @click="pause">
+                mdi-pause
+              </v-icon>
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn icon>
+              <v-icon>mdi-skip-next</v-icon>
+              <v-icon>mdi-skip-forward</v-icon>
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-row>
+      <v-row>
+        <m-wave-surfer
+          v-if="dataUrl"
+          :dataUrl="dataUrl"
+          :fps="fps"
+        />
+      </v-row>
+    </v-container>
   </v-card>
 </template>
 
 <script>
+import VideoArray from "@/components/videos/VideoArray.vue";
+import MWaveSurfer from "@/components/wavesurfer/MWaveSurfer.vue";
 import MInfoMenu from "@/components/MovieAnnotaion/MInfoMenu.vue";
-import WaveSurfer from "@/components/wavesurfer/wavesurfer.js";
-import SpectrogramPlugin from "@/components/wavesurfer/plugin/spectrogram.js";
-
 export default {
   name: "MovieAnnotaion",
   components: {
-    MInfoMenu
+    MInfoMenu,
+    VideoArray,
+    MWaveSurfer
   },
-  data: () => ({
-    isLoading: false,
-    frameOffset: 1,
-    options: {
-      waveColor: "violet",
-      progressColor: "purple",
-      loaderColor: "purple",
-      cursorColor: "navy",
-      minPxPerSec: 100,
-      scrollParent: true,
-      normalize: true
-    }
-  }),
+  data: () => ({}),
   computed: {
     name: {
       get: function() {
@@ -113,8 +96,13 @@ export default {
         this.$store.dispatch("current/setDataUrl", val);
       }
     },
-    frameRate: function() {
-      return 1 / this.fps;
+    isPlaying: {
+      get: function() {
+        return this.$store.state.current.isPlaying;
+      },
+      set: function(val) {
+        this.$store.dispatch("current/setIsPlaying", val);
+      }
     },
     width: {
       get: function() {
@@ -223,99 +211,26 @@ export default {
     }
   },
   methods: {
-    load() {
-      if (this.ws) {
-        if (this.$refs.video) {
-          this.isLoading = true;
-          this.ws.load(this.$refs.video);
-        }
-      }
+    // イベント系
+    onLoadeddata: function(duration) {
+      const tag = `${this.$options.name}:onLoadeddata`;
+      console.info(tag, duration);
     },
+    onTimeupdate: function(currentTime) {
+      const tag = `${this.$options.name}:onTimeupdate`;
+      console.info(tag, currentTime);
+    },
+    // 操作系
     play: function() {
-      this.syncVideos();
-      this.$refs.videoPre.play();
-      this.$refs.videoPos.play();
-      this.ws.play();
+      this.isPlaying = true;
     },
     pause: function() {
-      this.$refs.videoPre.pause();
-      this.$refs.videoPos.pause();
-      this.ws.pause();
-      this.syncVideos();
-    },
-    getCurrentTime: function() {
-      return this.ws.getCurrentTime();
-    },
-    getDuration: function() {
-      return this.ws.getDuration();
-    },
-    syncVideos: function() {
-      const tag = `${this.$options.name}:syncVideos`;
-      const currentTime = this.getCurrentTime();
-      const offsetTime = this.frameOffset * this.frameRate;
-      console.info(tag, currentTime);
-      if (currentTime - offsetTime > 0) {
-        const time = currentTime - offsetTime;
-        this.$refs.videoPre.currentTime = time;
-      } else {
-        this.$refs.videoPre.currentTime = 0;
-        console.warn(
-          tag + "video-pre: setCurrentTime",
-          `${currentTime - offsetTime} is less than 0`
-        );
-      }
-      if (offsetTime + currentTime < this.getDuration()) {
-        console.info(tag, "video-pos: setCurrentTime");
-        const time = currentTime + offsetTime;
-        this.$refs.videoPos.currentTime = time;
-      } else {
-        this.$refs.videoPos.currentTime = this.getDuration();
-        console.warn(
-          tag + "video-pos: setCurrentTime",
-          `${currentTime +
-            offsetTime} is more than ${this.getDuration()}`
-        );
-      }
-    },
-    onLoading(val) {
-      const tag = `${this.$options.name}:onLoading`;
-      console.log(tag, val);
-      this.progress = val;
-    },
-    onRedy() {
-      const tag = `${this.$options.name}:onRedy`;
-      this.isLoading = false;
-      console.log(tag);
-    },
-    onDestroy(val) {
-      const tag = `${this.$options.name}:onDestroy`;
-      console.log(tag, val);
-    },
-    onError(val) {
-      const tag = `${this.$options.name}:onError`;
-      console.log(tag, val);
+      this.isPlaying = false;
     }
   },
   mounted: function() {
     if (!this.dataUrl) {
       this.$router.push({ name: "Home" });
-    } else {
-      const options = this.options;
-      options.container = "#waveform";
-      options.backend = "MediaElement";
-      options.plugins = [
-        SpectrogramPlugin.create({
-          container: "#wave-spectrogram",
-          labels: true
-        })
-      ];
-      this.ws = WaveSurfer.create(options);
-      this.ws.on("interaction", this.syncVideos);
-      this.ws.on("loading", this.onLoading);
-      this.ws.on("waveform-ready", this.onRedy);
-      this.ws.on("destroy", this.onDestroy);
-      this.ws.on("error", this.onError);
-      this.load();
     }
   }
 };
