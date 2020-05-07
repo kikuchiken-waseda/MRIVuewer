@@ -2,7 +2,7 @@
   <div class="component-debug">
     <h1>Debug components</h1>
     <v-card class="mx-auto">
-      <v-toolbar color="blue-grey" dark>
+      <v-toolbar color="primary" dark>
         <v-toolbar-title>動画関連</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-title v-if="video.name && video.fps">

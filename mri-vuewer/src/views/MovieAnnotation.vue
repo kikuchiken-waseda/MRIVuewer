@@ -1,33 +1,41 @@
 <template>
-  <div class="movie-annotaion">
+  <v-card class="movie-annotaion">
+    <v-toolbar dark color="secondary" dense>
+      <v-app-bar-nav-icon></v-app-bar-nav-icon>
+      <v-toolbar-title>
+        {{ name }}
+      </v-toolbar-title>
+      <v-spacer />
+      <m-info-menu :value="videoInfo" />
+      <v-btn icon>
+        <v-icon>mdi-cog</v-icon>
+      </v-btn>
+      <v-btn icon>
+        <v-icon>mdi-dots-vertical</v-icon>
+      </v-btn>
+    </v-toolbar>
     <video-array
       ref="videoArray"
       :width="width"
       :height="height"
       :fps="fps"
       :dataUrl="dataUrl"
+      v-on:timeupdate="onTimeupdate"
+      v-on:loadeddata="onLoadeddata"
     />
-
-    <h1>{{ name }}</h1>
-    <p>{{ fps }}</p>
-    <pre>{{ dataUrl }}</pre>
-    <pre>{{ videoStream }}</pre>
-    <pre>{{ audioStream }}</pre>
-  </div>
+  </v-card>
 </template>
 
 <script>
-// @ is an alias to /src
-// import HelloWorld from "@/components/HelloWorld.vue";
 import VideoArray from "@/components/videos/VideoArray.vue";
+import MInfoMenu from "@/components/MovieAnnotaion/MInfoMenu.vue";
 export default {
   name: "MovieAnnotaion",
-  data: () => ({
-    res: ""
-  }),
   components: {
+    MInfoMenu,
     VideoArray
   },
+  data: () => ({}),
   computed: {
     name: {
       get: function() {
@@ -76,8 +84,97 @@ export default {
     },
     audioStream: {
       get: function() {
-        return this.$store.state.current.videoStream;
+        return this.$store.state.current.audioStream;
       }
+    },
+    videoInfo: function() {
+      const v = this.$store.state.current.videoStream;
+      const a = this.$store.state.current.audioStream;
+      return {
+        videoStream: [
+          {
+            title: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.videoStream.codec.title"
+            ),
+            val: `${v.codec_name}, ${v.pix_fmt}`
+          },
+          {
+            title: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.videoStream.bitrate.title"
+            ),
+            val: `${v.bitrate} kb/s`
+          },
+          {
+            title: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.videoStream.fps.title"
+            ),
+            val: `${v.fps} fps`
+          },
+          {
+            title: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.videoStream.tbr.title"
+            ),
+            val: `${v.tbr} tbr`,
+            help: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.videoStream.tbr.help"
+            )
+          },
+          {
+            title: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.videoStream.tbn.title"
+            ),
+            val: `${v.tbn} tbn`,
+            help: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.videoStream.tbn.help"
+            )
+          },
+          {
+            title: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.videoStream.tbc.title"
+            ),
+            val: `${v.tbc} tbc`,
+            help: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.videoStream.tbc.help"
+            )
+          }
+        ],
+        audioStream: [
+          {
+            title: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.audioStream.codec.title"
+            ),
+            val: a.codec_name
+          },
+          {
+            title: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.audioStream.bitrate.title"
+            ),
+            val: `${a.bitrate} kb/s`
+          },
+          {
+            title: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.audioStream.channel_layout.title"
+            ),
+            val: a.channel_layout
+          },
+          {
+            title: this.$vuetify.lang.t(
+              "$vuetify.movieAnnotation.info.audioStream.sample_rate.title"
+            ),
+            val: `${a.sample_rate} Hz`
+          }
+        ]
+      };
+    }
+  },
+  methods: {
+    onLoadeddata: function(duration) {
+      const tag = `${this.$options.name}:onLoadeddata`;
+      console.info(tag, duration);
+    },
+    onTimeupdate: function(currentTime) {
+      const tag = `${this.$options.name}:onTimeupdate`;
+      console.info(tag, currentTime);
     }
   },
   mounted: function() {

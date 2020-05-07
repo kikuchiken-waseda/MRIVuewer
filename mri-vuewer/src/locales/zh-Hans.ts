@@ -98,5 +98,35 @@ export default {
       btn: "觀看電影樣本",
       hint: "使用示例視頻嘗試註釋功能"
     }
+  },
+  movieAnnotation: {
+    info: {
+      title: "影片格式",
+      videoStream: {
+        codec: { title: "編解碼器" },
+        bitrate: { title: "比特率" },
+        fps: { title: "fps" },
+        tbr: {
+          title: "tbr",
+          help:
+            "tbr 是從視頻流中推測出來的，是用戶尋找視頻幀速率時希望看到的值"
+        },
+        tbn: {
+          title: "tbn",
+          help: "影片流中來自容器的時基"
+        },
+        tbc: {
+          title: "tbc",
+          help:
+            "電影編解碼器上下文中用於特定流的編解碼器的時基"
+        }
+      },
+      audioStream: {
+        codec: { title: "編解碼器" },
+        bitrate: { title: "比特率" },
+        channel_layout: { title: "頻道佈局" },
+        sample_rate: { title: "採樣率" }
+      }
+    }
   }
 };

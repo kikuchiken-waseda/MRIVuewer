@@ -92,10 +92,12 @@ export default {
     onLoadeddata: function() {
       const tag = `${this.$options.name}:onLoadeddata`;
       this.syncVideos();
-      console.info(tag);
+      this.$emit("loadeddata", this.getDuration());
+      console.info(tag, this.getDuration());
     },
     onTimeupdate: function() {
       const tag = `${this.$options.name}:onTimeupdate`;
+      this.$emit("timeupdate", this.getCurrentTime());
       this.syncVideos();
       console.info(tag);
     },

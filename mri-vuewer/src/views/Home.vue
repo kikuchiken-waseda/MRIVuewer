@@ -16,7 +16,7 @@
       <template v-slot:activator="{ on }">
         <v-btn
           class="mx-0"
-          color="blue-grey"
+          color="primary"
           dark
           large
           v-on="on"

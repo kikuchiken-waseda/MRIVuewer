@@ -96,7 +96,49 @@ export default {
     demo: {
       title: "Live demo",
       btn: "Go to a sample movie",
-      hint: "Try the annotation function using a sample video"
+      hint:
+        "Try the annotation function using a sample video"
+    }
+  },
+  movieAnnotation: {
+    info: {
+      title: "video format",
+      videoStream: {
+        codec: {
+          title: "codec"
+        },
+        bitrate: {
+          title: "bitrate"
+        },
+        fps: { title: "fps" },
+        tbr: {
+          title: "tbr",
+          help:
+            "tbr is guessed from the video stream and is the value users want to see when they look for the video frame rate"
+        },
+        tbn: {
+          title: "tbn",
+          help:
+            "the time base in AVStream that has come from the container"
+        },
+        tbc: {
+          title: "tbc",
+          help:
+            "the time base in AVCodecContext for the codec used for a particular stream"
+        }
+      },
+      audioStream: {
+        bitrate: {
+          title: "bitrate"
+        },
+        channel_layout: {
+          title: "channel layout"
+        },
+        codec: { title: "codec" },
+        sample_rate: {
+          title: "sampling rate"
+        }
+      }
     }
   }
 };

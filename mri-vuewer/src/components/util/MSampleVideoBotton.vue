@@ -1,6 +1,6 @@
 <template>
   <v-btn
-    color="blue-grey"
+    color="primary"
     dark
     large
     @click="importSampleMovie"
@@ -73,5 +73,3 @@ export default {
   }
 };
 </script>
-
-<style scoped></style>

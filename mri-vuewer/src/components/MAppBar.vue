@@ -1,6 +1,8 @@
 <template>
-  <v-app-bar app color="blue-grey" dark>
-    <v-toolbar-title>{{ name }} ver. {{ version }}</v-toolbar-title>
+  <v-app-bar app color="primary" dark>
+    <v-toolbar-title
+      >{{ name }} ver. {{ version }}</v-toolbar-title
+    >
     <v-spacer></v-spacer>
     <v-btn icon @click="to({ name: 'Home' })">
       <v-icon>mdi-home</v-icon>
