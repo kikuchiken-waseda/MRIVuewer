@@ -55,12 +55,46 @@ export default {
   data: () => ({
     video: null
   }),
+  watch: {
+    isPlaying: function(val) {
+      const tag = `${this.$options.name}:watch:isPlaying`;
+      if (val) {
+        this.play();
+      } else {
+        this.pause();
+      }
+      console.log(tag, val);
+    }
+  },
   computed: {
     frameRate: function() {
       return 1 / this.fps;
+    },
+    isPlaying: {
+      get: function() {
+        const val = this.$store.state.current.isPlaying;
+        return val;
+      },
+      set: function(val) {
+        this.$store.dispatch("current/setIsPlaying", val);
+      }
     }
   },
   methods: {
+    // イベント系
+    onLoadeddata: function() {
+      const tag = `${this.$options.name}:onLoadeddata`;
+      this.syncVideos();
+      this.$emit("loadeddata", this.getDuration());
+      console.info(tag, this.getDuration());
+    },
+    onTimeupdate: function() {
+      const tag = `${this.$options.name}:onTimeupdate`;
+      this.$emit("timeupdate", this.getCurrentTime());
+      this.syncVideos();
+      console.info(tag);
+    },
+    // 操作系
     syncVideos: function() {
       const tag = `${this.$options.name}:syncVideos`;
       const currentTime = this.getCurrentTime();
@@ -89,19 +123,6 @@ export default {
         );
       }
     },
-    onLoadeddata: function() {
-      const tag = `${this.$options.name}:onLoadeddata`;
-      this.syncVideos();
-      this.$emit("loadeddata", this.getDuration());
-      console.info(tag, this.getDuration());
-    },
-    onTimeupdate: function() {
-      const tag = `${this.$options.name}:onTimeupdate`;
-      this.$emit("timeupdate", this.getCurrentTime());
-      this.syncVideos();
-      console.info(tag);
-    },
-    // 操作系
     play: function() {
       const video = this.$refs.video;
       video.play();

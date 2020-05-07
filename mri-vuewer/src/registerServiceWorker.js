@@ -14,13 +14,17 @@ if (process.env.NODE_ENV === "production") {
       console.log("Service worker has been registered.");
     },
     cached() {
-      console.log("Content has been cached for offline use.");
+      console.log(
+        "Content has been cached for offline use."
+      );
     },
     updatefound() {
       console.log("New content is downloading.");
     },
     updated() {
-      console.log("New content is available; please refresh.");
+      console.log(
+        "New content is available; please refresh."
+      );
     },
     offline() {
       console.log(
@@ -28,7 +32,10 @@ if (process.env.NODE_ENV === "production") {
       );
     },
     error(error) {
-      console.error("Error during service worker registration:", error);
+      console.error(
+        "Error during service worker registration:",
+        error
+      );
     }
   });
 }

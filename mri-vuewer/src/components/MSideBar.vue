@@ -24,7 +24,9 @@
       </v-list-item>
       <v-list-item v-if="!mini">
         <v-list-item-subtitle>
-          {{ $vuetify.lang.t("$vuetify.sidebar.files.title") }}
+          {{
+            $vuetify.lang.t("$vuetify.sidebar.files.title")
+          }}
         </v-list-item-subtitle>
       </v-list-item>
       <m-movie-upload-dialog>
@@ -34,15 +36,24 @@
               <v-icon>mdi-playlist-plus</v-icon>
             </v-list-item-action>
             <v-list-item-title>
-              {{ $vuetify.lang.t("$vuetify.sidebar.files.add") }}
+              {{
+                $vuetify.lang.t(
+                  "$vuetify.sidebar.files.add"
+                )
+              }}
             </v-list-item-title>
           </v-list-item>
         </template>
       </m-movie-upload-dialog>
-      <v-list-group :prepend-icon="menu.icon" v-model="menu.open">
+      <v-list-group
+        :prepend-icon="menu.icon"
+        v-model="menu.open"
+      >
         <template v-slot:activator>
           <v-list-item-title>
-            {{ $vuetify.lang.t("$vuetify.sidebar.files.list") }}
+            {{
+              $vuetify.lang.t("$vuetify.sidebar.files.list")
+            }}
           </v-list-item-title>
         </template>
         <v-list-item
@@ -55,7 +66,9 @@
           :key="i"
           @click="selectFile(item)"
         >
-          <v-list-item-title v-text="item.name"></v-list-item-title>
+          <v-list-item-title
+            v-text="item.name"
+          ></v-list-item-title>
           <v-list-item-action>
             <v-icon>mdi-file-video</v-icon>
           </v-list-item-action>
@@ -68,7 +81,11 @@
         </v-list-item-action>
         <v-list-item-content>
           <v-list-item-title>
-            {{ $vuetify.lang.t("$vuetify.sidebar.cache.destroy") }}
+            {{
+              $vuetify.lang.t(
+                "$vuetify.sidebar.cache.destroy"
+              )
+            }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
@@ -78,7 +95,11 @@
         </v-list-item-action>
         <v-list-item-content>
           <v-list-item-title>
-            {{ $vuetify.lang.t("$vuetify.sidebar.cache.import") }}
+            {{
+              $vuetify.lang.t(
+                "$vuetify.sidebar.cache.import"
+              )
+            }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
@@ -89,7 +110,11 @@
         </v-list-item-action>
         <v-list-item-content>
           <v-list-item-title>
-            {{ $vuetify.lang.t("$vuetify.sidebar.cache.export") }}
+            {{
+              $vuetify.lang.t(
+                "$vuetify.sidebar.cache.export"
+              )
+            }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
@@ -127,7 +152,9 @@ export default {
     "search.key": function(val) {
       // 検索文字列存在時にファイル一覧を開く
       if (val) {
-        console.info(this.name + ":" + "watch:search.key:val=" + val);
+        console.info(
+          this.name + ":" + "watch:search.key:val=" + val
+        );
         this.menu.open = true;
       } else {
         this.menu.open = false;
@@ -135,7 +162,9 @@ export default {
     },
     mini: function(val) {
       // サイドバー縮小時にファイル一覧を閉じる
-      console.info(this.name + ":" + "watch:mini:val=" + val);
+      console.info(
+        this.name + ":" + "watch:mini:val=" + val
+      );
       if (val === true) {
         this.menu.open = false;
       }
@@ -159,7 +188,9 @@ export default {
     exportCache: function() {
       const cache = Cache.get();
       const json = JSON.stringify(cache);
-      const blob = new Blob([json], { type: "application/json" });
+      const blob = new Blob([json], {
+        type: "application/json"
+      });
       const link = document.createElement("a");
       link.href = window.URL.createObjectURL(blob);
       link.download = "Cache.json";

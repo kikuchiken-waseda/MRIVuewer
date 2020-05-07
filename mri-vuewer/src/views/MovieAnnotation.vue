@@ -14,26 +14,61 @@
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>
     </v-toolbar>
-    <video-array
-      ref="videoArray"
-      :width="width"
-      :height="height"
-      :fps="fps"
-      :dataUrl="dataUrl"
-      v-on:timeupdate="onTimeupdate"
-      v-on:loadeddata="onLoadeddata"
-    />
+    <v-container v-if="dataUrl">
+      <v-row>
+        <v-card flat>
+          <video-array
+            v-if="dataUrl"
+            :width="width"
+            :height="height"
+            :fps="fps"
+            :dataUrl="dataUrl"
+            v-on:timeupdate="onTimeupdate"
+            v-on:loadeddata="onLoadeddata"
+          />
+          <v-card-actions>
+            <v-btn icon>
+              <v-icon>mdi-skip-previous</v-icon>
+              <v-icon>mdi-skip-backward</v-icon>
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn icon>
+              <v-icon v-if="!isPlaying" @click="play">
+                mdi-play
+              </v-icon>
+              <v-icon v-if="isPlaying" @click="pause">
+                mdi-pause
+              </v-icon>
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn icon>
+              <v-icon>mdi-skip-next</v-icon>
+              <v-icon>mdi-skip-forward</v-icon>
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-row>
+      <v-row>
+        <m-wave-surfer
+          v-if="dataUrl"
+          :dataUrl="dataUrl"
+          :fps="fps"
+        />
+      </v-row>
+    </v-container>
   </v-card>
 </template>
 
 <script>
 import VideoArray from "@/components/videos/VideoArray.vue";
+import MWaveSurfer from "@/components/wavesurfer/MWaveSurfer.vue";
 import MInfoMenu from "@/components/MovieAnnotaion/MInfoMenu.vue";
 export default {
   name: "MovieAnnotaion",
   components: {
     MInfoMenu,
-    VideoArray
+    VideoArray,
+    MWaveSurfer
   },
   data: () => ({}),
   computed: {
@@ -59,6 +94,14 @@ export default {
       },
       set: function(val) {
         this.$store.dispatch("current/setDataUrl", val);
+      }
+    },
+    isPlaying: {
+      get: function() {
+        return this.$store.state.current.isPlaying;
+      },
+      set: function(val) {
+        this.$store.dispatch("current/setIsPlaying", val);
       }
     },
     width: {
@@ -168,6 +211,7 @@ export default {
     }
   },
   methods: {
+    // イベント系
     onLoadeddata: function(duration) {
       const tag = `${this.$options.name}:onLoadeddata`;
       console.info(tag, duration);
@@ -175,6 +219,13 @@ export default {
     onTimeupdate: function(currentTime) {
       const tag = `${this.$options.name}:onTimeupdate`;
       console.info(tag, currentTime);
+    },
+    // 操作系
+    play: function() {
+      this.isPlaying = true;
+    },
+    pause: function() {
+      this.isPlaying = false;
     }
   },
   mounted: function() {
