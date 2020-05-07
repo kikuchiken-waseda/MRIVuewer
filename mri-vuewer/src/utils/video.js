@@ -46,9 +46,7 @@ const info = (buff, callback) => {
           if (info.length == 3) {
             const detail = info[2].split(", ");
             if (info[1] == "Video") {
-              item.video = {};
-              item.video.codec_name = detail[0];
-              item.video.pix_fmt = detail[1];
+              item.videoStream = {};
               const size = detail
                 .filter(
                   x =>
@@ -59,44 +57,46 @@ const info = (buff, callback) => {
                 )[0]
                 .split(" ")[0]
                 .split("x");
-              item.video.size = {
+              item.size = {
                 width: Number(size[0]),
                 height: Number(size[1])
               };
-              item.video.bitrate = Number(
+              item.videoStream.codec_name = detail[0];
+              item.videoStream.pix_fmt = detail[1];
+              item.videoStream.bitrate = Number(
                 detail
                   .filter(x => x.match(/kb\/s/))[0]
                   .split(" ")[0]
               );
-              item.video.fps = Number(
+              item.videoStream.fps = Number(
                 detail
                   .filter(x => x.match(/fps/))[0]
                   .split(" ")[0]
               );
-              item.video.tbr = Number(
+              item.videoStream.tbr = Number(
                 detail
                   .filter(x => x.match(/tbr/))[0]
                   .split(" ")[0]
               );
-              item.video.tbn = Number(
+              item.videoStream.tbn = Number(
                 detail
                   .filter(x => x.match(/tbn/))[0]
                   .split(" ")[0]
               );
-              item.video.tbc = Number(
+              item.videoStream.tbc = Number(
                 detail
                   .filter(x => x.match(/tbc/))[0]
                   .split(" ")[0]
               );
             } else {
-              item.audio = {};
-              item.audio.codec_name = detail[0];
-              item.audio.sample_rate = Number(
+              item.audioStream = {};
+              item.audioStream.codec_name = detail[0];
+              item.audioStream.sample_rate = Number(
                 detail[1].split(" ")[0]
               );
-              item.audio.channel_layout = detail[2];
-              item.audio.sample_fmt = detail[3];
-              item.audio.bitrate = Number(
+              item.audioStream.channel_layout = detail[2];
+              item.audioStream.sample_fmt = detail[3];
+              item.audioStream.bitrate = Number(
                 detail[4].split(" ")[0]
               );
             }

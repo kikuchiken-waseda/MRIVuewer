@@ -58,9 +58,6 @@ export default {
   computed: {
     frameRate: function() {
       return 1 / this.fps;
-    },
-    duration: function() {
-      return this.$refs.video.duration;
     }
   },
   methods: {
@@ -73,21 +70,22 @@ export default {
         const time = currentTime - offsetTime;
         this.$refs.videoPre.currentTime = time;
       } else {
-        console.error(
+        this.$refs.videoPre.currentTime = 0;
+        console.warn(
           tag + "video-pre: setCurrentTime",
           `${currentTime - offsetTime} is less than 0`
         );
       }
-      if (offsetTime + currentTime < this.duration) {
+      if (offsetTime + currentTime < this.getDuration()) {
         console.info(tag, "video-pos: setCurrentTime");
         const time = currentTime + offsetTime;
         this.$refs.videoPos.currentTime = time;
       } else {
-        console.error(
+        this.$refs.videoPos.currentTime = this.getDuration();
+        console.warn(
           tag + "video-pos: setCurrentTime",
-          `${currentTime + offsetTime} is more than ${
-            this.duration
-          }`
+          `${currentTime +
+            offsetTime} is more than ${this.getDuration()}`
         );
       }
     },
@@ -114,7 +112,7 @@ export default {
       const currentTime = this.getCurrentTime();
       const offsetTime = this.frameOffset * this.frameRate;
       const time = Math.min(
-        this.duration,
+        this.getDuration(),
         currentTime + offsetTime
       );
       this.setCurrentTime(time);
@@ -131,6 +129,9 @@ export default {
     },
     getCurrentTime: function() {
       return this.$refs.video.currentTime;
+    },
+    getDuration: function() {
+      return this.$refs.video.duration;
     }
   },
   mounted: function() {

@@ -6,88 +6,157 @@
  * 現在表示の動画時刻がいつであるのか, 現在の画面サイズが
  * どの大きさであるのか等を管理します
  */
+
+const TAG = "current";
+const MUTATIONTAG = `${TAG}:MUTATION`;
+const ACTIONTAG = `${TAG}:ACTION`;
+
 export const current = {
   namespaced: true,
   state: {
     name: null,
+    lastModifiedDate: null,
+    fileSize: null,
+    fileType: null,
+    dataUrl: null,
     fps: null,
-    width: null,
-    height: null,
-    stream: null,
-    dataUrl: null
+    size: {
+      width: null,
+      height: null
+    },
+    videoStream: {
+      bitrate: null,
+      codec_name: null,
+      fps: null,
+      pix_fmt: null,
+      tbc: null,
+      tbn: null,
+      tbr: null
+    },
+    audioStream: {
+      bitrate: null,
+      channel_layout: null,
+      codec_name: null,
+      sample_fmt: null,
+      sample_rate: null
+    }
   },
   mutations: {
-    setMovieName: function(state, payload) {
-      state.name = payload;
+    setName: function(state, payload) {
+      console.info(`${MUTATIONTAG}:setName`, payload);
+      state.name = String(payload);
     },
-    setMovieFps: function(state, payload) {
-      state.fps = payload;
+    setLastModifiedData: function(state, payload) {
+      console.info(
+        `${MUTATIONTAG}:setLastModifiedData`,
+        payload
+      );
+      state.lastModifiedDate = payload;
     },
-    setMovieDataUrl: function(state, payload) {
-      state.dataUrl = payload;
+    setFileSize: function(state, payload) {
+      console.info(`${MUTATIONTAG}:setFileSize`, payload);
+      state.fileSize = payload;
     },
-    setMovieStreams: function(state, payload) {
-      state.stream = payload;
+    setFileType: function(state, payload) {
+      console.info(`${MUTATIONTAG}:setFileType`, payload);
+      state.fileType = payload;
     },
-    setMovieWidth: function(state, payload) {
-      state.width = payload;
+    setFps: function(state, payload) {
+      console.info(`${MUTATIONTAG}:setFps`, payload);
+      state.fps = Number(payload);
     },
-    setMovieHeight: function(state, payload) {
-      state.height = payload;
+    setDataUrl: function(state, payload) {
+      console.info(`${MUTATIONTAG}:setDataUrl`, payload);
+      state.dataUrl = String(payload);
+    },
+    setSize: function(state, payload) {
+      console.info(`${MUTATIONTAG}:setSize`, payload);
+      state.size.width = payload.width;
+      state.size.height = payload.height;
+    },
+    setWidth: function(state, payload) {
+      console.info(`${MUTATIONTAG}:setWidth`, payload);
+      state.size.width = payload;
+    },
+    setHeight: function(state, payload) {
+      console.info(`${MUTATIONTAG}:setHeight`, payload);
+      state.size.height = payload;
+    },
+    setVideoStream: function(state, payload) {
+      console.info(
+        `${MUTATIONTAG}:setVideoStream`,
+        payload
+      );
+      state.videoStream.codec_name = String(
+        payload.codec_name
+      );
+      state.videoStream.pix_fmt = String(payload.pix_fmt);
+      state.videoStream.bitrate = Number(payload.bitrate);
+      state.videoStream.fps = Number(payload.fps);
+      state.videoStream.tbc = Number(payload.tbc);
+      state.videoStream.tbn = Number(payload.tbn);
+      state.videoStream.tbr = Number(payload.tbr);
+    },
+    setAudioStream: function(state, payload) {
+      console.info(
+        `${MUTATIONTAG}:setAudioStream`,
+        payload
+      );
+      state.audioStream.bitrate = payload.bitrate;
+      state.audioStream.channel_layout =
+        payload.channel_layout;
+      state.audioStream.codec_name = payload.codec_name;
+      state.audioStream.sample_fmt = payload.sample_fmt;
+      state.audioStream.sample_rate = payload.sample_rate;
     }
   },
   actions: {
-    setMovie: function(context, payload) {
-      console.log("current:actions:setMovie", payload);
-      const name = payload.name;
-      const fps = payload.fps;
-      const dataUrl = payload.dataUrl;
-      const stream = payload.stream;
-      const size = payload.size;
-      context.commit("setMovieName", name);
-      context.commit("setMovieFps", fps);
-      context.commit("setMovieDataUrl", dataUrl);
-      context.commit("setMovieStreams", stream);
-      context.commit("setMovieWidth", size.width);
-      context.commit("setMovieHeight", size.height);
-    },
-    setMovieName: function(context, payload) {
-      console.log("current:actions:setMovieName", payload);
-      context.commit("setMovieName", payload);
-    },
-    setMovieFps: function(context, payload) {
-      console.log("current:actions:setMovieFps", payload);
-      context.commit("setMovieFps", payload);
-    },
-    setMovieDataUrl: function(context, payload) {
-      console.log(
-        "current:actions:setMovieDataUrl",
-        payload
+    setItem: function(context, payload) {
+      console.info(`${ACTIONTAG}:setItem`, payload);
+      context.commit("setName", payload.name);
+      context.commit(
+        "setLastModifiedData",
+        payload.lastModifiedDate
       );
-      context.commit("setMovieDataUrl", payload);
+      context.commit("setFileSize", payload.fileSize);
+      context.commit("setFileType", payload.fileType);
+      context.commit("setFps", payload.fps);
+      context.commit("setDataUrl", payload.dataUrl);
+      context.commit("setSize", payload.size);
+      context.commit("setVideoStream", payload.videoStream);
+      context.commit("setAudioStream", payload.audioStream);
     },
-    setMovieSize: function(context, payload) {
-      console.log("current:actions:setMovieSize", payload);
-      context.commit("setMovieWidth", payload.width);
-      context.commit("setMovieHeight", payload.height);
+    setName: function(context, payload) {
+      console.info(`${ACTIONTAG}:setName`, payload);
+      context.commit("setName", payload);
     },
-    setMovieWidth: function(context, payload) {
-      console.log("current:actions:setMovieWidth", payload);
-      context.commit("setMovieWidth", payload);
+    setFps: function(context, payload) {
+      console.info(`${ACTIONTAG}:setFps`, payload);
+      context.commit("setFps", payload);
+    },
+    setDataUrl: function(context, payload) {
+      console.info(`${ACTIONTAG}:setDataUrl`, payload);
+      context.commit("setDataUrl", payload);
+    },
+    setSize: function(context, payload) {
+      console.info(`${ACTIONTAG}:setSize`, payload);
+      context.commit("setSize", payload);
+    },
+    setWidth: function(context, payload) {
+      console.info(`${ACTIONTAG}:setWidth`, payload);
+      context.commit("setWidth", payload);
     },
     setMovieHeight: function(context, payload) {
-      console.log(
-        "current:actions:setMovieHeight",
-        payload
-      );
-      context.commit("setMovieHeight", payload);
+      console.info(`${ACTIONTAG}:setHeight`, payload);
+      context.commit("setHeight", payload);
     },
-    setMovieStream: function(context, payload) {
-      console.log(
-        "current:actions:setMovieStream",
-        payload
-      );
-      context.commit("setMovieStream", payload);
+    setVideoStream: function(context, payload) {
+      console.info(`${ACTIONTAG}:setVideoStream`, payload);
+      context.commit("setVideoStream", payload);
+    },
+    setAudioStream: function(context, payload) {
+      console.info(`${ACTIONTAG}:setAudioStream`, payload);
+      context.commit("setAudioStream", payload);
     }
   }
 };

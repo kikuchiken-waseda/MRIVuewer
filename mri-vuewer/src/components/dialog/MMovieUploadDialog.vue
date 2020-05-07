@@ -3,7 +3,7 @@
     ref="form"
     title="Movie Upload"
     @valid="onValid"
-    :loading="isRunOnValid"
+    :isloading="video.loading"
   >
     <template v-slot:activator="{ on }">
       <slot name="activator" v-bind:on="on">
@@ -16,33 +16,17 @@
     </template>
     <template v-slot:form>
       <v-container>
-        <v-file-input
-          :label="
-            `${$vuetify.lang.t(
-              '$vuetify.movieUploadDialog.file.title'
-            )}*`
-          "
-          v-model="file"
-          :hint="
-            $vuetify.lang.t(
-              '$vuetify.movieUploadDialog.file.hint'
-            )
-          "
-          prepend-icon="mdi-file-video"
-          accept="video/*"
-          show-size
-          required
-          @change="onChangeFileInput"
-        />
+        <m-movie-input v-model="video" />
         <v-text-field
           :label="
             `${$vuetify.lang.t(
               '$vuetify.movieUploadDialog.name.title'
             )}*`
           "
-          v-model="name"
+          v-model="video.name"
           :counter="nameMaxSize"
           :rules="nameRules"
+          :disabled="video.loading"
           prepend-icon="mdi-movie"
           :hint="
             $vuetify.lang.t(
@@ -57,8 +41,9 @@
               '$vuetify.movieUploadDialog.fps.title'
             )}*`
           "
-          v-model="fps"
+          v-model="video.fps"
           :rules="fpsRules"
+          :disabled="video.loading"
           :hint="
             $vuetify.lang.t(
               '$vuetify.movieUploadDialog.fps.hint'
@@ -73,66 +58,36 @@
 </template>
 
 <script>
-import FileUtil from "@/utils/file.js";
-import VideoUtil from "@/utils/video.js";
 import MBaseFormDialog from "./MBaseFormDialog.vue";
+import MMovieInput from "../form/MMovieInput.vue";
 const nameMaxSize = 30;
 
 export default {
   name: "MMovieUploadDialog",
   components: {
-    MBaseFormDialog
+    MBaseFormDialog,
+    MMovieInput
   },
   data: () => ({
     dialog: false,
-    file: null,
-    fileText: null,
-    name: null,
+    video: {
+      loading: false,
+      name: null,
+      fps: 0
+    },
     nameMaxSize: nameMaxSize,
     nameRules: null,
-    fps: 0,
-    fpsRules: null,
-    stream: null,
-    isRunOnValid: false
+    fpsRules: null
   }),
   methods: {
-    onChangeFileInput: async function(e) {
-      const tag = `${this.$options.name}:onChangeFileInput`;
-      if (!this.name && e) {
-        this.name = e.name;
-        const buff = await e.arrayBuffer();
-        VideoUtil.info(buff, stream => {
-          this.stream = stream;
-          if (stream.video) {
-            this.fps = stream.video.fps
-              ? stream.video.fps
-              : this.fps;
-          }
-        });
-        console.log(
-          tag,
-          "name: ",
-          this.name,
-          "fps:",
-          this.fps
-        );
-      }
-    },
-    onValid: async function() {
-      this.isRunOnValid = true;
+    onValid: function() {
       const tag = `${this.$options.name}:onValid`;
-      console.log(tag, this.file);
-      const dataUrl = await FileUtil.toBase64(this.file);
-      const item = {
-        name: this.name,
-        dataUrl: dataUrl,
-        fps: Number(this.fps),
-        size: this.stream.video.size,
-        stream: this.stream
-      };
-      console.info(tag, item);
-      this.isRunOnValid = false;
-      this.$store.dispatch("current/setMovie", item);
+      const item = this.video;
+      item.lastModifiedDate = this.video.file.lastModifiedDate;
+      item.fileType = this.video.file.type;
+      item.fileSize = this.video.file.size;
+      console.info(tag + ":setItem", item);
+      this.$store.dispatch("current/setItem", item);
       this.$refs.form.reset();
       this.$router.push({ name: "MovieAnnotation" });
     }

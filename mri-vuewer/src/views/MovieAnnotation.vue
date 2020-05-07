@@ -11,7 +11,8 @@
     <h1>{{ name }}</h1>
     <p>{{ fps }}</p>
     <pre>{{ dataUrl }}</pre>
-    <pre>{{ stream }}</pre>
+    <pre>{{ videoStream }}</pre>
+    <pre>{{ audioStream }}</pre>
   </div>
 </template>
 
@@ -33,7 +34,7 @@ export default {
         return this.$store.state.current.name;
       },
       set: function(val) {
-        this.$store.dispatch("current/setMovieName", val);
+        this.$store.dispatch("current/setName", val);
       }
     },
     fps: {
@@ -41,7 +42,7 @@ export default {
         return this.$store.state.current.fps;
       },
       set: function(val) {
-        this.$store.dispatch("current/setMovieFps", val);
+        this.$store.dispatch("current/setFps", val);
       }
     },
     dataUrl: {
@@ -49,37 +50,39 @@ export default {
         return this.$store.state.current.dataUrl;
       },
       set: function(val) {
-        this.$store.dispatch(
-          "current/setMovieDataUrl",
-          val
-        );
+        this.$store.dispatch("current/setDataUrl", val);
       }
     },
     width: {
       get: function() {
-        console.log(this.$store.state.size);
-        return this.$store.state.width;
+        return this.$store.state.current.size.width;
       },
       set: function(val) {
-        this.$store.dispatch("current/setMovieWidth", val);
+        this.$store.dispatch("current/setWidth", val);
       }
     },
     height: {
       get: function() {
-        return this.$store.state.height;
+        return this.$store.state.current.size.height;
       },
       set: function(val) {
-        this.$store.dispatch("current/setMovieHeight", val);
+        this.$store.dispatch("current/setHeight", val);
       }
     },
-
-    stream: {
+    videoStream: {
       get: function() {
-        return this.$store.state.current.stream;
-      },
-      set: function(val) {
-        this.$store.dispatch("current/setMovieStream", val);
+        return this.$store.state.current.videoStream;
       }
+    },
+    audioStream: {
+      get: function() {
+        return this.$store.state.current.videoStream;
+      }
+    }
+  },
+  mounted: function() {
+    if (!this.dataUrl) {
+      this.$router.push({ name: "Home" });
     }
   }
 };

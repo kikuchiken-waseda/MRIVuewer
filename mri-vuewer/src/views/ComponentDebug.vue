@@ -10,14 +10,7 @@
         </v-toolbar-title>
       </v-toolbar>
       <v-container>
-        <v-file-input
-          v-model="video.file"
-          prepend-icon="mdi-file-video"
-          accept="video/*"
-          show-size
-          @change="onChangeFileInput"
-        />
-
+        <m-movie-input v-model="video" />
         <v-card class="mx-auto">
           <v-toolbar color="blue-grey" dark>
             <v-toolbar-title>
@@ -165,8 +158,7 @@
 </template>
 
 <script>
-import VideoUtil from "@/utils/video.js";
-import FileUtil from "@/utils/file.js";
+import MMovieInput from "@/components/form/MMovieInput.vue";
 import BackgroundSubtractor from "@/components/videos/BackgroundSubtractor.vue";
 import OpticalFlow from "@/components/videos/OpticalFlow.vue";
 import MeanShift from "@/components/videos/MeanShift.vue";
@@ -174,6 +166,7 @@ import VideoArray from "@/components/videos/VideoArray.vue";
 export default {
   name: "ComponentDebug",
   components: {
+    MMovieInput,
     BackgroundSubtractor,
     OpticalFlow,
     MeanShift,
@@ -181,6 +174,7 @@ export default {
   },
   data: () => ({
     video: {
+      loading: false,
       name: null,
       dataUrl: null,
       fps: null,
@@ -199,29 +193,6 @@ export default {
     }
   }),
   methods: {
-    onChangeFileInput: async function(e) {
-      const tag = `${this.$options.name}:onChangeFileInput`;
-      if (e) {
-        this.video.name = e.name;
-        const buff = await e.arrayBuffer();
-        VideoUtil.info(buff, res => {
-          if (res.video) {
-            console.log(tag, "set video", res.video);
-            this.video.size.width = res.video.size.width;
-            this.video.size.height = res.video.size.height;
-            this.video.fps = res.video.fps
-              ? res.video.fps
-              : this.fps;
-          }
-        });
-        this.video.dataUrl = await FileUtil.toBase64(
-          this.video.file
-        );
-      } else {
-        this.video.dataUrl = null;
-        console.log(tag, "no video", this.video);
-      }
-    },
     play: function() {
       const video = this.$refs.video;
       video.play();
