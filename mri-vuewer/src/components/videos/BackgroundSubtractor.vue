@@ -54,7 +54,7 @@ export default {
     }
   },
   data: () => ({
-    capture: null,
+    cap: null,
     video: null,
     frame: null,
     fgmask: null
@@ -115,16 +115,8 @@ export default {
   mounted: function() {
     this.video = this.$refs.video;
     this.cap = new cv.VideoCapture(this.video);
-    this.frame = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_8UC4
-    );
-    this.fgmask = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_8UC1
-    );
+    this.frame = new cv.Mat(this.height, this.width, cv.CV_8UC4);
+    this.fgmask = new cv.Mat(this.height, this.width, cv.CV_8UC1);
   }
 };
 </script>

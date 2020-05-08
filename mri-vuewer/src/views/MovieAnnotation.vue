@@ -7,7 +7,26 @@
           <v-col class="flex-grow-1 flex-shrink-1">
             <v-card flat :color="background">
               <v-container fluid class="pa-0">
-                <v-row class="py-0">
+                <v-row v-show="bs.show">
+                  <v-col cols="12" class="py-0">
+                    <v-card flat>
+                      <v-system-bar dark color="primary">
+                        <span>background-subtractor</span>
+                      </v-system-bar>
+                      <background-subtractor
+                        ref="backgroundSubtractor"
+                        :dataUrl="dataUrl"
+                        :fps="fps"
+                        :width="width"
+                        :height="height"
+                        :history="50"
+                        :threshold="16"
+                        :detectShadows="false"
+                      />
+                    </v-card>
+                  </v-col>
+                </v-row>
+                <v-row class="py-0" v-show="!bs.show">
                   <v-col cols="4" class="py-0">
                     <v-card flat :color="background">
                       <v-system-bar dark color="accent">
@@ -32,7 +51,7 @@
                   <v-col cols="4" class="py-0">
                     <v-card flat :color="background">
                       <v-system-bar dark color="accent">
-                        {{ frameOffset }}フレーム前の画像
+                        {{ frameOffset }}フレーム後の画像
                       </v-system-bar>
                       <video
                         muted
@@ -83,12 +102,14 @@
           </div>
         </v-card>
       </v-container>
+      <v-switch v-model="bs.show" class="ma-2" label="背景差分モード:実験的" />
     </v-card>
   </v-container>
 </template>
 
 <script>
 import colors from "vuetify/lib/util/colors";
+import BackgroundSubtractor from "@/components/videos/BackgroundSubtractor.vue";
 import MToolBar from "@/components/MovieAnnotaion/MToolBar.vue";
 import MTierList from "@/components/MovieAnnotaion/MTierList.vue";
 import WaveSurfer from "@/components/wavesurfer/wavesurfer.js";
@@ -100,6 +121,7 @@ import RegionPlugin from "@/components/wavesurfer/plugin/regions.js";
 export default {
   name: "MovieAnnotaion",
   components: {
+    BackgroundSubtractor,
     MToolBar,
     MTierList
   },
@@ -108,6 +130,9 @@ export default {
     isLoading: false,
     background: "grey lighten-3",
     frameOffset: 1,
+    bs: {
+      show: false
+    },
     videoStyle: {
       width: "100%",
       height: "auto"
@@ -191,11 +216,13 @@ export default {
     },
     play: function() {
       this.syncVideos();
+      this.$refs.backgroundSubtractor.play();
       this.$refs.videoPre.play();
       this.$refs.videoPos.play();
       this.ws.play();
     },
     pause: function() {
+      this.$refs.backgroundSubtractor.pause();
       this.$refs.videoPre.pause();
       this.$refs.videoPos.pause();
       this.ws.pause();
@@ -210,6 +237,7 @@ export default {
     syncVideos: function() {
       const tag = `${this.$options.name}:syncVideos`;
       const currentTime = this.getCurrentTime();
+      this.$refs.backgroundSubtractor.setCurrentTime(currentTime);
       const offsetTime = this.frameOffset * this.frameRate;
       console.info(tag, currentTime);
       if (currentTime - offsetTime > 0) {
