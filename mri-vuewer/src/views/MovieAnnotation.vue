@@ -1,54 +1,59 @@
 <template>
   <v-card class="movie-annotaion">
-    <v-toolbar dark color="secondary" dense>
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
-      <v-toolbar-title>
-        {{ name }}
-      </v-toolbar-title>
-      <v-spacer />
-      <m-info-menu :value="videoInfo" />
-      <v-btn icon>
-        <v-icon>mdi-cog</v-icon>
-      </v-btn>
-      <v-btn icon>
-        <v-icon>mdi-dots-vertical</v-icon>
-      </v-btn>
-    </v-toolbar>
+    <m-tool-bar />
     <v-card v-if="dataUrl">
-      <video
-        muted
-        ref="videoPre"
-        class="mr-1"
-        :src="dataUrl"
-      />
-      <video class="mr-1" ref="video" :src="dataUrl" />
-      <video
-        muted
-        ref="videoPos"
-        class="ml-1"
-        :src="dataUrl"
-      />
+      <v-row>
+        <v-col class="d-flex" cols="7">
+          <v-container>
+            <v-row>
+              <v-col class="d-flex" cols="4">
+                <video
+                  muted
+                  ref="videoPre"
+                  :style="videoStyle"
+                  :src="dataUrl"
+                />
+              </v-col>
+              <v-col class="d-flex" cols="4">
+                <video
+                  ref="video"
+                  :style="videoStyle"
+                  :src="dataUrl"
+                />
+              </v-col>
+              <v-col class="d-flex" cols="4">
+                <video
+                  muted
+                  ref="videoPos"
+                  :style="videoStyle"
+                  :src="dataUrl"
+                />
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-col>
+      </v-row>
+      <v-card-actions>
+        <v-btn icon>
+          <v-icon>mdi-skip-previous</v-icon>
+          <v-icon>mdi-skip-backward</v-icon>
+        </v-btn>
+        <v-spacer></v-spacer>
+        <v-btn icon>
+          <v-icon @click="play">
+            mdi-play
+          </v-icon>
+          <v-icon @click="pause">
+            mdi-pause
+          </v-icon>
+        </v-btn>
+        <v-spacer></v-spacer>
+        <v-btn icon>
+          <v-icon>mdi-skip-next</v-icon>
+          <v-icon>mdi-skip-forward</v-icon>
+        </v-btn>
+      </v-card-actions>
     </v-card>
-    <v-card-actions>
-      <v-btn icon>
-        <v-icon>mdi-skip-previous</v-icon>
-        <v-icon>mdi-skip-backward</v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon @click="play">
-          mdi-play
-        </v-icon>
-        <v-icon @click="pause">
-          mdi-pause
-        </v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon>mdi-skip-next</v-icon>
-        <v-icon>mdi-skip-forward</v-icon>
-      </v-btn>
-    </v-card-actions>
     <v-card v-if="dataUrl">
       <v-progress-linear
         v-if="isLoading"
@@ -66,18 +71,22 @@
 </template>
 
 <script>
-import MInfoMenu from "@/components/MovieAnnotaion/MInfoMenu.vue";
+import MToolBar from "@/components/MovieAnnotaion/MToolBar.vue";
 import WaveSurfer from "@/components/wavesurfer/wavesurfer.js";
 import SpectrogramPlugin from "@/components/wavesurfer/plugin/spectrogram.js";
 
 export default {
   name: "MovieAnnotaion",
   components: {
-    MInfoMenu
+    MToolBar
   },
   data: () => ({
     isLoading: false,
     frameOffset: 1,
+    videoStyle: {
+      width: "100%",
+      height: "auto"
+    },
     options: {
       waveColor: "violet",
       progressColor: "purple",
@@ -141,93 +150,17 @@ export default {
       get: function() {
         return this.$store.state.current.audioStream;
       }
-    },
-    videoInfo: function() {
-      const v = this.$store.state.current.videoStream;
-      const a = this.$store.state.current.audioStream;
-      return {
-        videoStream: [
-          {
-            title: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.videoStream.codec.title"
-            ),
-            val: `${v.codec_name}, ${v.pix_fmt}`
-          },
-          {
-            title: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.videoStream.bitrate.title"
-            ),
-            val: `${v.bitrate} kb/s`
-          },
-          {
-            title: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.videoStream.fps.title"
-            ),
-            val: `${v.fps} fps`
-          },
-          {
-            title: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.videoStream.tbr.title"
-            ),
-            val: `${v.tbr} tbr`,
-            help: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.videoStream.tbr.help"
-            )
-          },
-          {
-            title: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.videoStream.tbn.title"
-            ),
-            val: `${v.tbn} tbn`,
-            help: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.videoStream.tbn.help"
-            )
-          },
-          {
-            title: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.videoStream.tbc.title"
-            ),
-            val: `${v.tbc} tbc`,
-            help: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.videoStream.tbc.help"
-            )
-          }
-        ],
-        audioStream: [
-          {
-            title: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.audioStream.codec.title"
-            ),
-            val: a.codec_name
-          },
-          {
-            title: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.audioStream.bitrate.title"
-            ),
-            val: `${a.bitrate} kb/s`
-          },
-          {
-            title: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.audioStream.channel_layout.title"
-            ),
-            val: a.channel_layout
-          },
-          {
-            title: this.$vuetify.lang.t(
-              "$vuetify.movieAnnotation.info.audioStream.sample_rate.title"
-            ),
-            val: `${a.sample_rate} Hz`
-          }
-        ]
-      };
     }
   },
   methods: {
     load() {
       if (this.ws) {
+        this.isLoading = true;
         if (this.$refs.video) {
-          this.isLoading = true;
-          this.ws.load(this.$refs.video);
+          const elm = this.$refs.video;
+          this.ws.load(elm);
+        } else {
+          this.isLoading = false;
         }
       }
     },
@@ -297,6 +230,8 @@ export default {
     }
   },
   mounted: function() {
+    const tag = `${this.$options.name}:mounted`;
+    console.log(tag);
     if (!this.dataUrl) {
       this.$router.push({ name: "Home" });
     } else {
@@ -317,6 +252,13 @@ export default {
       this.ws.on("error", this.onError);
       this.load();
     }
+  },
+  beforeDestroy: function() {
+    const tag = `${this.$options.name}:beforeDestroy`;
+    if (this.ws) {
+      this.ws.destroy();
+    }
+    console.log(tag);
   }
 };
 </script>

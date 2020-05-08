@@ -20,9 +20,7 @@ export const current = {
     fileType: null,
     dataUrl: null,
     fps: null,
-    videoCurrentTime: null,
-    audioCurrentTime: null,
-    isPlaying: false,
+    currentTime: null,
     size: {
       width: null,
       height: null
@@ -49,26 +47,12 @@ export const current = {
       console.info(`${MUTATIONTAG}:setName`, payload);
       state.name = String(payload);
     },
-    setVideoCurrentTime: function(state, payload) {
+    setCurrentTime: function(state, payload) {
       console.info(
-        `${MUTATIONTAG}:setVideoCurrentTime`,
+        `${MUTATIONTAG}:setCurrentTime`,
         payload
       );
-      state.videoCurrentTime = payload;
-    },
-    setAudioCurrentTime: function(state, payload) {
-      console.info(
-        `${MUTATIONTAG}:setAudioCurrentTime`,
-        payload
-      );
-      state.AudioCurrentTime = payload;
-    },
-    setIsPlaying: function(state, payload) {
-      console.info(
-        `${MUTATIONTAG}:setAudioCurrentTime`,
-        payload
-      );
-      state.isPlaying = payload;
+      state.currentTime = payload;
     },
     setLastModifiedData: function(state, payload) {
       console.info(
@@ -90,7 +74,10 @@ export const current = {
       state.fps = Number(payload);
     },
     setDataUrl: function(state, payload) {
-      console.info(`${MUTATIONTAG}:setDataUrl`, payload);
+      console.info(
+        `${MUTATIONTAG}:setDataUrl`,
+        payload.split(",")[0]
+      );
       state.dataUrl = String(payload);
     },
     setSize: function(state, payload) {
@@ -158,23 +145,9 @@ export const current = {
       console.info(`${ACTIONTAG}:setFps`, payload);
       context.commit("setFps", payload);
     },
-    setIsPlaying: function(context, payload) {
-      console.info(`${ACTIONTAG}:setIsPlaying`, payload);
-      context.commit("setIsPlaying", payload);
-    },
-    setVideoCurrentTime: function(context, payload) {
-      console.info(
-        `${ACTIONTAG}:setVideoCurrentTime`,
-        payload
-      );
-      context.commit("setVideoCurrentTime", payload);
-    },
-    setAudioCurrentTime: function(context, payload) {
-      console.info(
-        `${ACTIONTAG}:setAudioCurrentTime`,
-        payload
-      );
-      context.commit("setAudioCurrentTime", payload);
+    setCurrentTime: function(context, payload) {
+      console.info(`${ACTIONTAG}:setCurrentTime`, payload);
+      context.commit("setCurrentTime", payload);
     },
     setDataUrl: function(context, payload) {
       console.info(`${ACTIONTAG}:setDataUrl`, payload);
