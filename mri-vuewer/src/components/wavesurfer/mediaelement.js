@@ -55,6 +55,10 @@ export default class MediaElement extends WebAudio {
    * Initialise the backend, called in `wavesurfer.createBackend()`
    */
   init() {
+    this.createVolumeNode();
+    this.createScriptNode();
+    this.createAnalyserNode();
+
     this.setPlaybackRate(this.params.audioRate);
     this.createTimer();
   }
@@ -64,10 +68,7 @@ export default class MediaElement extends WebAudio {
    */
   _setupMediaListeners() {
     this.mediaListeners.error = () => {
-      this.fireEvent(
-        "error",
-        "Error loading media element"
-      );
+      this.fireEvent("error", "Error loading media element");
     };
     this.mediaListeners.canplay = () => {
       this.fireEvent("canplay");
@@ -98,14 +99,8 @@ export default class MediaElement extends WebAudio {
 
     // reset event listeners
     Object.keys(this.mediaListeners).forEach(id => {
-      this.media.removeEventListener(
-        id,
-        this.mediaListeners[id]
-      );
-      this.media.addEventListener(
-        id,
-        this.mediaListeners[id]
-      );
+      this.media.removeEventListener(id, this.mediaListeners[id]);
+      this.media.addEventListener(id, this.mediaListeners[id]);
     });
   }
 
@@ -151,9 +146,7 @@ export default class MediaElement extends WebAudio {
     media.src = url;
     media.style.width = "100%";
 
-    const prevMedia = container.querySelector(
-      this.mediaType
-    );
+    const prevMedia = container.querySelector(this.mediaType);
     if (prevMedia) {
       container.removeChild(prevMedia);
     }
@@ -191,9 +184,7 @@ export default class MediaElement extends WebAudio {
       !(media instanceof HTMLMediaElement) ||
       typeof media.addEventListener === "undefined"
     ) {
-      throw new Error(
-        "media parameter is not a valid media element"
-      );
+      throw new Error("media parameter is not a valid media element");
     }
 
     // load must be called manually on iOS, otherwise peaks won't draw
@@ -378,17 +369,13 @@ export default class MediaElement extends WebAudio {
     if (deviceId) {
       if (!this.media.setSinkId) {
         return Promise.reject(
-          new Error(
-            "setSinkId is not supported in your browser"
-          )
+          new Error("setSinkId is not supported in your browser")
         );
       }
       return this.media.setSinkId(deviceId);
     }
 
-    return Promise.reject(
-      new Error("Invalid deviceId: " + deviceId)
-    );
+    return Promise.reject(new Error("Invalid deviceId: " + deviceId));
   }
 
   /**
@@ -425,10 +412,7 @@ export default class MediaElement extends WebAudio {
     // cleanup media event listeners
     Object.keys(this.mediaListeners).forEach(id => {
       if (this.media) {
-        this.media.removeEventListener(
-          id,
-          this.mediaListeners[id]
-        );
+        this.media.removeEventListener(id, this.mediaListeners[id]);
       }
     });
 

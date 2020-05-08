@@ -63,9 +63,7 @@ export default class WebAudio extends util.Observer {
    * @return {boolean} Whether or not this browser supports this backend
    */
   supportsWebAudio() {
-    return !!(
-      window.AudioContext || window.webkitAudioContext
-    );
+    return !!(window.AudioContext || window.webkitAudioContext);
   }
 
   /**
@@ -108,9 +106,7 @@ export default class WebAudio extends util.Observer {
     /** ac: Audio Context instance */
     this.ac =
       params.audioContext ||
-      (this.supportsWebAudio()
-        ? this.getAudioContext()
-        : {});
+      (this.supportsWebAudio() ? this.getAudioContext() : {});
     /**@private */
     this.lastPlay = this.ac.currentTime;
     /** @private */
@@ -119,13 +115,9 @@ export default class WebAudio extends util.Observer {
     this.scheduledPause = null;
     /** @private */
     this.states = {
-      [PLAYING]: Object.create(
-        this.stateBehaviors[PLAYING]
-      ),
+      [PLAYING]: Object.create(this.stateBehaviors[PLAYING]),
       [PAUSED]: Object.create(this.stateBehaviors[PAUSED]),
-      [FINISHED]: Object.create(
-        this.stateBehaviors[FINISHED]
-      )
+      [FINISHED]: Object.create(this.stateBehaviors[FINISHED])
     };
     /** @private */
     this.buffer = null;
@@ -309,9 +301,7 @@ export default class WebAudio extends util.Observer {
       let audio = new window.Audio();
       if (!audio.setSinkId) {
         return Promise.reject(
-          new Error(
-            "setSinkId is not supported in your browser"
-          )
+          new Error("setSinkId is not supported in your browser")
         );
       }
       audio.autoplay = true;
@@ -322,9 +312,7 @@ export default class WebAudio extends util.Observer {
 
       return audio.setSinkId(deviceId);
     } else {
-      return Promise.reject(
-        new Error("Invalid deviceId: " + deviceId)
-      );
+      return Promise.reject(new Error("Invalid deviceId: " + deviceId));
     }
   }
 
@@ -334,10 +322,7 @@ export default class WebAudio extends util.Observer {
    * @param {number} value A floating point value between 0 and 1.
    */
   setVolume(value) {
-    this.gainNode.gain.setValueAtTime(
-      value,
-      this.ac.currentTime
-    );
+    this.gainNode.gain.setValueAtTime(value, this.ac.currentTime);
   }
 
   /**
@@ -360,9 +345,7 @@ export default class WebAudio extends util.Observer {
   decodeArrayBuffer(arraybuffer, callback, errback) {
     if (!this.offlineAc) {
       this.offlineAc = this.getOfflineAudioContext(
-        this.ac && this.ac.sampleRate
-          ? this.ac.sampleRate
-          : 44100
+        this.ac && this.ac.sampleRate ? this.ac.sampleRate : 44100
       );
     }
     this.offlineAc.decodeAudioData(
@@ -392,10 +375,7 @@ export default class WebAudio extends util.Observer {
    */
   setLength(length) {
     // No resize, we can preserve the cached peaks.
-    if (
-      this.mergedPeaks &&
-      length == 2 * this.mergedPeaks.length - 1 + 2
-    ) {
+    if (this.mergedPeaks && length == 2 * this.mergedPeaks.length - 1 + 2) {
       return;
     }
 
@@ -403,9 +383,7 @@ export default class WebAudio extends util.Observer {
     this.mergedPeaks = [];
     // Set the last element of the sparse array so the peak arrays are
     // appropriately sized for other calculations.
-    const channels = this.buffer
-      ? this.buffer.numberOfChannels
-      : 1;
+    const channels = this.buffer ? this.buffer.numberOfChannels : 1;
     let c;
     for (c = 0; c < channels; c++) {
       this.splitPeaks[c] = [];
@@ -439,9 +417,7 @@ export default class WebAudio extends util.Observer {
     this.setLength(length);
 
     if (!this.buffer) {
-      return this.params.splitChannels
-        ? this.splitPeaks
-        : this.mergedPeaks;
+      return this.params.splitChannels ? this.splitPeaks : this.mergedPeaks;
     }
 
     /**
@@ -452,11 +428,7 @@ export default class WebAudio extends util.Observer {
      * will review this code once a stable version of Safari TP is out
      */
     if (!this.buffer.length) {
-      const newBuffer = this.createBuffer(
-        1,
-        4096,
-        this.sampleRate
-      );
+      const newBuffer = this.createBuffer(1, 4096, this.sampleRate);
       this.buffer = newBuffer.buffer;
     }
 
@@ -502,9 +474,7 @@ export default class WebAudio extends util.Observer {
       }
     }
 
-    return this.params.splitChannels
-      ? this.splitPeaks
-      : this.mergedPeaks;
+    return this.params.splitChannels ? this.splitPeaks : this.mergedPeaks;
   }
 
   /**
@@ -535,10 +505,7 @@ export default class WebAudio extends util.Observer {
     // close the audioContext if closeAudioContext option is set to true
     if (this.params.closeAudioContext) {
       // check if browser supports AudioContext.close()
-      if (
-        typeof this.ac.close === "function" &&
-        this.ac.state != "closed"
-      ) {
+      if (typeof this.ac.close === "function" && this.ac.state != "closed") {
         this.ac.close();
       }
       // clear the reference to the audiocontext
@@ -586,10 +553,8 @@ export default class WebAudio extends util.Observer {
     this.source = this.ac.createBufferSource();
 
     // adjust for old browsers
-    this.source.start =
-      this.source.start || this.source.noteGrainOn;
-    this.source.stop =
-      this.source.stop || this.source.noteOff;
+    this.source.start = this.source.start || this.source.noteGrainOn;
+    this.source.stop = this.source.stop || this.source.noteOff;
 
     this.source.playbackRate.setValueAtTime(
       this.playbackRate,
@@ -667,10 +632,7 @@ export default class WebAudio extends util.Observer {
    * @return {number} The playback position in seconds
    */
   getPlayedTime() {
-    return (
-      (this.ac.currentTime - this.lastPlay) *
-      this.playbackRate
-    );
+    return (this.ac.currentTime - this.lastPlay) * this.playbackRate;
   }
 
   /**

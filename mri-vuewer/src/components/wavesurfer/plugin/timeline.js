@@ -71,10 +71,7 @@ export default class TimelinePlugin {
   static create(params) {
     return {
       name: "timeline",
-      deferInit:
-        params && params.deferInit
-          ? params.deferInit
-          : false,
+      deferInit: params && params.deferInit ? params.deferInit : false,
       params: params,
       instance: TimelinePlugin
     };
@@ -96,17 +93,13 @@ export default class TimelinePlugin {
     const ws = this.wavesurfer;
     this.drawer = ws.drawer;
     this.pixelRatio = ws.drawer.params.pixelRatio;
-    this.maxCanvasWidth =
-      ws.drawer.maxCanvasWidth || ws.drawer.width;
+    this.maxCanvasWidth = ws.drawer.maxCanvasWidth || ws.drawer.width;
     this.maxCanvasElementWidth =
       ws.drawer.maxCanvasElementWidth ||
       Math.round(this.maxCanvasWidth / this.pixelRatio);
 
     // add listeners
-    ws.drawer.wrapper.addEventListener(
-      "scroll",
-      this._onScroll
-    );
+    ws.drawer.wrapper.addEventListener("scroll", this._onScroll);
     ws.on("redraw", this._onRedraw);
     ws.on("zoom", this._onZoom);
 
@@ -119,10 +112,7 @@ export default class TimelinePlugin {
   _onWrapperClick = e => {
     e.preventDefault();
     const relX = "offsetX" in e ? e.offsetX : e.layerX;
-    this.fireEvent(
-      "click",
-      relX / this.wrapper.scrollWidth || 0
-    );
+    this.fireEvent("click", relX / this.wrapper.scrollWidth || 0);
   };
 
   /**
@@ -140,9 +130,7 @@ export default class TimelinePlugin {
         : params.container;
 
     if (!this.container) {
-      throw new Error(
-        "No container for wavesurfer timeline"
-      );
+      throw new Error("No container for wavesurfer timeline");
     }
 
     this.wavesurfer = ws;
@@ -164,10 +152,8 @@ export default class TimelinePlugin {
         zoomDebounce: false,
         formatTimeCallback: this.defaultFormatTimeCallback,
         timeInterval: this.defaultTimeInterval,
-        primaryLabelInterval: this
-          .defaultPrimaryLabelInterval,
-        secondaryLabelInterval: this
-          .defaultSecondaryLabelInterval,
+        primaryLabelInterval: this.defaultPrimaryLabelInterval,
+        secondaryLabelInterval: this.defaultSecondaryLabelInterval,
         offset: 0
       },
       params
@@ -221,10 +207,7 @@ export default class TimelinePlugin {
       this._onScroll
     );
     if (this.wrapper && this.wrapper.parentNode) {
-      this.wrapper.removeEventListener(
-        "click",
-        this._onWrapperClick
-      );
+      this.wrapper.removeEventListener("click", this._onWrapperClick);
       this.wrapper.parentNode.removeChild(this.wrapper);
       this.wrapper = null;
     }
@@ -256,10 +239,7 @@ export default class TimelinePlugin {
       });
     }
 
-    this.wrapper.addEventListener(
-      "click",
-      this._onWrapperClick
-    );
+    this.wrapper.addEventListener("click", this._onWrapperClick);
   }
 
   /**
@@ -280,9 +260,7 @@ export default class TimelinePlugin {
    *
    */
   addCanvas() {
-    const canvas = this.wrapper.appendChild(
-      document.createElement("canvas")
-    );
+    const canvas = this.wrapper.appendChild(document.createElement("canvas"));
     this.canvases.push(canvas);
     this.util.style(canvas, {
       position: "absolute",
@@ -305,12 +283,8 @@ export default class TimelinePlugin {
    *
    */
   updateCanvases() {
-    const totalWidth = Math.round(
-      this.drawer.wrapper.scrollWidth
-    );
-    const requiredCanvases = Math.ceil(
-      totalWidth / this.maxCanvasElementWidth
-    );
+    const totalWidth = Math.round(this.drawer.wrapper.scrollWidth);
+    const requiredCanvases = Math.ceil(totalWidth / this.maxCanvasElementWidth);
 
     while (this.canvases.length < requiredCanvases) {
       this.addCanvas();
@@ -334,15 +308,13 @@ export default class TimelinePlugin {
       const canvasWidth =
         i === canvasesLength - 1
           ? this.drawer.wrapper.scrollWidth -
-            this.maxCanvasElementWidth *
-              (canvasesLength - 1)
+            this.maxCanvasElementWidth * (canvasesLength - 1)
           : this.maxCanvasElementWidth;
       // set dimensions and style
       canvas.width = canvasWidth * this.pixelRatio;
       // on certain pixel ratios the canvas appears cut off at the bottom,
       // therefore leave 1px extra
-      canvas.height =
-        (this.params.height + 1) * this.pixelRatio;
+      canvas.height = (this.params.height + 1) * this.pixelRatio;
       this.util.style(canvas, {
         width: `${canvasWidth}px`,
         height: `${this.params.height}px`,
@@ -357,21 +329,18 @@ export default class TimelinePlugin {
    */
   renderCanvases() {
     const duration =
-      this.params.duration ||
-      this.wavesurfer.backend.getDuration();
+      this.params.duration || this.wavesurfer.backend.getDuration();
 
     if (duration <= 0) {
       return;
     }
     const wsParams = this.wavesurfer.params;
-    const fontSize =
-      this.params.fontSize * wsParams.pixelRatio;
+    const fontSize = this.params.fontSize * wsParams.pixelRatio;
     const totalSeconds = parseInt(duration, 10) + 1;
     const width =
       wsParams.fillParent && !wsParams.scrollParent
         ? this.drawer.getWidth()
-        : this.drawer.wrapper.scrollWidth *
-          wsParams.pixelRatio;
+        : this.drawer.wrapper.scrollWidth * wsParams.pixelRatio;
     const height1 = this.params.height * this.pixelRatio;
     const height2 =
       this.params.height *
@@ -383,12 +352,8 @@ export default class TimelinePlugin {
     // if parameter is function, call the function with
     // pixelsPerSecond, otherwise simply take the value as-is
     const intervalFnOrVal = option =>
-      typeof option === "function"
-        ? option(pixelsPerSecond)
-        : option;
-    const timeInterval = intervalFnOrVal(
-      this.params.timeInterval
-    );
+      typeof option === "function" ? option(pixelsPerSecond) : option;
+    const timeInterval = intervalFnOrVal(this.params.timeInterval);
     const primaryLabelInterval = intervalFnOrVal(
       this.params.primaryLabelInterval
     );
@@ -417,17 +382,14 @@ export default class TimelinePlugin {
 
     // render primary labels
     this.setFillStyles(this.params.primaryColor);
-    this.setFonts(
-      `${fontSize}px ${this.params.fontFamily}`
-    );
+    this.setFonts(`${fontSize}px ${this.params.fontFamily}`);
     this.setFillStyles(this.params.primaryFontColor);
     renderPositions((i, curSeconds, curPixel) => {
       if (i % primaryLabelInterval === 0) {
         this.fillRect(curPixel, 0, 1, height1);
         this.fillText(
           formatTime(curSeconds, pixelsPerSecond),
-          curPixel +
-            this.params.labelPadding * this.pixelRatio,
+          curPixel + this.params.labelPadding * this.pixelRatio,
           height1
         );
       }
@@ -435,17 +397,14 @@ export default class TimelinePlugin {
 
     // render secondary labels
     this.setFillStyles(this.params.secondaryColor);
-    this.setFonts(
-      `${fontSize}px ${this.params.fontFamily}`
-    );
+    this.setFonts(`${fontSize}px ${this.params.fontFamily}`);
     this.setFillStyles(this.params.secondaryFontColor);
     renderPositions((i, curSeconds, curPixel) => {
       if (i % secondaryLabelInterval === 0) {
         this.fillRect(curPixel, 0, 1, height1);
         this.fillText(
           formatTime(curSeconds, pixelsPerSecond),
-          curPixel +
-            this.params.labelPadding * this.pixelRatio,
+          curPixel + this.params.labelPadding * this.pixelRatio,
           height1
         );
       }
@@ -454,10 +413,7 @@ export default class TimelinePlugin {
     // render the actual notches (when no labels are used)
     this.setFillStyles(this.params.unlabeledNotchColor);
     renderPositions((i, curSeconds, curPixel) => {
-      if (
-        i % secondaryLabelInterval !== 0 &&
-        i % primaryLabelInterval !== 0
-      ) {
+      if (i % secondaryLabelInterval !== 0 && i % primaryLabelInterval !== 0) {
         this.fillRect(curPixel, 0, 1, height2);
       }
     });
@@ -503,10 +459,7 @@ export default class TimelinePlugin {
       const intersection = {
         x1: Math.max(x, i * this.maxCanvasWidth),
         y1: y,
-        x2: Math.min(
-          x + width,
-          i * this.maxCanvasWidth + canvas.width
-        ),
+        x2: Math.min(x + width, i * this.maxCanvasWidth + canvas.width),
         y2: y + height
       };
 

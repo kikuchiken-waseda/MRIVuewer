@@ -1,98 +1,123 @@
 <template>
-  <v-card class="movie-annotaion">
-    <m-tool-bar />
-    <v-card v-if="dataUrl">
-      <v-row>
-        <v-col class="d-flex" cols="7">
-          <v-container>
-            <v-row>
-              <v-col class="d-flex" cols="4">
-                <video
-                  muted
-                  ref="videoPre"
-                  :style="videoStyle"
-                  :src="dataUrl"
-                />
-              </v-col>
-              <v-col class="d-flex" cols="4">
-                <video
-                  ref="video"
-                  :style="videoStyle"
-                  :src="dataUrl"
-                />
-              </v-col>
-              <v-col class="d-flex" cols="4">
-                <video
-                  muted
-                  ref="videoPos"
-                  :style="videoStyle"
-                  :src="dataUrl"
-                />
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-col>
-      </v-row>
-      <v-card-actions>
-        <v-btn icon>
-          <v-icon>mdi-skip-previous</v-icon>
-          <v-icon>mdi-skip-backward</v-icon>
-        </v-btn>
-        <v-spacer></v-spacer>
-        <v-btn icon>
-          <v-icon @click="play">
-            mdi-play
-          </v-icon>
-          <v-icon @click="pause">
-            mdi-pause
-          </v-icon>
-        </v-btn>
-        <v-spacer></v-spacer>
-        <v-btn icon>
-          <v-icon>mdi-skip-next</v-icon>
-          <v-icon>mdi-skip-forward</v-icon>
-        </v-btn>
-      </v-card-actions>
+  <v-container fluid class="pa-0 movie-annotaion">
+    <m-tool-bar :ws="ws" v-on:updateFiler="onUpdateFiler" />
+    <v-card :color="background">
+      <v-container v-if="dataUrl">
+        <v-row>
+          <v-col class="flex-grow-1 flex-shrink-1">
+            <v-card flat :color="background">
+              <v-container fluid class="pa-0">
+                <v-row class="py-0">
+                  <v-col cols="4" class="py-0">
+                    <v-card flat :color="background">
+                      <v-system-bar dark color="accent">
+                        {{ frameOffset }}フレーム前の画像
+                      </v-system-bar>
+                      <video
+                        muted
+                        ref="videoPre"
+                        :style="videoStyle"
+                        :src="dataUrl"
+                      />
+                    </v-card>
+                  </v-col>
+                  <v-col cols="4" class="py-0">
+                    <v-card flat :color="background">
+                      <v-system-bar dark color="accent">
+                        現在画像
+                      </v-system-bar>
+                      <video ref="video" :style="videoStyle" :src="dataUrl" />
+                    </v-card>
+                  </v-col>
+                  <v-col cols="4" class="py-0">
+                    <v-card flat :color="background">
+                      <v-system-bar dark color="accent">
+                        {{ frameOffset }}フレーム前の画像
+                      </v-system-bar>
+                      <video
+                        muted
+                        ref="videoPos"
+                        :style="videoStyle"
+                        :src="dataUrl"
+                      />
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card>
+            <v-card>
+              <v-card-actions>
+                <v-btn icon>
+                  <v-icon>mdi-skip-previous</v-icon>
+                </v-btn>
+                <v-btn icon>
+                  <v-icon>mdi-skip-backward</v-icon>
+                </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn fab dark small color="accent" @click="play">
+                  <v-icon> mdi-play </v-icon>
+                </v-btn>
+                <v-btn fab dark small color="accent" @click="pause">
+                  <v-icon> mdi-pause </v-icon>
+                </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn icon>
+                  <v-icon>mdi-skip-next</v-icon>
+                </v-btn>
+                <v-btn icon>
+                  <v-icon>mdi-skip-forward</v-icon>
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-col>
+          <v-col cols="5" class="flex-grow-1 flex-shrink-1 d-none d-sm-flex">
+            <m-tier-list />
+          </v-col>
+        </v-row>
+        <v-card :loading="isLoading">
+          <div>
+            <div id="wave-spectrogram"></div>
+            <div id="wave-timeline"></div>
+            <div id="waveform"></div>
+            <div id="wave-minimap"></div>
+          </div>
+        </v-card>
+      </v-container>
     </v-card>
-    <v-card v-if="dataUrl">
-      <v-progress-linear
-        v-if="isLoading"
-        color="deep-purple accent-4"
-        indeterminate
-        rounded
-        height="6"
-      />
-      <div v-show="!isLoading">
-        <div id="wave-spectrogram"></div>
-        <div id="waveform"></div>
-      </div>
-    </v-card>
-  </v-card>
+  </v-container>
 </template>
 
 <script>
+import colors from "vuetify/lib/util/colors";
 import MToolBar from "@/components/MovieAnnotaion/MToolBar.vue";
+import MTierList from "@/components/MovieAnnotaion/MTierList.vue";
 import WaveSurfer from "@/components/wavesurfer/wavesurfer.js";
 import SpectrogramPlugin from "@/components/wavesurfer/plugin/spectrogram.js";
+import TimelinePlugin from "@/components/wavesurfer/plugin/timeline.js";
+import MinimapPlugin from "@/components/wavesurfer/plugin/minimap.js";
+import RegionPlugin from "@/components/wavesurfer/plugin/regions.js";
 
 export default {
   name: "MovieAnnotaion",
   components: {
-    MToolBar
+    MToolBar,
+    MTierList
   },
   data: () => ({
+    ws: null,
     isLoading: false,
+    background: "grey lighten-3",
     frameOffset: 1,
     videoStyle: {
       width: "100%",
       height: "auto"
     },
     options: {
-      waveColor: "violet",
-      progressColor: "purple",
-      loaderColor: "purple",
-      cursorColor: "navy",
-      minPxPerSec: 100,
+      waveColor: colors.grey.base,
+      progressColor: colors.grey.darken4,
+      loaderColor: colors.grey.darken4,
+      cursorColor: colors.teal.base,
+      minPxPerSec: 200,
       scrollParent: true,
       normalize: true
     }
@@ -205,8 +230,7 @@ export default {
         this.$refs.videoPos.currentTime = this.getDuration();
         console.warn(
           tag + "video-pos: setCurrentTime",
-          `${currentTime +
-            offsetTime} is more than ${this.getDuration()}`
+          `${currentTime + offsetTime} is more than ${this.getDuration()}`
         );
       }
     },
@@ -227,6 +251,11 @@ export default {
     onError(val) {
       const tag = `${this.$options.name}:onError`;
       console.log(tag, val);
+    },
+    onUpdateFiler(payload) {
+      const tag = `${this.$options.name}:onUpdateFiler`;
+      console.log(tag, payload);
+      this.ws.backend.setFilters(payload);
     }
   },
   mounted: function() {
@@ -242,6 +271,16 @@ export default {
         SpectrogramPlugin.create({
           container: "#wave-spectrogram",
           labels: true
+        }),
+        TimelinePlugin.create({
+          container: "#wave-timeline"
+        }),
+        MinimapPlugin.create({
+          container: "#wave-minimap",
+          height: 50
+        }),
+        RegionPlugin.create({
+          regions: []
         })
       ];
       this.ws = WaveSurfer.create(options);

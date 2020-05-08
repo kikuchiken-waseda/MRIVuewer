@@ -1,14 +1,11 @@
 <template>
   <v-toolbar dark color="secondary" dense>
-    <v-app-bar-nav-icon></v-app-bar-nav-icon>
     <v-toolbar-title>
       {{ fileName }}
     </v-toolbar-title>
     <v-spacer />
     <m-info-menu />
-    <v-btn icon>
-      <v-icon>mdi-cog</v-icon>
-    </v-btn>
+    <m-setting-menu :ws="ws" v-on:updateFiler="onUpdateFiler" />
     <v-btn icon>
       <v-icon>mdi-dots-vertical</v-icon>
     </v-btn>
@@ -17,10 +14,15 @@
 
 <script>
 import MInfoMenu from "@/components/MovieAnnotaion/MInfoMenu.vue";
+import MSettingMenu from "@/components/MovieAnnotaion/MSettingMenu.vue";
 export default {
   name: "movie-annotaion-tool-bar",
   components: {
-    MInfoMenu
+    MInfoMenu,
+    MSettingMenu
+  },
+  props: {
+    ws: Object
   },
   computed: {
     fileName: {
@@ -30,6 +32,11 @@ export default {
       set: function(val) {
         this.$store.dispatch("current/setName", val);
       }
+    }
+  },
+  methods: {
+    onUpdateFiler: function(payload) {
+      this.$emit("updateFiler", payload);
     }
   }
 };

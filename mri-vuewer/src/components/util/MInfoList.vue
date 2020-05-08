@@ -1,11 +1,7 @@
 <template>
   <v-list>
     <v-subheader v-if="title">{{ title }}</v-subheader>
-    <v-list-item
-      two-line
-      v-for="(item, key) in items"
-      :key="key"
-    >
+    <v-list-item two-line v-for="(item, key) in items" :key="key">
       <v-list-item-title>
         {{ item.title }}
         <v-tooltip bottom v-if="item.help">

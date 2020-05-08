@@ -12,7 +12,7 @@ export default new Vuetify({
       light: {
         primary: colors.blueGrey,
         secondary: colors.blueGrey.darken3,
-        accent: colors.deepOrange
+        accent: colors.teal.darken3
       },
       dark: {
         primary: colors.blueGrey.lighten3

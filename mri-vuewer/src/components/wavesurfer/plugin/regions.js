@@ -14,24 +14,16 @@ export class Region {
     this.style = this.util.style;
     this.regionsUtil = regionsUtils;
 
-    this.id =
-      params.id == null ? ws.util.getId() : params.id;
+    this.id = params.id == null ? ws.util.getId() : params.id;
     this.start = Number(params.start) || 0;
     this.end =
       params.end == null
         ? // small marker-like region
           this.start +
-          (4 / this.wrapper.scrollWidth) *
-            this.wavesurfer.getDuration()
+          (4 / this.wrapper.scrollWidth) * this.wavesurfer.getDuration()
         : Number(params.end);
-    this.resize =
-      params.resize === undefined
-        ? true
-        : Boolean(params.resize);
-    this.drag =
-      params.drag === undefined
-        ? true
-        : Boolean(params.drag);
+    this.resize = params.resize === undefined ? true : Boolean(params.resize);
+    this.drag = params.drag === undefined ? true : Boolean(params.drag);
     // reflect resize and drag state of region for region-updated listener
     this.isResizing = false;
     this.isDragging = false;
@@ -50,8 +42,7 @@ export class Region {
     this.minLength = params.minLength;
     this._onRedraw = () => this.updateRender();
 
-    this.scroll =
-      params.scroll !== false && ws.params.scrollParent;
+    this.scroll = params.scroll !== false && ws.params.scrollParent;
     this.scrollSpeed = params.scrollSpeed || 1;
     this.scrollThreshold = params.scrollThreshold || 10;
     // Determines whether the context menu is prevented from being opened.
@@ -62,9 +53,7 @@ export class Region {
 
     // select channel ID to set region
     let channelIdx =
-      params.channelIdx == null
-        ? -1
-        : parseInt(params.channelIdx);
+      params.channelIdx == null ? -1 : parseInt(params.channelIdx);
     this.regionHeight = "100%";
     this.marginTop = "0px";
 
@@ -74,10 +63,8 @@ export class Region {
           ? this.wavesurfer.backend.buffer.numberOfChannels
           : -1;
       if (channelCount >= 0 && channelIdx < channelCount) {
-        this.regionHeight =
-          Math.floor((1 / channelCount) * 100) + "%";
-        this.marginTop =
-          this.wavesurfer.getHeight() * channelIdx + "px";
+        this.regionHeight = Math.floor((1 / channelCount) * 100) + "%";
+        this.marginTop = this.wavesurfer.getHeight() * channelIdx + "px";
       }
     }
 
@@ -191,17 +178,13 @@ export class Region {
 
     /* Resize handles */
     if (this.resize) {
-      const handleLeft = regionEl.appendChild(
-        document.createElement("handle")
-      );
+      const handleLeft = regionEl.appendChild(document.createElement("handle"));
       const handleRight = regionEl.appendChild(
         document.createElement("handle")
       );
 
-      handleLeft.className =
-        "wavesurfer-handle wavesurfer-handle-start";
-      handleRight.className =
-        "wavesurfer-handle wavesurfer-handle-end";
+      handleLeft.className = "wavesurfer-handle wavesurfer-handle-start";
+      handleRight.className = "wavesurfer-handle wavesurfer-handle-end";
 
       // Default CSS properties for both handles.
       const css = {
@@ -217,19 +200,11 @@ export class Region {
       // Merge CSS properties per handle.
       const handleLeftCss =
         this.handleStyle.left !== "none"
-          ? Object.assign(
-              { left: "0px" },
-              css,
-              this.handleStyle.left
-            )
+          ? Object.assign({ left: "0px" }, css, this.handleStyle.left)
           : null;
       const handleRightCss =
         this.handleStyle.right !== "none"
-          ? Object.assign(
-              { right: "0px" },
-              css,
-              this.handleStyle.right
-            )
+          ? Object.assign({ right: "0px" }, css, this.handleStyle.right)
           : null;
 
       if (handleLeftCss) {
@@ -258,10 +233,7 @@ export class Region {
   }
 
   getWidth() {
-    return (
-      this.wavesurfer.drawer.width /
-      this.wavesurfer.params.pixelRatio
-    );
+    return this.wavesurfer.drawer.width / this.wavesurfer.params.pixelRatio;
   }
 
   /* Update element's position, width, color. */
@@ -282,25 +254,18 @@ export class Region {
     }
 
     if (this.minLength != null) {
-      endLimited = Math.max(
-        startLimited + this.minLength,
-        endLimited
-      );
+      endLimited = Math.max(startLimited + this.minLength, endLimited);
     }
 
     if (this.maxLength != null) {
-      endLimited = Math.min(
-        startLimited + this.maxLength,
-        endLimited
-      );
+      endLimited = Math.min(startLimited + this.maxLength, endLimited);
     }
 
     if (this.element != null) {
       // Calculate the left and width values of the region such that
       // no gaps appear between regions.
       const left = Math.round((startLimited / dur) * width);
-      const regionWidth =
-        Math.round((endLimited / dur) * width) - left;
+      const regionWidth = Math.round((endLimited / dur) * width) - left;
 
       this.style(this.element, {
         left: left + "px",
@@ -316,10 +281,7 @@ export class Region {
         );
       }
 
-      this.element.title = this.formatTime(
-        this.start,
-        this.end
-      );
+      this.element.title = this.formatTime(this.start, this.end);
     }
   }
 
@@ -333,11 +295,7 @@ export class Region {
       let end = Math.round(this.end * 10) / 10;
       time = Math.round(time * 10) / 10;
 
-      if (
-        !this.firedOut &&
-        this.firedIn &&
-        (start > time || end <= time)
-      ) {
+      if (!this.firedOut && this.firedIn && (start > time || end <= time)) {
         this.firedOut = true;
         this.firedIn = false;
         this.fireEvent("out");
@@ -371,20 +329,12 @@ export class Region {
 
     this.element.addEventListener("mouseenter", e => {
       this.fireEvent("mouseenter", e);
-      this.wavesurfer.fireEvent(
-        "region-mouseenter",
-        this,
-        e
-      );
+      this.wavesurfer.fireEvent("region-mouseenter", this, e);
     });
 
     this.element.addEventListener("mouseleave", e => {
       this.fireEvent("mouseleave", e);
-      this.wavesurfer.fireEvent(
-        "region-mouseleave",
-        this,
-        e
-      );
+      this.wavesurfer.fireEvent("region-mouseleave", this, e);
     });
 
     this.element.addEventListener("click", e => {
@@ -406,11 +356,7 @@ export class Region {
         e.preventDefault();
       }
       this.fireEvent("contextmenu", e);
-      this.wavesurfer.fireEvent(
-        "region-contextmenu",
-        this,
-        e
-      );
+      this.wavesurfer.fireEvent("region-contextmenu", this, e);
     });
 
     /* Drag or resize on mousemove. */
@@ -440,9 +386,7 @@ export class Region {
       }
 
       // Update scroll position
-      let scrollLeft =
-        this.wrapper.scrollLeft +
-        scrollSpeed * scrollDirection;
+      let scrollLeft = this.wrapper.scrollLeft + scrollSpeed * scrollDirection;
       this.wrapper.scrollLeft = scrollLeft = Math.min(
         maxScroll,
         Math.max(0, scrollLeft)
@@ -456,9 +400,7 @@ export class Region {
       startTime = time;
 
       // Continue dragging or resizing
-      drag
-        ? this.onDrag(delta)
-        : this.onResize(delta, resize);
+      drag ? this.onDrag(delta) : this.onResize(delta, resize);
 
       // Repeat
       window.requestAnimationFrame(() => {
@@ -471,9 +413,7 @@ export class Region {
       if (e.touches && e.touches.length > 1) {
         return;
       }
-      touchId = e.targetTouches
-        ? e.targetTouches[0].identifier
-        : null;
+      touchId = e.targetTouches ? e.targetTouches[0].identifier : null;
 
       // stop the event propagation, if this region is resizable or draggable
       // and the event is therefore handled here.
@@ -483,22 +423,18 @@ export class Region {
 
       // Store the selected startTime we begun dragging or resizing
       startTime = this.regionsUtil.getRegionSnapToGridValue(
-        this.wavesurfer.drawer.handleEvent(e, true) *
-          duration
+        this.wavesurfer.drawer.handleEvent(e, true) * duration
       );
 
       // Store for scroll calculations
-      maxScroll =
-        this.wrapper.scrollWidth - this.wrapper.clientWidth;
+      maxScroll = this.wrapper.scrollWidth - this.wrapper.clientWidth;
       wrapperRect = this.wrapper.getBoundingClientRect();
 
       this.isResizing = false;
       this.isDragging = false;
       if (e.target.tagName.toLowerCase() === "handle") {
         this.isResizing = true;
-        resize = e.target.classList.contains(
-          "wavesurfer-handle-start"
-        )
+        resize = e.target.classList.contains("wavesurfer-handle-start")
           ? "start"
           : "end";
       } else {
@@ -524,11 +460,7 @@ export class Region {
         updated = false;
         this.util.preventClick();
         this.fireEvent("update-end", e);
-        this.wavesurfer.fireEvent(
-          "region-update-end",
-          this,
-          e
-        );
+        this.wavesurfer.fireEvent("region-update-end", this, e);
       }
     };
     const onMove = e => {
@@ -537,10 +469,7 @@ export class Region {
       if (e.touches && e.touches.length > 1) {
         return;
       }
-      if (
-        e.targetTouches &&
-        e.targetTouches[0].identifier != touchId
-      ) {
+      if (e.targetTouches && e.targetTouches[0].identifier != touchId) {
         return;
       }
       if (!drag && !resize) {
@@ -567,10 +496,7 @@ export class Region {
         this.onResize(delta, resize);
       }
 
-      if (
-        this.scroll &&
-        container.clientWidth < this.wrapper.scrollWidth
-      ) {
+      if (this.scroll && container.clientWidth < this.wrapper.scrollWidth) {
         if (drag) {
           // The threshold is not between the mouse and the container edge
           // but is between the region and the container edge
@@ -589,11 +515,9 @@ export class Region {
 
           // Check that we are still beyond the threshold
           if (
-            (scrollDirection === -1 &&
-              x > scrollThreshold) ||
+            (scrollDirection === -1 && x > scrollThreshold) ||
             (scrollDirection === 1 &&
-              x + regionRect.width <
-                wrapperRect.right - scrollThreshold)
+              x + regionRect.width < wrapperRect.right - scrollThreshold)
           ) {
             scrollDirection = null;
           }
@@ -604,10 +528,7 @@ export class Region {
           // Check direction
           if (x <= scrollThreshold) {
             scrollDirection = -1;
-          } else if (
-            x >=
-            wrapperRect.right - scrollThreshold
-          ) {
+          } else if (x >= wrapperRect.right - scrollThreshold) {
             scrollDirection = 1;
           } else {
             scrollDirection = null;
@@ -644,10 +565,7 @@ export class Region {
 
   onDrag(delta) {
     const maxEnd = this.wavesurfer.getDuration();
-    if (
-      this.end + delta > maxEnd ||
-      this.start + delta < 0
-    ) {
+    if (this.end + delta > maxEnd || this.start + delta < 0) {
       return;
     }
 
@@ -745,10 +663,7 @@ export default class RegionsPlugin {
   static create(params) {
     return {
       name: "regions",
-      deferInit:
-        params && params.deferInit
-          ? params.deferInit
-          : false,
+      deferInit: params && params.deferInit ? params.deferInit : false,
       params: params,
       staticProps: {
         addRegion(options) {
@@ -793,9 +708,7 @@ export default class RegionsPlugin {
       this.util.Observer.prototype
     );
     observerPrototypeKeys.forEach(key => {
-      Region.prototype[key] = this.util.Observer.prototype[
-        key
-      ];
+      Region.prototype[key] = this.util.Observer.prototype[key];
     });
     this.wavesurfer.Region = Region;
 
@@ -828,19 +741,13 @@ export default class RegionsPlugin {
       this._onReady();
     } else {
       this.wavesurfer.once("ready", this._onReady);
-      this.wavesurfer.once(
-        "backend-created",
-        this._onBackendCreated
-      );
+      this.wavesurfer.once("backend-created", this._onBackendCreated);
     }
   }
 
   destroy() {
     this.wavesurfer.un("ready", this._onReady);
-    this.wavesurfer.un(
-      "backend-created",
-      this._onBackendCreated
-    );
+    this.wavesurfer.un("backend-created", this._onBackendCreated);
     this.disableDragSelection();
     this.clear();
   }
@@ -850,10 +757,7 @@ export default class RegionsPlugin {
    * @return {boolean} whether we should proceed and create a region
    */
   wouldExceedMaxRegions() {
-    return (
-      this.maxRegions &&
-      Object.keys(this.list).length >= this.maxRegions
-    );
+    return this.maxRegions && Object.keys(this.list).length >= this.maxRegions;
   }
 
   /**
@@ -895,8 +799,7 @@ export default class RegionsPlugin {
     const slop = params.slop || 2;
     const container = this.wavesurfer.drawer.container;
     const scroll =
-      params.scroll !== false &&
-      this.wavesurfer.params.scrollParent;
+      params.scroll !== false && this.wavesurfer.params.scrollParent;
     const scrollSpeed = params.scrollSpeed || 1;
     const scrollThreshold = params.scrollThreshold || 10;
     let drag;
@@ -916,9 +819,7 @@ export default class RegionsPlugin {
       }
 
       // Update scroll position
-      let scrollLeft =
-        this.wrapper.scrollLeft +
-        scrollSpeed * scrollDirection;
+      let scrollLeft = this.wrapper.scrollLeft + scrollSpeed * scrollDirection;
       this.wrapper.scrollLeft = scrollLeft = Math.min(
         maxScroll,
         Math.max(0, scrollLeft)
@@ -944,13 +845,10 @@ export default class RegionsPlugin {
         return;
       }
       duration = this.wavesurfer.getDuration();
-      touchId = e.targetTouches
-        ? e.targetTouches[0].identifier
-        : null;
+      touchId = e.targetTouches ? e.targetTouches[0].identifier : null;
 
       // Store for scroll calculations
-      maxScroll =
-        this.wrapper.scrollWidth - this.wrapper.clientWidth;
+      maxScroll = this.wrapper.scrollWidth - this.wrapper.clientWidth;
       wrapperRect = this.wrapper.getBoundingClientRect();
 
       drag = true;
@@ -961,14 +859,8 @@ export default class RegionsPlugin {
     this.wrapper.addEventListener("mousedown", eventDown);
     this.wrapper.addEventListener("touchstart", eventDown);
     this.on("disable-drag-selection", () => {
-      this.wrapper.removeEventListener(
-        "touchstart",
-        eventDown
-      );
-      this.wrapper.removeEventListener(
-        "mousedown",
-        eventDown
-      );
+      this.wrapper.removeEventListener("touchstart", eventDown);
+      this.wrapper.removeEventListener("mousedown", eventDown);
     });
 
     const eventUp = e => {
@@ -983,11 +875,7 @@ export default class RegionsPlugin {
       if (region) {
         this.util.preventClick();
         region.fireEvent("update-end", e);
-        this.wavesurfer.fireEvent(
-          "region-update-end",
-          region,
-          e
-        );
+        this.wavesurfer.fireEvent("region-update-end", region, e);
       }
 
       region = null;
@@ -999,10 +887,7 @@ export default class RegionsPlugin {
     document.body.addEventListener("touchend", eventUp);
     this.on("disable-drag-selection", () => {
       document.body.removeEventListener("mouseup", eventUp);
-      document.body.removeEventListener(
-        "touchend",
-        eventUp
-      );
+      document.body.removeEventListener("touchend", eventUp);
       this.wrapper.removeEventListener("touchend", eventUp);
       this.wrapper.removeEventListener("mouseup", eventUp);
     });
@@ -1018,10 +903,7 @@ export default class RegionsPlugin {
       if (e.touches && e.touches.length > 1) {
         return;
       }
-      if (
-        e.targetTouches &&
-        e.targetTouches[0].identifier != touchId
-      ) {
+      if (e.targetTouches && e.targetTouches[0].identifier != touchId) {
         return;
       }
 
@@ -1032,30 +914,20 @@ export default class RegionsPlugin {
       }
 
       const end = this.wavesurfer.drawer.handleEvent(e);
-      const startUpdate = this.util.getRegionSnapToGridValue(
-        start * duration
-      );
-      const endUpdate = this.util.getRegionSnapToGridValue(
-        end * duration
-      );
+      const startUpdate = this.util.getRegionSnapToGridValue(start * duration);
+      const endUpdate = this.util.getRegionSnapToGridValue(end * duration);
       region.update({
         start: Math.min(endUpdate, startUpdate),
         end: Math.max(endUpdate, startUpdate)
       });
 
       // If scrolling is enabled
-      if (
-        scroll &&
-        container.clientWidth < this.wrapper.scrollWidth
-      ) {
+      if (scroll && container.clientWidth < this.wrapper.scrollWidth) {
         // Check threshold based on mouse
         const x = e.clientX - wrapperRect.left;
         if (x <= scrollThreshold) {
           scrollDirection = -1;
-        } else if (
-          x >=
-          wrapperRect.right - scrollThreshold
-        ) {
+        } else if (x >= wrapperRect.right - scrollThreshold) {
           scrollDirection = 1;
         } else {
           scrollDirection = null;
@@ -1066,14 +938,8 @@ export default class RegionsPlugin {
     this.wrapper.addEventListener("mousemove", eventMove);
     this.wrapper.addEventListener("touchmove", eventMove);
     this.on("disable-drag-selection", () => {
-      this.wrapper.removeEventListener(
-        "touchmove",
-        eventMove
-      );
-      this.wrapper.removeEventListener(
-        "mousemove",
-        eventMove
-      );
+      this.wrapper.removeEventListener("touchmove", eventMove);
+      this.wrapper.removeEventListener("mousemove", eventMove);
     });
   }
 
@@ -1095,10 +961,7 @@ export default class RegionsPlugin {
     Object.keys(this.list).forEach(id => {
       const cur = this.list[id];
       if (cur.start <= time && cur.end >= time) {
-        if (
-          !min ||
-          cur.end - cur.start < min.end - min.start
-        ) {
+        if (!min || cur.end - cur.start < min.end - min.start) {
           min = cur;
         }
       }
@@ -1123,9 +986,7 @@ export default class RegionsPlugin {
       // the regions should snap to a grid
       const offset = params.snapToGridOffset || 0;
       return (
-        Math.round(
-          (value - offset) / params.snapToGridInterval
-        ) *
+        Math.round((value - offset) / params.snapToGridInterval) *
           params.snapToGridInterval +
         offset
       );

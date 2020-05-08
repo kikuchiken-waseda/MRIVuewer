@@ -3,9 +3,7 @@
     <m-app-bar />
     <v-content>
       <m-side-bar />
-      <v-container>
-        <router-view></router-view>
-      </v-container>
+      <router-view></router-view>
     </v-content>
   </v-app>
 </template>

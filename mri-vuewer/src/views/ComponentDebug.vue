@@ -114,34 +114,6 @@
             </v-row>
           </v-container>
         </v-card>
-
-        <v-card class="mx-auto">
-          <v-toolbar color="blue-grey" dark>
-            <v-toolbar-title>
-              Video Array
-            </v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn icon>
-              <v-icon>mdi-cog</v-icon>
-            </v-btn>
-          </v-toolbar>
-          <v-container v-if="video.dataUrl && video.file">
-            <v-row>
-              <v-card class="ma-1">
-                <v-system-bar dark color="primary">
-                  <span>video array</span>
-                </v-system-bar>
-                <video-array
-                  ref="videoArray"
-                  :width="video.size.width"
-                  :height="video.size.height"
-                  :fps="video.fps"
-                  :dataUrl="video.dataUrl"
-                />
-              </v-card>
-            </v-row>
-          </v-container>
-        </v-card>
       </v-container>
       <v-card-actions>
         <v-btn text @click="prev">
@@ -162,15 +134,13 @@ import MMovieInput from "@/components/form/MMovieInput.vue";
 import BackgroundSubtractor from "@/components/videos/BackgroundSubtractor.vue";
 import OpticalFlow from "@/components/videos/OpticalFlow.vue";
 import MeanShift from "@/components/videos/MeanShift.vue";
-import VideoArray from "@/components/videos/VideoArray.vue";
 export default {
   name: "ComponentDebug",
   components: {
     MMovieInput,
     BackgroundSubtractor,
     OpticalFlow,
-    MeanShift,
-    VideoArray
+    MeanShift
   },
   data: () => ({
     video: {
