@@ -8,9 +8,7 @@
     <template v-slot:activator="{ on }">
       <slot name="activator" v-bind:on="on">
         <v-btn color="primary" dark v-on="on">
-          {{
-            $vuetify.lang.t("$vuetify.baseFromDialog.save")
-          }}
+          {{ $vuetify.lang.t("$vuetify.baseFromDialog.save") }}
         </v-btn>
       </slot>
     </template>
@@ -19,36 +17,22 @@
         <m-movie-input v-model="video" />
         <v-text-field
           :label="
-            `${$vuetify.lang.t(
-              '$vuetify.movieUploadDialog.name.title'
-            )}*`
+            `${$vuetify.lang.t('$vuetify.movieUploadDialog.name.title')}*`
           "
           v-model="video.name"
           :counter="nameMaxSize"
           :rules="nameRules"
           :disabled="video.loading"
           prepend-icon="mdi-movie"
-          :hint="
-            $vuetify.lang.t(
-              '$vuetify.movieUploadDialog.name.hint'
-            )
-          "
+          :hint="$vuetify.lang.t('$vuetify.movieUploadDialog.name.hint')"
           required
         />
         <v-text-field
-          :label="
-            `${$vuetify.lang.t(
-              '$vuetify.movieUploadDialog.fps.title'
-            )}*`
-          "
+          :label="`${$vuetify.lang.t('$vuetify.movieUploadDialog.fps.title')}*`"
           v-model="video.fps"
           :rules="fpsRules"
           :disabled="video.loading"
-          :hint="
-            $vuetify.lang.t(
-              '$vuetify.movieUploadDialog.fps.hint'
-            )
-          "
+          :hint="$vuetify.lang.t('$vuetify.movieUploadDialog.fps.hint')"
           prepend-icon="mdi-movie-edit"
           required
         />
@@ -89,21 +73,19 @@ export default {
       console.info(tag + ":setItem", item);
       this.$store.dispatch("current/setItem", item);
       this.$refs.form.reset();
-      this.$router.push({ name: "MovieAnnotation" });
+      if (this.$route.name != "MovieAnnotation") {
+        this.$router.push({ name: "MovieAnnotation" });
+      }
     }
   },
   mounted: function() {
     this.fpsRules = [
-      v =>
-        !!v ||
-        this.$vuetify.lang.t("$vuetify.validate.required"),
+      v => !!v || this.$vuetify.lang.t("$vuetify.validate.required"),
       v => {
         const regex = /^([1-9]\d*|0)(\.\d+)?$/;
         if (v) {
           if (!regex.test(v)) {
-            return this.$vuetify.lang.t(
-              "$vuetify.validate.isFloat"
-            );
+            return this.$vuetify.lang.t("$vuetify.validate.isFloat");
           }
           return true;
         }
@@ -111,15 +93,10 @@ export default {
       }
     ];
     this.nameRules = [
-      v =>
-        !!v ||
-        this.$vuetify.lang.t("$vuetify.validate.required"),
+      v => !!v || this.$vuetify.lang.t("$vuetify.validate.required"),
       v =>
         (v && v.length < nameMaxSize) ||
-        this.$vuetify.lang.t(
-          "$vuetify.validate.lessThen",
-          nameMaxSize
-        )
+        this.$vuetify.lang.t("$vuetify.validate.lessThen", nameMaxSize)
     ];
   }
 };
