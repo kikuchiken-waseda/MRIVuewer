@@ -54,9 +54,7 @@ export default class MediaElementWebAudio extends MediaElement {
    * @param {HTMLMediaElement} mediaElement HTML5 Audio to load
    */
   createMediaElementSource(mediaElement) {
-    this.sourceMediaElement = this.ac.createMediaElementSource(
-      mediaElement
-    );
+    this.sourceMediaElement = this.ac.createMediaElementSource(mediaElement);
     this.sourceMediaElement.connect(this.analyser);
   }
 

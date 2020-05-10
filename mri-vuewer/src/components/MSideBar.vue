@@ -27,6 +27,7 @@
           {{ $vuetify.lang.t("$vuetify.sidebar.files.title") }}
         </v-list-item-subtitle>
       </v-list-item>
+      <!-- 新規ファイルの作成 -->
       <m-movie-upload-dialog>
         <template v-slot:activator="{ on }">
           <v-list-item ripple v-on="on">
@@ -39,23 +40,28 @@
           </v-list-item>
         </template>
       </m-movie-upload-dialog>
-      <v-list-group :prepend-icon="menu.icon" v-model="menu.open">
+
+      <!-- 登録済みファイル一覧 -->
+      <v-list-group
+        v-if="files.length > 0"
+        :prepend-icon="menu.icon"
+        v-model="menu.open"
+      >
         <template v-slot:activator>
           <v-list-item-title>
             {{ $vuetify.lang.t("$vuetify.sidebar.files.list") }}
           </v-list-item-title>
         </template>
         <v-list-item
-          v-for="(item, i) in files.filter(x => {
-            if (search.key) {
-              return x.name.match(search.key);
-            }
-            return true;
-          })"
-          :key="i"
+          v-for="item in files"
+          :key="item.id"
           @click="selectFile(item)"
         >
-          <v-list-item-title v-text="item.name"></v-list-item-title>
+          <v-list-item-title>
+            {{ item.name }}
+            <v-spacer />
+            ({{ item.fps }} fps)
+          </v-list-item-title>
           <v-list-item-action>
             <v-icon>mdi-file-video</v-icon>
           </v-list-item-action>
@@ -98,6 +104,7 @@
 </template>
 
 <script>
+import File from "@/models/file.js";
 import MMovieUploadDialog from "@/components/dialog/MMovieUploadDialog.vue";
 import Cache from "@/utils/cache.js";
 export default {
@@ -107,6 +114,7 @@ export default {
   },
   data: () => ({
     name: "MSideBar",
+    debug: true,
     mini: true,
     menu: {
       icon: "mdi-playlist-play",
@@ -116,7 +124,6 @@ export default {
       key: "",
       label: "search"
     },
-    files: [],
     current: {
       movie: {
         id: 1
@@ -126,8 +133,9 @@ export default {
   watch: {
     "search.key": function(val) {
       // 検索文字列存在時にファイル一覧を開く
+      const tag = `${this.$options.name}:watch:search.key`;
       if (val) {
-        console.info(this.name + ":" + "watch:search.key:val=" + val);
+        this.log(tag, val);
         this.menu.open = true;
       } else {
         this.menu.open = false;
@@ -135,28 +143,36 @@ export default {
     },
     mini: function(val) {
       // サイドバー縮小時にファイル一覧を閉じる
-      console.info(this.name + ":" + "watch:mini:val=" + val);
+      const tag = `${this.$options.name}:watch:mini`;
+      this.log(tag, val);
       if (val === true) {
         this.menu.open = false;
       }
     }
   },
   methods: {
-    importMovie: function() {
-      console.info("MSideBar:importMovie");
+    log: function(tag, msg) {
+      if (this.debug) {
+        console.info(tag, msg);
+      }
     },
     selectFile: function(item) {
-      console.info("MSideBar:selectFile:", item);
+      const tag = `${this.$options.name}:selectFile`;
+      this.log(tag, item.id);
+      this.$router.push({ name: "MovieAnnotation", params: { id: item.id } });
     },
     clearCache: function() {
-      console.info("MSideBar:clearCache");
-      Cache.destroy();
+      const tag = `${this.$options.name}`;
+      File.deleteAll();
       this.$router.push({ name: "Home" });
+      this.log(tag, "clearCache");
     },
     importCache: function() {
-      console.info("MSideBar:importCache");
+      const tag = `${this.$options.name}`;
+      this.log(tag, "importCache");
     },
     exportCache: function() {
+      const tag = `${this.$options.name}:exportCache`;
       const cache = Cache.get();
       const json = JSON.stringify(cache);
       const blob = new Blob([json], {
@@ -166,13 +182,33 @@ export default {
       link.href = window.URL.createObjectURL(blob);
       link.download = "Cache.json";
       link.click();
-      console.info("MSideBar:exportCache", cache);
+      this.log(tag, cache);
     }
   },
-  mounted: function() {
-    for (let i = 0; i < 100; i++) {
-      this.files.push({ id: i, name: `mock${i}.mp4` });
-      i++;
+  computed: {
+    files: function() {
+      const tag = `${this.$options.name}:conputed:files:get`;
+      let files;
+      if (this.search.key) {
+        // ファイル検索
+        const key = this.search.key;
+        files = File.query()
+          .where(file => {
+            if (~file.name.indexOf(key)) {
+              return true;
+            }
+            if (~key.indexOf("fps")) {
+              const fps = Number(key.split("fps")[0].trim());
+              return file.fps > fps;
+            }
+            return false;
+          })
+          .get();
+      } else {
+        files = File.query().all();
+      }
+      this.log(tag, files);
+      return files;
     }
   }
 };

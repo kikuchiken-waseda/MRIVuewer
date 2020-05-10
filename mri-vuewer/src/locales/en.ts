@@ -96,8 +96,7 @@ export default {
     demo: {
       title: "Live demo",
       btn: "Go to a sample movie",
-      hint:
-        "Try the annotation function using a sample video"
+      hint: "Try the annotation function using a sample video"
     }
   },
   movieAnnotation: {
@@ -118,8 +117,7 @@ export default {
         },
         tbn: {
           title: "tbn",
-          help:
-            "the time base in AVStream that has come from the container"
+          help: "the time base in AVStream that has come from the container"
         },
         tbc: {
           title: "tbc",

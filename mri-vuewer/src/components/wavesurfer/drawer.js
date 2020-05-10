@@ -55,9 +55,7 @@ export default class Drawer extends util.Observer {
    * interaction
    */
   createWrapper() {
-    this.wrapper = this.container.appendChild(
-      document.createElement("wave")
-    );
+    this.wrapper = this.container.appendChild(document.createElement("wave"));
 
     this.style(this.wrapper, {
       display: "block",
@@ -67,15 +65,10 @@ export default class Drawer extends util.Observer {
       height: this.params.height + "px"
     });
 
-    if (
-      this.params.fillParent ||
-      this.params.scrollParent
-    ) {
+    if (this.params.fillParent || this.params.scrollParent) {
       this.style(this.wrapper, {
         width: "100%",
-        overflowX: this.params.hideScrollbar
-          ? "hidden"
-          : "auto",
+        overflowX: this.params.hideScrollbar ? "hidden" : "auto",
         overflowY: "hidden"
       });
     }
@@ -93,23 +86,16 @@ export default class Drawer extends util.Observer {
   handleEvent(e, noPrevent) {
     !noPrevent && e.preventDefault();
 
-    const clientX = e.targetTouches
-      ? e.targetTouches[0].clientX
-      : e.clientX;
+    const clientX = e.targetTouches ? e.targetTouches[0].clientX : e.clientX;
     const bbox = this.wrapper.getBoundingClientRect();
 
     const nominalWidth = this.width;
     const parentWidth = this.getWidth();
 
     let progress;
-    if (
-      !this.params.fillParent &&
-      nominalWidth < parentWidth
-    ) {
+    if (!this.params.fillParent && nominalWidth < parentWidth) {
       progress =
-        (this.params.rtl
-          ? bbox.right - clientX
-          : clientX - bbox.left) *
+        (this.params.rtl ? bbox.right - clientX : clientX - bbox.left) *
           (this.params.pixelRatio / nominalWidth) || 0;
 
       if (progress > 1) {
@@ -117,9 +103,7 @@ export default class Drawer extends util.Observer {
       }
     } else {
       progress =
-        ((this.params.rtl
-          ? bbox.right - clientX
-          : clientX - bbox.left) +
+        ((this.params.rtl ? bbox.right - clientX : clientX - bbox.left) +
           this.wrapper.scrollLeft) /
           this.wrapper.scrollWidth || 0;
     }
@@ -133,8 +117,7 @@ export default class Drawer extends util.Observer {
   setupWrapperEvents() {
     this.wrapper.addEventListener("click", e => {
       const scrollbarHeight =
-        this.wrapper.offsetHeight -
-        this.wrapper.clientHeight;
+        this.wrapper.offsetHeight - this.wrapper.clientHeight;
       if (scrollbarHeight !== 0) {
         // scrollbar is visible.  Check if click was on it
         const bbox = this.wrapper.getBoundingClientRect();
@@ -155,9 +138,7 @@ export default class Drawer extends util.Observer {
       }
     });
 
-    this.wrapper.addEventListener("scroll", e =>
-      this.fireEvent("scroll", e)
-    );
+    this.wrapper.addEventListener("scroll", e => this.fireEvent("scroll", e));
   }
 
   /**
@@ -210,8 +191,7 @@ export default class Drawer extends util.Observer {
   recenterOnPosition(position, immediate) {
     const scrollLeft = this.wrapper.scrollLeft;
     const half = ~~(this.wrapper.clientWidth / 2);
-    const maxScroll =
-      this.wrapper.scrollWidth - this.wrapper.clientWidth;
+    const maxScroll = this.wrapper.scrollWidth - this.wrapper.clientWidth;
     let target = position - half;
     let offset = target - scrollLeft;
 
@@ -274,9 +254,7 @@ export default class Drawer extends util.Observer {
    * @return {number} The width of the container
    */
   getWidth() {
-    return Math.round(
-      this.container.clientWidth * this.params.pixelRatio
-    );
+    return Math.round(this.container.clientWidth * this.params.pixelRatio);
   }
 
   /**
@@ -292,17 +270,13 @@ export default class Drawer extends util.Observer {
 
     this.width = width;
 
-    if (
-      this.params.fillParent ||
-      this.params.scrollParent
-    ) {
+    if (this.params.fillParent || this.params.scrollParent) {
       this.style(this.wrapper, {
         width: ""
       });
     } else {
       this.style(this.wrapper, {
-        width:
-          ~~(this.width / this.params.pixelRatio) + "px"
+        width: ~~(this.width / this.params.pixelRatio) + "px"
       });
     }
 
@@ -323,8 +297,7 @@ export default class Drawer extends util.Observer {
     this.height = height;
 
     this.style(this.wrapper, {
-      height:
-        ~~(this.height / this.params.pixelRatio) + "px"
+      height: ~~(this.height / this.params.pixelRatio) + "px"
     });
 
     this.updateSize();
@@ -338,26 +311,14 @@ export default class Drawer extends util.Observer {
    */
   progress(progress) {
     const minPxDelta = 1 / this.params.pixelRatio;
-    const pos =
-      Math.round(progress * this.width) * minPxDelta;
+    const pos = Math.round(progress * this.width) * minPxDelta;
 
-    if (
-      pos < this.lastPos ||
-      pos - this.lastPos >= minPxDelta
-    ) {
+    if (pos < this.lastPos || pos - this.lastPos >= minPxDelta) {
       this.lastPos = pos;
 
-      if (
-        this.params.scrollParent &&
-        this.params.autoCenter
-      ) {
-        const newPos = ~~(
-          this.wrapper.scrollWidth * progress
-        );
-        this.recenterOnPosition(
-          newPos,
-          this.params.autoCenterImmediately
-        );
+      if (this.params.scrollParent && this.params.autoCenter) {
+        const newPos = ~~(this.wrapper.scrollWidth * progress);
+        this.recenterOnPosition(newPos, this.params.autoCenterImmediately);
       }
 
       this.updateProgress(pos);

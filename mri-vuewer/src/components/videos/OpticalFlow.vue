@@ -70,11 +70,7 @@ export default {
       try {
         // start processing.
         this.cap.read(this.frame2);
-        cv.cvtColor(
-          this.frame2,
-          this.next,
-          cv.COLOR_RGBA2GRAY
-        );
+        cv.cvtColor(this.frame2, this.next, cv.COLOR_RGBA2GRAY);
         cv.calcOpticalFlowFarneback(
           this.prvs,
           this.next,
@@ -93,19 +89,8 @@ export default {
         cv.cartToPolar(u, v, this.mag, this.ang);
         u.delete();
         v.delete();
-        this.ang.convertTo(
-          this.hsv0,
-          cv.CV_8UC1,
-          180 / Math.PI / 2
-        );
-        cv.normalize(
-          this.mag,
-          this.hsv2,
-          0,
-          255,
-          cv.NORM_MINMAX,
-          cv.CV_8UC1
-        );
+        this.ang.convertTo(this.hsv0, cv.CV_8UC1, 180 / Math.PI / 2);
+        cv.normalize(this.mag, this.hsv2, 0, 255, cv.NORM_MINMAX, cv.CV_8UC1);
         cv.merge(this.hsvVec, this.hsv);
         cv.cvtColor(this.hsv, this.rgb, cv.COLOR_HSV2RGB);
         cv.imshow(this.$refs.canvas, this.rgb);
@@ -137,70 +122,34 @@ export default {
     this.cap = new cv.VideoCapture(this.video);
 
     this.prvs = new cv.Mat();
-    this.frame2 = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_8UC4
-    );
-    this.next = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_8UC1
-    );
-    this.flow = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_32FC2
-    );
+    this.frame2 = new cv.Mat(this.height, this.width, cv.CV_8UC4);
+    this.next = new cv.Mat(this.height, this.width, cv.CV_8UC1);
+    this.flow = new cv.Mat(this.height, this.width, cv.CV_32FC2);
     this.flowVec = new cv.MatVector();
 
-    this.mag = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_32FC1
-    );
-    this.ang = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_32FC1
-    );
+    this.mag = new cv.Mat(this.height, this.width, cv.CV_32FC1);
+    this.ang = new cv.Mat(this.height, this.width, cv.CV_32FC1);
 
     // take first frame of the video
-    let frame1 = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_8UC4
-    );
+    let frame1 = new cv.Mat(this.height, this.width, cv.CV_8UC4);
     this.cap.read(frame1);
 
     cv.cvtColor(frame1, this.prvs, cv.COLOR_RGBA2GRAY);
     frame1.delete();
     this.hsv = new cv.Mat();
-    this.hsv0 = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_8UC1
-    );
+    this.hsv0 = new cv.Mat(this.height, this.width, cv.CV_8UC1);
     let hsv1 = new cv.Mat(
       this.height,
       this.width,
       cv.CV_8UC1,
       new cv.Scalar(255)
     );
-    this.hsv2 = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_8UC1
-    );
+    this.hsv2 = new cv.Mat(this.height, this.width, cv.CV_8UC1);
     this.hsvVec = new cv.MatVector();
     this.hsvVec.push_back(this.hsv0);
     this.hsvVec.push_back(hsv1);
     this.hsvVec.push_back(this.hsv2);
-    this.rgb = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_8UC3
-    );
+    this.rgb = new cv.Mat(this.height, this.width, cv.CV_8UC3);
   }
 };
 </script>

@@ -78,9 +78,7 @@ export default function ajax(options) {
       instance.fireEvent("error", e);
     }
   });
-  xhr.addEventListener("error", e =>
-    instance.fireEvent("error", e)
-  );
+  xhr.addEventListener("error", e => instance.fireEvent("error", e));
   xhr.send();
   instance.xhr = xhr;
   return instance;

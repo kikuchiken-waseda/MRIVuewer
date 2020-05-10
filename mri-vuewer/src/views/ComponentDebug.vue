@@ -34,10 +34,7 @@
                 </v-subheader>
                 <v-list-item>
                   <v-list-item-title>
-                    <v-text-field
-                      v-model="conf.bs.history"
-                      label="history"
-                    />
+                    <v-text-field v-model="conf.bs.history" label="history" />
                   </v-list-item-title>
                 </v-list-item>
                 <v-list-item>
@@ -182,10 +179,7 @@ export default {
     prev: function() {
       const video = this.$refs.video;
       const frameRate = 1 / this.video.fps;
-      const time = Math.max(
-        0,
-        video.currentTime - frameRate
-      );
+      const time = Math.max(0, video.currentTime - frameRate);
       video.currentTime = time;
       this.$refs.backgroundSubtractor.setCurrentTime(time);
       this.$refs.meanShift.setCurrentTime(time);
@@ -195,10 +189,7 @@ export default {
     next: function() {
       const video = this.$refs.video;
       const frameRate = 1 / this.video.fps;
-      const time = Math.min(
-        video.duration,
-        video.currentTime + frameRate
-      );
+      const time = Math.min(video.duration, video.currentTime + frameRate);
       video.currentTime = time;
       this.$refs.backgroundSubtractor.setCurrentTime(time);
       this.$refs.meanShift.setCurrentTime(time);

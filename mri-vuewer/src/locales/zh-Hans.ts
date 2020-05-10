@@ -108,8 +108,7 @@ export default {
         fps: { title: "fps" },
         tbr: {
           title: "tbr",
-          help:
-            "tbr 是從視頻流中推測出來的，是用戶尋找視頻幀速率時希望看到的值"
+          help: "tbr 是從視頻流中推測出來的，是用戶尋找視頻幀速率時希望看到的值"
         },
         tbn: {
           title: "tbn",
@@ -117,8 +116,7 @@ export default {
         },
         tbc: {
           title: "tbc",
-          help:
-            "電影編解碼器上下文中用於特定流的編解碼器的時基"
+          help: "電影編解碼器上下文中用於特定流的編解碼器的時基"
         }
       },
       audioStream: {

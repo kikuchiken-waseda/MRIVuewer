@@ -3,12 +3,7 @@
  * Calculate FFT - Based on https://github.com/corbanbrook/dsp.js
  */
 /* eslint-disable complexity, no-redeclare, no-var, one-var */
-const FFT = function(
-  bufferSize,
-  sampleRate,
-  windowFunc,
-  alpha
-) {
+const FFT = function(bufferSize, sampleRate, windowFunc, alpha) {
   this.bufferSize = bufferSize;
   this.sampleRate = sampleRate;
   this.bandwidth = (2 / bufferSize) * (sampleRate / 2);
@@ -27,8 +22,7 @@ const FFT = function(
       for (i = 0; i < bufferSize; i++) {
         this.windowValues[i] =
           (2 / (bufferSize - 1)) *
-          ((bufferSize - 1) / 2 -
-            Math.abs(i - (bufferSize - 1) / 2));
+          ((bufferSize - 1) / 2 - Math.abs(i - (bufferSize - 1) / 2));
       }
       break;
     case "bartlettHann":
@@ -36,8 +30,7 @@ const FFT = function(
         this.windowValues[i] =
           0.62 -
           0.48 * Math.abs(i / (bufferSize - 1) - 0.5) -
-          0.38 *
-            Math.cos((Math.PI * 2 * i) / (bufferSize - 1));
+          0.38 * Math.cos((Math.PI * 2 * i) / (bufferSize - 1));
       }
       break;
     case "blackman":
@@ -45,10 +38,8 @@ const FFT = function(
       for (i = 0; i < bufferSize; i++) {
         this.windowValues[i] =
           (1 - alpha) / 2 -
-          0.5 *
-            Math.cos((Math.PI * 2 * i) / (bufferSize - 1)) +
-          (alpha / 2) *
-            Math.cos((4 * Math.PI * i) / (bufferSize - 1));
+          0.5 * Math.cos((Math.PI * 2 * i) / (bufferSize - 1)) +
+          (alpha / 2) * Math.cos((4 * Math.PI * i) / (bufferSize - 1));
       }
       break;
     case "cosine":
@@ -65,8 +56,7 @@ const FFT = function(
           Math.E,
           -0.5 *
             Math.pow(
-              (i - (bufferSize - 1) / 2) /
-                ((alpha * (bufferSize - 1)) / 2),
+              (i - (bufferSize - 1) / 2) / ((alpha * (bufferSize - 1)) / 2),
               2
             )
         );
@@ -75,26 +65,20 @@ const FFT = function(
     case "hamming":
       for (i = 0; i < bufferSize; i++) {
         this.windowValues[i] =
-          0.54 -
-          0.46 *
-            Math.cos((Math.PI * 2 * i) / (bufferSize - 1));
+          0.54 - 0.46 * Math.cos((Math.PI * 2 * i) / (bufferSize - 1));
       }
       break;
     case "hann":
     case undefined:
       for (i = 0; i < bufferSize; i++) {
         this.windowValues[i] =
-          0.5 *
-          (1 -
-            Math.cos((Math.PI * 2 * i) / (bufferSize - 1)));
+          0.5 * (1 - Math.cos((Math.PI * 2 * i) / (bufferSize - 1)));
       }
       break;
     case "lanczoz":
       for (i = 0; i < bufferSize; i++) {
         this.windowValues[i] =
-          Math.sin(
-            Math.PI * ((2 * i) / (bufferSize - 1) - 1)
-          ) /
+          Math.sin(Math.PI * ((2 * i) / (bufferSize - 1) - 1)) /
           (Math.PI * ((2 * i) / (bufferSize - 1) - 1));
       }
       break;
@@ -107,14 +91,11 @@ const FFT = function(
       for (i = 0; i < bufferSize; i++) {
         this.windowValues[i] =
           (2 / bufferSize) *
-          (bufferSize / 2 -
-            Math.abs(i - (bufferSize - 1) / 2));
+          (bufferSize / 2 - Math.abs(i - (bufferSize - 1) / 2));
       }
       break;
     default:
-      throw Error(
-        "No such window function '" + windowFunc + "'"
-      );
+      throw Error("No such window function '" + windowFunc + "'");
   }
 
   var limit = 1;
@@ -123,8 +104,7 @@ const FFT = function(
 
   while (limit < bufferSize) {
     for (i = 0; i < limit; i++) {
-      this.reverseTable[i + limit] =
-        this.reverseTable[i] + bit;
+      this.reverseTable[i + limit] = this.reverseTable[i] + bit;
     }
 
     limit = limit << 1;
@@ -174,9 +154,7 @@ const FFT = function(
       tmpReal;
 
     for (var i = 0; i < bufferSize; i++) {
-      real[i] =
-        buffer[reverseTable[i]] *
-        this.windowValues[reverseTable[i]];
+      real[i] = buffer[reverseTable[i]] * this.windowValues[reverseTable[i]];
       imag[i] = 0;
     }
 
@@ -295,12 +273,10 @@ export default class SpectrogramPlugin {
    * @return {PluginDefinition} An object representing the plugin.
    */
   static create(params) {
+    console.log("spectrogramPlugin:create", params);
     return {
       name: "spectrogram",
-      deferInit:
-        params && params.deferInit
-          ? params.deferInit
-          : false,
+      deferInit: params && params.deferInit ? params.deferInit : false,
       params: params,
       staticProps: {
         FFT: FFT
@@ -310,6 +286,8 @@ export default class SpectrogramPlugin {
   }
 
   constructor(params, ws) {
+    console.log("spectrogramPlugin", "constructor");
+
     this.params = params;
     this.wavesurfer = ws;
     this.util = ws.util;
@@ -332,22 +310,16 @@ export default class SpectrogramPlugin {
           : params.container;
 
       if (!this.container) {
-        throw Error(
-          "No container for WaveSurfer spectrogram"
-        );
+        throw Error("No container for WaveSurfer spectrogram");
       }
       if (params.colorMap) {
         if (params.colorMap.length < 256) {
-          throw new Error(
-            "Colormap must contain 256 elements"
-          );
+          throw new Error("Colormap must contain 256 elements");
         }
         for (let i = 0; i < params.colorMap.length; i++) {
           const cmEntry = params.colorMap[i];
           if (cmEntry.length !== 4) {
-            throw new Error(
-              "ColorMap entries must contain 4 values"
-            );
+            throw new Error("ColorMap entries must contain 4 values");
           }
         }
         this.colorMap = params.colorMap;
@@ -359,12 +331,8 @@ export default class SpectrogramPlugin {
         }
       }
       this.width = drawer.width;
-      this.pixelRatio =
-        this.params.pixelRatio || ws.params.pixelRatio;
-      this.fftSamples =
-        this.params.fftSamples ||
-        ws.params.fftSamples ||
-        512;
+      this.pixelRatio = this.params.pixelRatio || ws.params.pixelRatio;
+      this.fftSamples = this.params.fftSamples || ws.params.fftSamples || 512;
       this.height = this.fftSamples / 2;
       this.noverlap = params.noverlap;
       this.windowFunc = params.windowFunc;
@@ -374,10 +342,7 @@ export default class SpectrogramPlugin {
       this.createCanvas();
       this.render();
 
-      drawer.wrapper.addEventListener(
-        "scroll",
-        this._onScroll
-      );
+      drawer.wrapper.addEventListener("scroll", this._onScroll);
       ws.on("redraw", this._onRender);
     };
   }
@@ -395,27 +360,19 @@ export default class SpectrogramPlugin {
     this.unAll();
     this.wavesurfer.un("ready", this._onReady);
     this.wavesurfer.un("redraw", this._onRender);
-    this.drawer.wrapper.removeEventListener(
-      "scroll",
-      this._onScroll
-    );
+    this.drawer.wrapper.removeEventListener("scroll", this._onScroll);
     this.wavesurfer = null;
     this.util = null;
     this.params = null;
     if (this.wrapper) {
-      this.wrapper.removeEventListener(
-        "click",
-        this._onWrapperClick
-      );
+      this.wrapper.removeEventListener("click", this._onWrapperClick);
       this.wrapper.parentNode.removeChild(this.wrapper);
       this.wrapper = null;
     }
   }
 
   createWrapper() {
-    const prevSpectrogram = this.container.querySelector(
-      "spectrogram"
-    );
+    const prevSpectrogram = this.container.querySelector("spectrogram");
     if (prevSpectrogram) {
       this.container.removeChild(prevSpectrogram);
     }
@@ -423,9 +380,7 @@ export default class SpectrogramPlugin {
     this.wrapper = document.createElement("spectrogram");
     // if labels are active
     if (this.params.labels) {
-      const labelsEl = (this.labelsEl = document.createElement(
-        "canvas"
-      ));
+      const labelsEl = (this.labelsEl = document.createElement("canvas"));
       labelsEl.classList.add("spec-labels");
       this.drawer.style(labelsEl, {
         left: 0,
@@ -464,16 +419,12 @@ export default class SpectrogramPlugin {
     }
     this.container.appendChild(this.wrapper);
 
-    this.wrapper.addEventListener(
-      "click",
-      this._onWrapperClick
-    );
+    this.wrapper.addEventListener("click", this._onWrapperClick);
   }
 
   _wrapperClickHandler(event) {
     event.preventDefault();
-    const relX =
-      "offsetX" in event ? event.offsetX : event.layerX;
+    const relX = "offsetX" in event ? event.offsetX : event.layerX;
     this.fireEvent("click", relX / this.width || 0);
   }
 
@@ -492,7 +443,6 @@ export default class SpectrogramPlugin {
 
   render() {
     this.updateCanvasStyle();
-
     if (this.frequenciesDataUrl) {
       this.loadFrequenciesData(this.frequenciesDataUrl);
     } else {
@@ -501,8 +451,7 @@ export default class SpectrogramPlugin {
   }
 
   updateCanvasStyle() {
-    const width =
-      Math.round(this.width / this.pixelRatio) + "px";
+    const width = Math.round(this.width / this.pixelRatio) + "px";
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.canvas.style.width = width;
@@ -513,9 +462,7 @@ export default class SpectrogramPlugin {
     const length = my.wavesurfer.backend.getDuration();
     const height = my.height;
     const pixels = my.resample(frequenciesData);
-    const heightFactor = my.buffer
-      ? 2 / my.buffer.numberOfChannels
-      : 1;
+    const heightFactor = my.buffer ? 2 / my.buffer.numberOfChannels : 1;
     let i;
     let j;
 
@@ -532,12 +479,7 @@ export default class SpectrogramPlugin {
           "," +
           colorMap[3] +
           ")";
-        my.spectrCc.fillRect(
-          i,
-          height - j * heightFactor,
-          1,
-          heightFactor
-        );
+        my.spectrCc.fillRect(i, height - j * heightFactor, 1, heightFactor);
       }
     }
   }
@@ -546,10 +488,7 @@ export default class SpectrogramPlugin {
     const fftSamples = this.fftSamples;
     const buffer = (this.buffer = this.wavesurfer.backend.buffer);
     if (!buffer) {
-      this.fireEvent(
-        "error",
-        "Web Audio buffer is not available"
-      );
+      this.fireEvent("error", "Web Audio buffer is not available");
       return;
     }
     const channelOne = buffer.getChannelData(0);
@@ -558,23 +497,12 @@ export default class SpectrogramPlugin {
     const frequencies = [];
     let noverlap = this.noverlap;
     if (!noverlap) {
-      const uniqueSamplesPerPx =
-        buffer.length / this.canvas.width;
-      noverlap = Math.max(
-        0,
-        Math.round(fftSamples - uniqueSamplesPerPx)
-      );
+      const uniqueSamplesPerPx = buffer.length / this.canvas.width;
+      noverlap = Math.max(0, Math.round(fftSamples - uniqueSamplesPerPx));
     }
 
-    const fft = new FFT(
-      fftSamples,
-      sampleRate,
-      this.windowFunc,
-      this.alpha
-    );
-    const maxSlicesCount = Math.floor(
-      bufferLength / (fftSamples - noverlap)
-    );
+    const fft = new FFT(fftSamples, sampleRate, this.windowFunc, this.alpha);
+    const maxSlicesCount = Math.floor(bufferLength / (fftSamples - noverlap));
     let currentOffset = 0;
 
     while (currentOffset + fftSamples < channelOne.length) {
@@ -586,10 +514,7 @@ export default class SpectrogramPlugin {
       const array = new Uint8Array(fftSamples / 2);
       let j;
       for (j = 0; j < fftSamples / 2; j++) {
-        array[j] = Math.max(
-          -255,
-          Math.log10(spectrum[j]) * 45
-        );
+        array[j] = Math.max(-255, Math.log10(spectrum[j]) * 45);
       }
       frequencies.push(array);
       currentOffset += fftSamples - noverlap;
@@ -599,19 +524,13 @@ export default class SpectrogramPlugin {
 
   loadFrequenciesData(url) {
     const request = this.util.fetchFile({ url: url });
-
-    request.on("success", data =>
-      this.drawSpectrogram(JSON.parse(data), this)
-    );
+    request.on("success", data => this.drawSpectrogram(JSON.parse(data), this));
     request.on("error", e => this.fireEvent("error", e));
-
     return request;
   }
 
   freqType(freq) {
-    return freq >= 1000
-      ? (freq / 1000).toFixed(1)
-      : Math.round(freq);
+    return freq >= 1000 ? (freq / 1000).toFixed(1) : Math.round(freq);
   }
 
   unitType(freq) {
@@ -642,9 +561,7 @@ export default class SpectrogramPlugin {
     const labelIndex = 5 * (getMaxY / 256);
     const freqStart = 0;
     const step =
-      (this.wavesurfer.backend.ac.sampleRate / 2 -
-        freqStart) /
-      labelIndex;
+      (this.wavesurfer.backend.ac.sampleRate / 2 - freqStart) / labelIndex;
 
     // prepare canvas element for labels
     const ctx = this.labelsEl.getContext("2d");
@@ -723,14 +640,8 @@ export default class SpectrogramPlugin {
         const overlap =
           oldEnd <= newStart || newEnd <= oldStart
             ? 0
-            : Math.min(
-                Math.max(oldEnd, newStart),
-                Math.max(newEnd, oldStart)
-              ) -
-              Math.max(
-                Math.min(oldEnd, newStart),
-                Math.min(newEnd, oldStart)
-              );
+            : Math.min(Math.max(oldEnd, newStart), Math.max(newEnd, oldStart)) -
+              Math.max(Math.min(oldEnd, newStart), Math.min(newEnd, oldStart));
         let k;
         /* eslint-disable max-depth */
         if (overlap > 0) {
@@ -738,8 +649,7 @@ export default class SpectrogramPlugin {
             if (column[k] == null) {
               column[k] = 0;
             }
-            column[k] +=
-              (overlap / newPiece) * oldMatrix[j][k];
+            column[k] += (overlap / newPiece) * oldMatrix[j][k];
           }
         }
         /* eslint-enable max-depth */

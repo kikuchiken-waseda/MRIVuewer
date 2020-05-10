@@ -3,9 +3,7 @@
     <template v-slot:activator="{ on }">
       <slot name="activator" v-bind:on="on">
         <v-btn v-on="on">
-          {{
-            $vuetify.lang.t("$vuetify.baseFromDialog.open")
-          }}
+          {{ $vuetify.lang.t("$vuetify.baseFromDialog.open") }}
         </v-btn>
       </slot>
     </template>
@@ -17,21 +15,13 @@
         <v-card-text>
           <slot name="form"> </slot>
           <small>
-            {{
-              $vuetify.lang.t(
-                "$vuetify.baseFromDialog.hint"
-              )
-            }}
+            {{ $vuetify.lang.t("$vuetify.baseFromDialog.hint") }}
           </small>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="reset">
-            {{
-              $vuetify.lang.t(
-                "$vuetify.baseFromDialog.close"
-              )
-            }}
+            {{ $vuetify.lang.t("$vuetify.baseFromDialog.close") }}
           </v-btn>
           <v-btn
             color="blue darken-1"
@@ -39,11 +29,7 @@
             @click="validate"
             :loading="isloading"
           >
-            {{
-              $vuetify.lang.t(
-                "$vuetify.baseFromDialog.save"
-              )
-            }}
+            {{ $vuetify.lang.t("$vuetify.baseFromDialog.save") }}
           </v-btn>
         </v-card-actions>
       </v-form>

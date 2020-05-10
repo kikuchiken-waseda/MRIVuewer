@@ -86,29 +86,21 @@ class Init {
         // containers to instantiate on, can be selector string or NodeList
         containers: "wavesurfer",
         // @TODO insert plugin CDN URIs
-        pluginCdnTemplate:
-          "//localhost:8080/dist/plugin/wavesurfer.[name].js",
+        pluginCdnTemplate: "//localhost:8080/dist/plugin/wavesurfer.[name].js",
         // loadPlugin function can be overridden to inject plugin definition
         // objects, this default function uses load-script to load a plugin
         // and pass it to a callback
         loadPlugin(name, cb) {
-          const src = _params.pluginCdnTemplate.replace(
-            "[name]",
-            name
-          );
-          loadScript(
-            src,
-            { async: false },
-            (err, plugin) => {
-              if (err) {
-                // eslint-disable-next-line no-console
-                return console.error(
-                  `WaveSurfer plugin ${name} not found at ${src}`
-                );
-              }
-              cb(window.WaveSurfer[name]);
+          const src = _params.pluginCdnTemplate.replace("[name]", name);
+          loadScript(src, { async: false }, (err, plugin) => {
+            if (err) {
+              // eslint-disable-next-line no-console
+              return console.error(
+                `WaveSurfer plugin ${name} not found at ${src}`
+              );
             }
-          );
+            cb(window.WaveSurfer[name]);
+          });
         }
       },
       params
@@ -139,9 +131,7 @@ class Init {
     // iterate over all the container elements
     Array.prototype.forEach.call(this.containers, el => {
       // load the plugins as an array of plugin names
-      const plugins = el.dataset.plugins
-        ? el.dataset.plugins.split(",")
-        : [];
+      const plugins = el.dataset.plugins ? el.dataset.plugins.split(",") : [];
 
       // no plugins to be loaded, just render
       if (!plugins.length) {
@@ -188,16 +178,12 @@ class Init {
         if (regexResult) {
           const attr = el.dataset[attrName];
           // if the string begins with a [ or a { parse it as JSON
-          const prop = jsonRegex.test(attr)
-            ? JSON.parse(attr)
-            : attr;
+          const prop = jsonRegex.test(attr) ? JSON.parse(attr) : attr;
           // this removes the plugin prefix and changes the first letter
           // of the resulting string to lower case to follow the naming
           // convention of ws params
           const unprefixedOptionName =
-            attrName
-              .slice(plugin.length, plugin.length + 1)
-              .toLowerCase() +
+            attrName.slice(plugin.length, plugin.length + 1).toLowerCase() +
             attrName.slice(plugin.length + 1);
           options[unprefixedOptionName] = prop;
         }
@@ -217,9 +203,7 @@ class Init {
 
     // initialize wavesurfer, load audio (with peaks if provided)
     const instance = this.WaveSurfer.create(params);
-    const peaks = params.peaks
-      ? JSON.parse(params.peaks)
-      : undefined;
+    const peaks = params.peaks ? JSON.parse(params.peaks) : undefined;
     instance.load(params.url, peaks);
 
     // push this instance into the instances cache
@@ -233,10 +217,7 @@ if (typeof window === "object" && !window.WS_StopAutoInit) {
   // call init when document is ready, apply any custom default settings
   // in window.WS_InitOptions
   if (document.readyState === "complete") {
-    window.WaveSurferInit = new Init(
-      window.WaveSurfer,
-      window.WS_InitOptions
-    );
+    window.WaveSurferInit = new Init(window.WaveSurfer, window.WS_InitOptions);
   } else {
     window.addEventListener("load", () => {
       window.WaveSurferInit = new Init(

@@ -15,11 +15,11 @@ export const current = {
   namespaced: true,
   state: {
     name: null,
-    lastModifiedDate: null,
     fileSize: null,
     fileType: null,
-    dataUrl: null,
     fps: null,
+    dataUrl: null,
+    lastModifiedDate: null,
     currentTime: null,
     size: {
       width: null,
@@ -35,9 +35,9 @@ export const current = {
       tbr: null
     },
     audioStream: {
+      codec_name: null,
       bitrate: null,
       channel_layout: null,
-      codec_name: null,
       sample_fmt: null,
       sample_rate: null
     }
@@ -48,17 +48,11 @@ export const current = {
       state.name = String(payload);
     },
     setCurrentTime: function(state, payload) {
-      console.info(
-        `${MUTATIONTAG}:setCurrentTime`,
-        payload
-      );
+      console.info(`${MUTATIONTAG}:setCurrentTime`, payload);
       state.currentTime = payload;
     },
     setLastModifiedData: function(state, payload) {
-      console.info(
-        `${MUTATIONTAG}:setLastModifiedData`,
-        payload
-      );
+      console.info(`${MUTATIONTAG}:setLastModifiedData`, payload);
       state.lastModifiedDate = payload;
     },
     setFileSize: function(state, payload) {
@@ -74,10 +68,7 @@ export const current = {
       state.fps = Number(payload);
     },
     setDataUrl: function(state, payload) {
-      console.info(
-        `${MUTATIONTAG}:setDataUrl`,
-        payload.split(",")[0]
-      );
+      console.info(`${MUTATIONTAG}:setDataUrl`, payload.split(",")[0]);
       state.dataUrl = String(payload);
     },
     setSize: function(state, payload) {
@@ -94,13 +85,8 @@ export const current = {
       state.size.height = payload;
     },
     setVideoStream: function(state, payload) {
-      console.info(
-        `${MUTATIONTAG}:setVideoStream`,
-        payload
-      );
-      state.videoStream.codec_name = String(
-        payload.codec_name
-      );
+      console.info(`${MUTATIONTAG}:setVideoStream`, payload);
+      state.videoStream.codec_name = String(payload.codec_name);
       state.videoStream.pix_fmt = String(payload.pix_fmt);
       state.videoStream.bitrate = Number(payload.bitrate);
       state.videoStream.fps = Number(payload.fps);
@@ -109,13 +95,9 @@ export const current = {
       state.videoStream.tbr = Number(payload.tbr);
     },
     setAudioStream: function(state, payload) {
-      console.info(
-        `${MUTATIONTAG}:setAudioStream`,
-        payload
-      );
+      console.info(`${MUTATIONTAG}:setAudioStream`, payload);
       state.audioStream.bitrate = payload.bitrate;
-      state.audioStream.channel_layout =
-        payload.channel_layout;
+      state.audioStream.channel_layout = payload.channel_layout;
       state.audioStream.codec_name = payload.codec_name;
       state.audioStream.sample_fmt = payload.sample_fmt;
       state.audioStream.sample_rate = payload.sample_rate;
@@ -125,10 +107,7 @@ export const current = {
     setItem: function(context, payload) {
       console.info(`${ACTIONTAG}:setItem`, payload);
       context.commit("setName", payload.name);
-      context.commit(
-        "setLastModifiedData",
-        payload.lastModifiedDate
-      );
+      context.commit("setLastModifiedData", payload.lastModifiedDate);
       context.commit("setFileSize", payload.fileSize);
       context.commit("setFileType", payload.fileType);
       context.commit("setFps", payload.fps);

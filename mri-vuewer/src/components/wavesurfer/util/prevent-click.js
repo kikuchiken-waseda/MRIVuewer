@@ -7,11 +7,7 @@
  */
 function preventClickHandler(event) {
   event.stopPropagation();
-  document.body.removeEventListener(
-    "click",
-    preventClickHandler,
-    true
-  );
+  document.body.removeEventListener("click", preventClickHandler, true);
 }
 
 /**
@@ -20,9 +16,5 @@ function preventClickHandler(event) {
  * @param {object} values Values
  */
 export default function preventClick(values) {
-  document.body.addEventListener(
-    "click",
-    preventClickHandler,
-    true
-  );
+  document.body.addEventListener("click", preventClickHandler, true);
 }

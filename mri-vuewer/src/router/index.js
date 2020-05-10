@@ -26,7 +26,7 @@ const routes = [
     component: Config
   },
   {
-    path: "/movies/",
+    path: "/movies/:id",
     name: "MovieAnnotation",
     component: MovieAnnotation,
     props: true

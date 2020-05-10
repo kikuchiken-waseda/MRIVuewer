@@ -1,8 +1,8 @@
 <template>
   <v-container fluid class="pa-0 movie-annotaion">
-    <m-tool-bar :ws="ws" v-on:updateFiler="onUpdateFiler" />
+    <m-tool-bar v-if="item" :ws="ws" v-on:updateFiler="onUpdateFiler" />
     <v-card :color="background">
-      <v-container v-if="dataUrl">
+      <v-container v-if="item">
         <v-row>
           <v-col class="flex-grow-1 flex-shrink-1">
             <v-card flat :color="background">
@@ -14,10 +14,11 @@
                         {{ frameOffset }}フレーム前の画像
                       </v-system-bar>
                       <video
+                        v-if="item.dataUrl"
                         muted
                         ref="videoPre"
                         :style="videoStyle"
-                        :src="dataUrl"
+                        :src="item.dataUrl"
                       />
                     </v-card>
                   </v-col>
@@ -26,7 +27,12 @@
                       <v-system-bar dark color="accent">
                         現在画像
                       </v-system-bar>
-                      <video ref="video" :style="videoStyle" :src="dataUrl" />
+                      <video
+                        v-if="item.dataUrl"
+                        ref="video"
+                        :style="videoStyle"
+                        :src="item.dataUrl"
+                      />
                     </v-card>
                   </v-col>
                   <v-col cols="4" class="py-0">
@@ -36,9 +42,10 @@
                       </v-system-bar>
                       <video
                         muted
+                        v-if="item.dataUrl"
                         ref="videoPos"
                         :style="videoStyle"
-                        :src="dataUrl"
+                        :src="item.dataUrl"
                       />
                     </v-card>
                   </v-col>
@@ -84,10 +91,16 @@
         </v-card>
       </v-container>
     </v-card>
+    <v-card v-if="debug">
+      <v-container v-if="item">
+        <pre>{{ item }}</pre>
+      </v-container>
+    </v-card>
   </v-container>
 </template>
 
 <script>
+import File from "@/models/file.js";
 import colors from "vuetify/lib/util/colors";
 import MToolBar from "@/components/MovieAnnotaion/MToolBar.vue";
 import MTierList from "@/components/MovieAnnotaion/MTierList.vue";
@@ -104,6 +117,7 @@ export default {
     MTierList
   },
   data: () => ({
+    debug: false,
     ws: null,
     isLoading: false,
     background: "grey lighten-3",
@@ -123,62 +137,23 @@ export default {
     }
   }),
   computed: {
-    name: {
+    item: {
       get: function() {
-        return this.$store.state.current.name;
+        return File.find(this.$route.params.id);
       },
-      set: function(val) {
-        this.$store.dispatch("current/setName", val);
-      }
-    },
-    fps: {
-      get: function() {
-        return this.$store.state.current.fps;
-      },
-      set: function(val) {
-        this.$store.dispatch("current/setFps", val);
-      }
-    },
-    dataUrl: {
-      get: function() {
-        return this.$store.state.current.dataUrl;
-      },
-      set: function(val) {
-        this.$store.dispatch("current/setDataUrl", val);
+      set: function(payload) {
+        File.update({
+          where: this.$route.params.id,
+          data: payload
+        });
       }
     },
     frameRate: function() {
-      return 1 / this.fps;
-    },
-    width: {
-      get: function() {
-        return this.$store.state.current.size.width;
-      },
-      set: function(val) {
-        this.$store.dispatch("current/setWidth", val);
-      }
-    },
-    height: {
-      get: function() {
-        return this.$store.state.current.size.height;
-      },
-      set: function(val) {
-        this.$store.dispatch("current/setHeight", val);
-      }
-    },
-    videoStream: {
-      get: function() {
-        return this.$store.state.current.videoStream;
-      }
-    },
-    audioStream: {
-      get: function() {
-        return this.$store.state.current.audioStream;
-      }
+      return 1 / this.item.fps;
     }
   },
   watch: {
-    dataUrl: function() {
+    "item.dataUrl": function() {
       this.$nextTick(() => {
         // this.initWs();
         this.load();
@@ -186,6 +161,11 @@ export default {
     }
   },
   methods: {
+    log: function(tag, msg) {
+      if (this.debug) {
+        console.info(tag, msg);
+      }
+    },
     load() {
       const tag = `${this.$options.name}:load`;
       this.isLoading = true;
@@ -194,21 +174,21 @@ export default {
         if (this.ws) {
           this.ws.load(elm);
         } else {
-          console.log(tag, "no ws");
+          this.log(tag, "no ws");
         }
       } else {
-        console.log(tag, "no video");
+        this.log(tag, "no video");
       }
       this.isLoading = false;
     },
     initWs() {
       const tag = `${this.$options.name}:initWs`;
       if (this.ws) {
-        console.log(tag, "destroy:ws");
+        this.log(tag, "destroy:ws");
         this.ws.destroy();
         this.ws = null;
       }
-      console.log(tag, "init:ws");
+      this.log(tag, "init:ws");
       const options = this.options;
       options.container = "#waveform";
       options.backend = "MediaElement";
@@ -257,24 +237,24 @@ export default {
       const tag = `${this.$options.name}:syncVideos`;
       const currentTime = this.getCurrentTime();
       const offsetTime = this.frameOffset * this.frameRate;
-      console.info(tag, currentTime);
+      this.log(tag, currentTime);
       if (currentTime - offsetTime > 0) {
         const time = currentTime - offsetTime;
         this.$refs.videoPre.currentTime = time;
       } else {
         this.$refs.videoPre.currentTime = 0;
-        console.warn(
+        this.log(
           tag + "video-pre: setCurrentTime",
           `${currentTime - offsetTime} is less than 0`
         );
       }
       if (offsetTime + currentTime < this.getDuration()) {
-        console.info(tag, "video-pos: setCurrentTime");
+        this.log(tag, "video-pos: setCurrentTime");
         const time = currentTime + offsetTime;
         this.$refs.videoPos.currentTime = time;
       } else {
         this.$refs.videoPos.currentTime = this.getDuration();
-        console.warn(
+        this.log(
           tag + "video-pos: setCurrentTime",
           `${currentTime + offsetTime} is more than ${this.getDuration()}`
         );
@@ -282,32 +262,32 @@ export default {
     },
     onLoading(val) {
       const tag = `${this.$options.name}:onLoading`;
-      console.log(tag, val);
+      this.log(tag, val);
       this.progress = val;
     },
     onRedy() {
       const tag = `${this.$options.name}:onRedy`;
       this.isLoading = false;
-      console.log(tag);
+      this.log(tag);
     },
     onDestroy(val) {
       const tag = `${this.$options.name}:onDestroy`;
-      console.log(tag, val);
+      this.log(tag, val);
     },
     onError(val) {
       const tag = `${this.$options.name}:onError`;
-      console.log(tag, val);
+      this.log(tag, val);
     },
     onUpdateFiler(payload) {
       const tag = `${this.$options.name}:onUpdateFiler`;
-      console.log(tag, payload);
+      this.log(tag, payload);
       this.ws.backend.setFilters(payload);
     }
   },
   mounted: function() {
     const tag = `${this.$options.name}:mounted`;
-    console.log(tag);
-    if (!this.dataUrl) {
+    this.log(tag);
+    if (!this.item) {
       this.$router.push({ name: "Home" });
     } else {
       this.initWs();

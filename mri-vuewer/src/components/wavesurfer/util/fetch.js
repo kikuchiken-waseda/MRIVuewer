@@ -158,9 +158,7 @@ export default function fetchFile(options) {
       }
 
       // Server must send CORS header "Access-Control-Expose-Headers: content-length"
-      const contentLength = response.headers.get(
-        "content-length"
-      );
+      const contentLength = response.headers.get("content-length");
       if (contentLength === null) {
         // Content-Length server response header missing.
         // Don't evaluate download progress if we can't compare against a total size
@@ -180,11 +178,7 @@ export default function fetchFile(options) {
 
       return new Response(
         new ReadableStream(
-          new ProgressHandler(
-            instance,
-            contentLength,
-            response
-          )
+          new ProgressHandler(instance, contentLength, response)
         ),
         fetchOptions
       );
@@ -206,8 +200,7 @@ export default function fetchFile(options) {
             return response.text();
 
           default:
-            errMsg =
-              "Unknown responseType: " + responseType;
+            errMsg = "Unknown responseType: " + responseType;
             break;
         }
       }

@@ -37,11 +37,15 @@
           required
         />
       </v-container>
+      <v-container v-if="debug">
+        <pre>{{ video }}</pre>
+      </v-container>
     </template>
   </m-base-form-dialog>
 </template>
 
 <script>
+import File from "@/models/file.js";
 import MBaseFormDialog from "./MBaseFormDialog.vue";
 import MMovieInput from "../form/MMovieInput.vue";
 const nameMaxSize = 30;
@@ -53,6 +57,7 @@ export default {
     MMovieInput
   },
   data: () => ({
+    debug: false,
     dialog: false,
     video: {
       loading: false,
@@ -64,21 +69,38 @@ export default {
     fpsRules: null
   }),
   methods: {
+    log: function(tag, msg) {
+      if (this.debug) {
+        console.info(tag, msg);
+      }
+    },
     onValid: function() {
       const tag = `${this.$options.name}:onValid`;
-      const item = this.video;
-      item.lastModifiedDate = this.video.file.lastModifiedDate;
-      item.fileType = this.video.file.type;
-      item.fileSize = this.video.file.size;
-      console.info(tag + ":setItem", item);
-      this.$store.dispatch("current/setItem", item);
-      this.$refs.form.reset();
-      if (this.$route.name != "MovieAnnotation") {
-        this.$router.push({ name: "MovieAnnotation" });
-      }
+      const item = {
+        name: this.video.name,
+        fileSize: this.video.file.size,
+        fileType: this.video.file.type,
+        fps: this.video.fps,
+        dataUrl: this.video.dataUrl,
+        lastModifiedDate: this.video.file.lastModifiedDate,
+        currentTime: 0,
+        audioStream: this.video.audioStream,
+        videoStream: this.video.videoStream,
+        size: {
+          width: this.video.size.width,
+          height: this.video.size.height
+        }
+      };
+      this.log(tag + ":inserteItem", item);
+      File.insertOrUpdate({ data: item }).then(() => {
+        const file = File.query().last();
+        this.log(tag + ":insertedItem", file);
+        this.$refs.form.reset();
+        this.$router.push({ name: "MovieAnnotation", params: { id: file.id } });
+      });
     }
   },
-  mounted: function() {
+  mounted() {
     this.fpsRules = [
       v => !!v || this.$vuetify.lang.t("$vuetify.validate.required"),
       v => {

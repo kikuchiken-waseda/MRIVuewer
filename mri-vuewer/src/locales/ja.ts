@@ -11,12 +11,9 @@ export default {
       sortDescending: "降順の並び替え。",
       sortAscending: "昇順の並び替え。",
       sortNone: "ソートされていません。",
-      activateNone:
-        "ソートを削除するには有効にしてください。",
-      activateDescending:
-        "降順の並び替えのためには有効にしてください。",
-      activateAscending:
-        "昇順のソートのためには有効にしてください。"
+      activateNone: "ソートを削除するには有効にしてください。",
+      activateDescending: "降順の並び替えのためには有効にしてください。",
+      activateAscending: "昇順のソートのためには有効にしてください。"
     },
     sortBy: "ソート方式"
   },
@@ -53,10 +50,8 @@ export default {
   },
   validate: {
     required: "このフィールドは必須です",
-    lessThen:
-      "このフィールドは{0}文字以下でなければいけません",
-    moreThen:
-      "このフィールドは{0}文字以上でなければいけません",
+    lessThen: "このフィールドは{0}文字以下でなければいけません",
+    moreThen: "このフィールドは{0}文字以上でなければいけません",
     isFloat: "このフィールドは浮動小数型です"
   },
   baseFromDialog: {
@@ -68,8 +63,7 @@ export default {
   movieUploadDialog: {
     file: {
       title: "動画ファイル",
-      hint:
-        "動画ファイルは mp4, webm  または ogv 形式に対応しています"
+      hint: "動画ファイルは mp4, webm  または ogv 形式に対応しています"
     },
     name: {
       title: "表示名",
@@ -97,8 +91,7 @@ export default {
     upload: {
       title: "動画登録",
       btn: "アップロード",
-      hint:
-        "任意の動画ファイルをアノテーション用に取り込みます"
+      hint: "任意の動画ファイルをアノテーション用に取り込みます"
     },
     demo: {
       title: "サンプル",
@@ -119,18 +112,15 @@ export default {
         fps: { title: "fps" },
         tbr: {
           title: "tbr",
-          help:
-            "ビデオストリームから推測された動画フレームレート"
+          help: "ビデオストリームから推測された動画フレームレート"
         },
         tbn: {
           title: "tbn",
-          help:
-            "コンテナから取得された動画ストリームのタイムベース"
+          help: "コンテナから取得された動画ストリームのタイムベース"
         },
         tbc: {
           title: "tbc",
-          help:
-            "特定のストリームに使用されるコーデック独自のタイムベース"
+          help: "特定のストリームに使用されるコーデック独自のタイムベース"
         }
       },
       audioStream: {

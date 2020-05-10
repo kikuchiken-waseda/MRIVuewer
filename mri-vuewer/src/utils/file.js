@@ -34,8 +34,7 @@ const toUnit8Array = file =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () =>
-      resolve(new Uint8Array(reader.result));
+    reader.onload = () => resolve(new Uint8Array(reader.result));
     reader.onerror = error => reject(error);
   });
 

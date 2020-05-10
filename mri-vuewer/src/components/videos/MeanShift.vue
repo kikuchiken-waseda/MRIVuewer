@@ -64,11 +64,7 @@ export default {
       try {
         // start processing.
         this.cap.read(this.frame);
-        cv.cvtColor(
-          this.frame,
-          this.hsv,
-          cv.COLOR_RGBA2RGB
-        );
+        cv.cvtColor(this.frame, this.hsv, cv.COLOR_RGBA2RGB);
         cv.cvtColor(this.hsv, this.hsv, cv.COLOR_RGB2HSV);
         cv.calcBackProject(
           this.hsvVec,
@@ -86,34 +82,10 @@ export default {
         );
         // Draw it on image
         let pts = cv.rotatedRectPoints(this.trackBox);
-        cv.line(
-          this.frame,
-          pts[0],
-          pts[1],
-          [255, 0, 0, 255],
-          3
-        );
-        cv.line(
-          this.frame,
-          pts[1],
-          pts[2],
-          [255, 0, 0, 255],
-          3
-        );
-        cv.line(
-          this.frame,
-          pts[2],
-          pts[3],
-          [255, 0, 0, 255],
-          3
-        );
-        cv.line(
-          this.frame,
-          pts[3],
-          pts[0],
-          [255, 0, 0, 255],
-          3
-        );
+        cv.line(this.frame, pts[0], pts[1], [255, 0, 0, 255], 3);
+        cv.line(this.frame, pts[1], pts[2], [255, 0, 0, 255], 3);
+        cv.line(this.frame, pts[2], pts[3], [255, 0, 0, 255], 3);
+        cv.line(this.frame, pts[3], pts[0], [255, 0, 0, 255], 3);
         cv.imshow(this.$refs.canvas, this.frame);
       } catch (err) {
         console.error(tag, err);
@@ -134,11 +106,7 @@ export default {
   mounted: function() {
     this.video = this.$refs.video;
     this.cap = new cv.VideoCapture(this.video);
-    this.frame = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_8UC4
-    );
+    this.frame = new cv.Mat(this.height, this.width, cv.CV_8UC4);
     this.trackWindow = new cv.Rect(150, 60, 63, 125);
     let roi = this.frame.roi(this.trackWindow);
     let hsvRoi = new cv.Mat();
@@ -147,37 +115,14 @@ export default {
     let mask = new cv.Mat();
     let lowScalar = new cv.Scalar(30, 30, 0);
     let highScalar = new cv.Scalar(180, 180, 180);
-    let low = new cv.Mat(
-      hsvRoi.rows,
-      hsvRoi.cols,
-      hsvRoi.type(),
-      lowScalar
-    );
-    let high = new cv.Mat(
-      hsvRoi.rows,
-      hsvRoi.cols,
-      hsvRoi.type(),
-      highScalar
-    );
+    let low = new cv.Mat(hsvRoi.rows, hsvRoi.cols, hsvRoi.type(), lowScalar);
+    let high = new cv.Mat(hsvRoi.rows, hsvRoi.cols, hsvRoi.type(), highScalar);
     cv.inRange(hsvRoi, low, high, mask);
     this.roiHist = new cv.Mat();
     let hsvRoiVec = new cv.MatVector();
     hsvRoiVec.push_back(hsvRoi);
-    cv.calcHist(
-      hsvRoiVec,
-      [0],
-      mask,
-      this.roiHist,
-      [180],
-      [0, 180]
-    );
-    cv.normalize(
-      this.roiHist,
-      this.roiHist,
-      0,
-      255,
-      cv.NORM_MINMAX
-    );
+    cv.calcHist(hsvRoiVec, [0], mask, this.roiHist, [180], [0, 180]);
+    cv.normalize(this.roiHist, this.roiHist, 0, 255, cv.NORM_MINMAX);
 
     // delete useless mats.
     roi.delete();
@@ -194,11 +139,7 @@ export default {
       1
     );
 
-    this.hsv = new cv.Mat(
-      this.height,
-      this.width,
-      cv.CV_8UC3
-    );
+    this.hsv = new cv.Mat(this.height, this.width, cv.CV_8UC3);
     this.hsvVec = new cv.MatVector();
     this.hsvVec.push_back(this.hsv);
     this.dst = new cv.Mat();

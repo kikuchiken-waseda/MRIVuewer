@@ -1,16 +1,8 @@
 <template>
   <div>
     <v-file-input
-      :label="
-        `${$vuetify.lang.t(
-          '$vuetify.movieUploadDialog.file.title'
-        )}*`
-      "
-      :hint="
-        $vuetify.lang.t(
-          '$vuetify.movieUploadDialog.file.hint'
-        )
-      "
+      :label="`${$vuetify.lang.t('$vuetify.movieUploadDialog.file.title')}*`"
+      :hint="$vuetify.lang.t('$vuetify.movieUploadDialog.file.hint')"
       v-model="video.file"
       prepend-icon="mdi-file-video"
       accept="video/*"
@@ -31,6 +23,9 @@ export default {
       required: true
     }
   },
+  data: () => ({
+    debug: false
+  }),
   computed: {
     video: {
       get() {
@@ -42,6 +37,11 @@ export default {
     }
   },
   methods: {
+    log: function(tag, msg) {
+      if (this.debug) {
+        console.info(tag, msg);
+      }
+    },
     initItem: function() {
       this.video.dataUrl = null;
       this.video.name = null;
@@ -77,11 +77,7 @@ export default {
           VideoUtil.info(buff, res => {
             this.video.size = res.size;
             if (res.videoStream) {
-              console.info(
-                tag,
-                "set video",
-                res.videoStream
-              );
+              this.log(tag + ":set video", res.videoStream);
               this.video.fps = res.videoStream.fps
                 ? res.videoStream.fps
                 : this.video.fps;
@@ -96,24 +92,17 @@ export default {
               };
             }
             if (res.audioStream) {
-              console.info(
-                tag,
-                "set audio",
-                res.audioStream
-              );
+              this.log(tag + ":set audio", res.videoStream);
               this.video.audioStream = {
                 codec_name: res.audioStream.codec_name,
                 sample_rate: res.audioStream.sample_rate,
-                channel_layout:
-                  res.audioStream.channel_layout,
+                channel_layout: res.audioStream.channel_layout,
                 sample_fmt: res.audioStream.sample_fmt,
                 bitrate: res.audioStream.bitrate
               };
             }
           });
-          this.video.dataUrl = await FileUtil.toBase64(
-            this.video.file
-          );
+          this.video.dataUrl = await FileUtil.toBase64(this.video.file);
         } else {
           this.initItem();
         }

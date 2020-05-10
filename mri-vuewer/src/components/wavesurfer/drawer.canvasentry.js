@@ -77,10 +77,7 @@ export default class CanvasEntry {
    */
   initWave(element) {
     this.wave = element;
-    this.waveCtx = this.wave.getContext(
-      "2d",
-      this.canvasContextAttributes
-    );
+    this.waveCtx = this.wave.getContext("2d", this.canvasContextAttributes);
   }
 
   /**
@@ -105,12 +102,7 @@ export default class CanvasEntry {
    * @param {number} width The new width of the element
    * @param {number} height The new height of the element
    */
-  updateDimensions(
-    elementWidth,
-    totalWidth,
-    width,
-    height
-  ) {
+  updateDimensions(elementWidth, totalWidth, width, height) {
     // where the canvas starts and ends in the waveform, represented as a
     // decimal between 0 and 1
     this.start = this.wave.offsetLeft / totalWidth || 0;
@@ -177,24 +169,10 @@ export default class CanvasEntry {
    * @param {number} radius Radius of the rectangle
    */
   fillRects(x, y, width, height, radius) {
-    this.fillRectToContext(
-      this.waveCtx,
-      x,
-      y,
-      width,
-      height,
-      radius
-    );
+    this.fillRectToContext(this.waveCtx, x, y, width, height, radius);
 
     if (this.hasProgressCanvas) {
-      this.fillRectToContext(
-        this.progressCtx,
-        x,
-        y,
-        width,
-        height,
-        radius
-      );
+      this.fillRectToContext(this.progressCtx, x, y, width, height, radius);
     }
   }
 
@@ -215,14 +193,7 @@ export default class CanvasEntry {
     }
 
     if (radius) {
-      this.drawRoundedRect(
-        ctx,
-        x,
-        y,
-        width,
-        height,
-        radius
-      );
+      this.drawRoundedRect(ctx, x, y, width, height, radius);
     } else {
       ctx.fillRect(x, y, width, height);
     }
@@ -255,26 +226,11 @@ export default class CanvasEntry {
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
     ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(
-      x + width,
-      y,
-      x + width,
-      y + radius
-    );
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
     ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(
-      x + width,
-      y + height,
-      x + width - radius,
-      y + height
-    );
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
     ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(
-      x,
-      y + height,
-      x,
-      y + height - radius
-    );
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
     ctx.lineTo(x, y + radius);
     ctx.quadraticCurveTo(x, y, x + radius, y);
     ctx.closePath();
@@ -331,15 +287,7 @@ export default class CanvasEntry {
    * @param {number} end The x-offset of the end of the area that
    * should be rendered
    */
-  drawLineToContext(
-    ctx,
-    peaks,
-    absmax,
-    halfH,
-    offsetY,
-    start,
-    end
-  ) {
+  drawLineToContext(ctx, peaks, absmax, halfH, offsetY, start, end) {
     if (!ctx) {
       return;
     }
@@ -353,8 +301,7 @@ export default class CanvasEntry {
 
     const canvasStart = first;
     const canvasEnd = last;
-    const scale =
-      this.wave.width / (canvasEnd - canvasStart - 1);
+    const scale = this.wave.width / (canvasEnd - canvasStart - 1);
 
     // optimization
     const halfOffset = halfH + offsetY;
@@ -365,20 +312,14 @@ export default class CanvasEntry {
 
     ctx.lineTo(
       (canvasStart - first) * scale,
-      halfOffset -
-        Math.round(
-          (peaks[2 * canvasStart] || 0) / absmaxHalf
-        )
+      halfOffset - Math.round((peaks[2 * canvasStart] || 0) / absmaxHalf)
     );
 
     let i, peak, h;
     for (i = canvasStart; i < canvasEnd; i++) {
       peak = peaks[2 * i] || 0;
       h = Math.round(peak / absmaxHalf);
-      ctx.lineTo(
-        (i - first) * scale + this.halfPixel,
-        halfOffset - h
-      );
+      ctx.lineTo((i - first) * scale + this.halfPixel, halfOffset - h);
     }
 
     // draw the bottom edge going backwards, to make a single
@@ -387,18 +328,12 @@ export default class CanvasEntry {
     for (j; j >= canvasStart; j--) {
       peak = peaks[2 * j + 1] || 0;
       h = Math.round(peak / absmaxHalf);
-      ctx.lineTo(
-        (j - first) * scale + this.halfPixel,
-        halfOffset - h
-      );
+      ctx.lineTo((j - first) * scale + this.halfPixel, halfOffset - h);
     }
 
     ctx.lineTo(
       (canvasStart - first) * scale,
-      halfOffset -
-        Math.round(
-          (peaks[2 * canvasStart + 1] || 0) / absmaxHalf
-        )
+      halfOffset - Math.round((peaks[2 * canvasStart + 1] || 0) / absmaxHalf)
     );
 
     ctx.closePath();

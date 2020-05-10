@@ -2,9 +2,7 @@
   <v-container class="home">
     <v-card>
       <div v-if="!$vuetify.breakpoint.smAndDown">
-        <h3 class="display-3">
-          {{ name }} ver.{{ version }}
-        </h3>
+        <h3 class="display-3">{{ name }} ver.{{ version }}</h3>
         <div class="subheading">
           {{ $vuetify.lang.t("$vuetify.home.disc") }}
         </div>
@@ -15,16 +13,8 @@
       </div>
       <m-movie-upload-dialog>
         <template v-slot:activator="{ on }">
-          <v-btn
-            class="mx-0"
-            color="primary"
-            dark
-            large
-            v-on="on"
-          >
-            {{
-              $vuetify.lang.t("$vuetify.home.upload.btn")
-            }}
+          <v-btn class="mx-0" color="primary" dark large v-on="on">
+            {{ $vuetify.lang.t("$vuetify.home.upload.btn") }}
           </v-btn>
         </template>
       </m-movie-upload-dialog>

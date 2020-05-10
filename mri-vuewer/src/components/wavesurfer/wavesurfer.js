@@ -255,8 +255,7 @@ export default class WaveSurfer extends util.Observer {
     normalize: false,
     partialRender: false,
     pixelRatio:
-      window.devicePixelRatio ||
-      screen.deviceXDPI / screen.logicalXDPI,
+      window.devicePixelRatio || screen.deviceXDPI / screen.logicalXDPI,
     plugins: [],
     progressColor: "#555",
     removeMediaElementOnDestroy: true,
@@ -334,11 +333,7 @@ export default class WaveSurfer extends util.Observer {
      * Extract relevant parameters (or defaults)
      * @private
      */
-    this.params = Object.assign(
-      {},
-      this.defaultParams,
-      params
-    );
+    this.params = Object.assign({}, this.defaultParams, params);
 
     /** @private */
     this.container =
@@ -353,13 +348,9 @@ export default class WaveSurfer extends util.Observer {
     if (this.params.mediaContainer == null) {
       /** @private */
       this.mediaContainer = this.container;
-    } else if (
-      typeof this.params.mediaContainer == "string"
-    ) {
+    } else if (typeof this.params.mediaContainer == "string") {
       /** @private */
-      this.mediaContainer = document.querySelector(
-        this.params.mediaContainer
-      );
+      this.mediaContainer = document.querySelector(this.params.mediaContainer);
     } else {
       /** @private */
       this.mediaContainer = this.params.mediaContainer;
@@ -370,13 +361,9 @@ export default class WaveSurfer extends util.Observer {
     }
 
     if (this.params.maxCanvasWidth <= 1) {
-      throw new Error(
-        "maxCanvasWidth must be greater than 1"
-      );
+      throw new Error("maxCanvasWidth must be greater than 1");
     } else if (this.params.maxCanvasWidth % 2 == 1) {
-      throw new Error(
-        "maxCanvasWidth must be an even number"
-      );
+      throw new Error("maxCanvasWidth must be an even number");
     }
 
     if (this.params.rtl === true) {
@@ -477,9 +464,7 @@ export default class WaveSurfer extends util.Observer {
           this.drawer.fireEvent("redraw");
         }
       },
-      typeof this.params.responsive === "number"
-        ? this.params.responsive
-        : 100
+      typeof this.params.responsive === "number" ? this.params.responsive : 100
     );
 
     return this;
@@ -555,16 +540,13 @@ export default class WaveSurfer extends util.Observer {
 
     // staticProps properties are applied to wavesurfer instance
     if (plugin.staticProps) {
-      Object.keys(plugin.staticProps).forEach(
-        pluginStaticProp => {
-          /**
-           * Properties defined in a plugin definition's `staticProps` property are added as
-           * staticProps properties of the WaveSurfer instance
-           */
-          this[pluginStaticProp] =
-            plugin.staticProps[pluginStaticProp];
-        }
-      );
+      Object.keys(plugin.staticProps).forEach(pluginStaticProp => {
+        /**
+         * Properties defined in a plugin definition's `staticProps` property are added as
+         * staticProps properties of the WaveSurfer instance
+         */
+        this[pluginStaticProp] = plugin.staticProps[pluginStaticProp];
+      });
     }
 
     const Instance = plugin.instance;
@@ -574,8 +556,7 @@ export default class WaveSurfer extends util.Observer {
       util.Observer.prototype
     );
     observerPrototypeKeys.forEach(key => {
-      Instance.prototype[key] =
-        util.Observer.prototype[key];
+      Instance.prototype[key] = util.Observer.prototype[key];
     });
 
     /**
@@ -583,10 +564,7 @@ export default class WaveSurfer extends util.Observer {
      * instance
      * @type {Object}
      */
-    this[plugin.name] = new Instance(
-      plugin.params || {},
-      this
-    );
+    this[plugin.name] = new Instance(plugin.params || {}, this);
     this.fireEvent("plugin-added", plugin.name);
     return this;
   }
@@ -601,9 +579,7 @@ export default class WaveSurfer extends util.Observer {
    */
   initPlugin(name) {
     if (!this[name]) {
-      throw new Error(
-        `Plugin ${name} has not been added yet!`
-      );
+      throw new Error(`Plugin ${name} has not been added yet!`);
     }
     if (this.initialisedPluginList[name]) {
       // destroy any already initialised plugins
@@ -630,14 +606,10 @@ export default class WaveSurfer extends util.Observer {
       );
     }
     if (!this.initialisedPluginList[name]) {
-      throw new Error(
-        `Plugin ${name} is not active and cannot be destroyed!`
-      );
+      throw new Error(`Plugin ${name} is not active and cannot be destroyed!`);
     }
     if (typeof this[name].destroy !== "function") {
-      throw new Error(
-        `Plugin ${name} does not have a destroy function!`
-      );
+      throw new Error(`Plugin ${name} does not have a destroy function!`);
     }
 
     this[name].destroy();
@@ -665,31 +637,18 @@ export default class WaveSurfer extends util.Observer {
    * @emits WaveSurfer#drawer-created
    */
   createDrawer() {
-    this.drawer = new this.Drawer(
-      this.container,
-      this.params
-    );
+    this.drawer = new this.Drawer(this.container, this.params);
     this.drawer.init();
     this.fireEvent("drawer-created", this.drawer);
 
     if (this.params.responsive !== false) {
-      window.addEventListener(
-        "resize",
-        this._onResize,
-        true
-      );
-      window.addEventListener(
-        "orientationchange",
-        this._onResize,
-        true
-      );
+      window.addEventListener("resize", this._onResize, true);
+      window.addEventListener("orientationchange", this._onResize, true);
     }
 
     this.drawer.on("redraw", () => {
       this.drawBuffer();
-      this.drawer.progress(
-        this.backend.getPlayedPercents()
-      );
+      this.drawer.progress(this.backend.getPlayedPercents());
     });
 
     // Click-to-seek
@@ -722,18 +681,14 @@ export default class WaveSurfer extends util.Observer {
     this.fireEvent("backend-created", this.backend);
 
     this.backend.on("finish", () => {
-      this.drawer.progress(
-        this.backend.getPlayedPercents()
-      );
+      this.drawer.progress(this.backend.getPlayedPercents());
       this.fireEvent("finish");
     });
     this.backend.on("play", () => this.fireEvent("play"));
     this.backend.on("pause", () => this.fireEvent("pause"));
 
     this.backend.on("audioprocess", time => {
-      this.drawer.progress(
-        this.backend.getPlayedPercents()
-      );
+      this.drawer.progress(this.backend.getPlayedPercents());
       this.fireEvent("audioprocess", time);
     });
 
@@ -743,9 +698,7 @@ export default class WaveSurfer extends util.Observer {
       this.params.backend === "MediaElementWebAudio"
     ) {
       this.backend.on("seek", () => {
-        this.drawer.progress(
-          this.backend.getPlayedPercents()
-        );
+        this.drawer.progress(this.backend.getPlayedPercents());
       });
 
       this.backend.on("volume", () => {
@@ -818,9 +771,7 @@ export default class WaveSurfer extends util.Observer {
    * wavesurfer.play(1, 5);
    */
   play(start, end) {
-    this.fireEvent("interaction", () =>
-      this.play(start, end)
-    );
+    this.fireEvent("interaction", () => this.play(start, end));
     return this.backend.play(start, end);
   }
 
@@ -853,9 +804,7 @@ export default class WaveSurfer extends util.Observer {
    * @return {Promise} Result of the backend play or pause method
    */
   playPause() {
-    return this.backend.isPaused()
-      ? this.play()
-      : this.pause();
+    return this.backend.isPaused() ? this.play() : this.pause();
   }
 
   /**
@@ -902,10 +851,7 @@ export default class WaveSurfer extends util.Observer {
   skip(offset) {
     const duration = this.getDuration() || 1;
     let position = this.getCurrentTime() || 0;
-    position = Math.max(
-      0,
-      Math.min(duration, position + (offset || 0))
-    );
+    position = Math.max(0, Math.min(duration, position + (offset || 0)));
     this.seekAndCenter(position / duration);
   }
 
@@ -944,9 +890,7 @@ export default class WaveSurfer extends util.Observer {
         "Error calling wavesurfer.seekTo, parameter must be a number between 0 and 1!"
       );
     }
-    this.fireEvent("interaction", () =>
-      this.seekTo(progress)
-    );
+    this.fireEvent("interaction", () => this.seekTo(progress));
 
     const paused = this.backend.isPaused();
     // avoid draw wrong position while playing backward seeking
@@ -1231,9 +1175,7 @@ export default class WaveSurfer extends util.Observer {
    */
   drawBuffer() {
     const nominalWidth = Math.round(
-      this.getDuration() *
-        this.params.minPxPerSec *
-        this.params.pixelRatio
+      this.getDuration() * this.params.minPxPerSec * this.params.pixelRatio
     );
     const parentWidth = this.drawer.getWidth();
     let width = nominalWidth;
@@ -1243,8 +1185,7 @@ export default class WaveSurfer extends util.Observer {
     // Fill container
     if (
       this.params.fillParent &&
-      (!this.params.scrollParent ||
-        nominalWidth < parentWidth)
+      (!this.params.scrollParent || nominalWidth < parentWidth)
     ) {
       width = parentWidth;
       start = 0;
@@ -1253,24 +1194,11 @@ export default class WaveSurfer extends util.Observer {
 
     let peaks;
     if (this.params.partialRender) {
-      const newRanges = this.peakCache.addRangeToPeakCache(
-        width,
-        start,
-        end
-      );
+      const newRanges = this.peakCache.addRangeToPeakCache(width, start, end);
       let i;
       for (i = 0; i < newRanges.length; i++) {
-        peaks = this.backend.getPeaks(
-          width,
-          newRanges[i][0],
-          newRanges[i][1]
-        );
-        this.drawer.drawPeaks(
-          peaks,
-          width,
-          newRanges[i][0],
-          newRanges[i][1]
-        );
+        peaks = this.backend.getPeaks(width, newRanges[i][0], newRanges[i][1]);
+        this.drawer.drawPeaks(peaks, width, newRanges[i][0], newRanges[i][1]);
       }
     } else {
       peaks = this.backend.getPeaks(width, start, end);
@@ -1301,9 +1229,7 @@ export default class WaveSurfer extends util.Observer {
     this.drawBuffer();
     this.drawer.progress(this.backend.getPlayedPercents());
 
-    this.drawer.recenter(
-      this.getCurrentTime() / this.getDuration()
-    );
+    this.drawer.recenter(this.getCurrentTime() / this.getDuration());
     this.fireEvent("zoom", pxPerSec);
   }
 
@@ -1344,12 +1270,8 @@ export default class WaveSurfer extends util.Observer {
   loadBlob(blob) {
     // Create file reader
     const reader = new FileReader();
-    reader.addEventListener("progress", e =>
-      this.onProgress(e)
-    );
-    reader.addEventListener("load", e =>
-      this.loadArrayBuffer(e.target.result)
-    );
+    reader.addEventListener("progress", e => this.onProgress(e));
+    reader.addEventListener("load", e => this.loadArrayBuffer(e.target.result));
     reader.addEventListener("error", () =>
       this.fireEvent("error", "Error reading file")
     );
@@ -1394,8 +1316,7 @@ export default class WaveSurfer extends util.Observer {
       // a warning listing the reasons why not and nullify the variable
       const preloadIgnoreReasons = {
         "Preload is not 'auto', 'none' or 'metadata'":
-          ["auto", "metadata", "none"].indexOf(preload) ===
-          -1,
+          ["auto", "metadata", "none"].indexOf(preload) === -1,
         "Peaks are not provided": !peaks,
         "Backend is not of type 'MediaElement' or 'MediaElementWebAudio'":
           ["MediaElement", "MediaElementWebAudio"].indexOf(
@@ -1403,9 +1324,9 @@ export default class WaveSurfer extends util.Observer {
           ) === -1,
         "Url is not of type string": typeof url !== "string"
       };
-      const activeReasons = Object.keys(
-        preloadIgnoreReasons
-      ).filter(reason => preloadIgnoreReasons[reason]);
+      const activeReasons = Object.keys(preloadIgnoreReasons).filter(
+        reason => preloadIgnoreReasons[reason]
+      );
       if (activeReasons.length) {
         // eslint-disable-next-line no-console
         console.warn(
@@ -1422,12 +1343,7 @@ export default class WaveSurfer extends util.Observer {
         return this.loadBuffer(url, peaks, duration);
       case "MediaElement":
       case "MediaElementWebAudio":
-        return this.loadMediaElement(
-          url,
-          peaks,
-          preload,
-          duration
-        );
+        return this.loadMediaElement(url, peaks, preload, duration);
     }
   }
 
@@ -1445,9 +1361,7 @@ export default class WaveSurfer extends util.Observer {
       if (action) {
         this.tmpEvents.push(this.once("ready", action));
       }
-      return this.getArrayBuffer(url, data =>
-        this.loadArrayBuffer(data)
-      );
+      return this.getArrayBuffer(url, data => this.loadArrayBuffer(data));
     };
 
     if (peaks) {
@@ -1475,12 +1389,7 @@ export default class WaveSurfer extends util.Observer {
     let url = urlOrElt;
 
     if (typeof urlOrElt === "string") {
-      this.backend.load(
-        url,
-        this.mediaContainer,
-        peaks,
-        preload
-      );
+      this.backend.load(url, this.mediaContainer, peaks, preload);
     } else {
       const elt = urlOrElt;
       this.backend.loadElt(elt, peaks);
@@ -1499,9 +1408,7 @@ export default class WaveSurfer extends util.Observer {
           this.fireEvent("ready");
         }
       }),
-      this.backend.once("error", err =>
-        this.fireEvent("error", err)
-      )
+      this.backend.once("error", err => this.fireEvent("error", err))
     );
 
     // If no pre-decoded peaks provided or pre-decoded peaks are
@@ -1540,19 +1447,12 @@ export default class WaveSurfer extends util.Observer {
       data => {
         // Only use the decoded data if we haven't been destroyed or
         // another decode started in the meantime
-        if (
-          !this.isDestroyed &&
-          this.arraybuffer == arraybuffer
-        ) {
+        if (!this.isDestroyed && this.arraybuffer == arraybuffer) {
           callback(data);
           this.arraybuffer = null;
         }
       },
-      () =>
-        this.fireEvent(
-          "error",
-          "Error decoding audiobuffer"
-        )
+      () => this.fireEvent("error", "Error decoding audiobuffer")
     );
   }
 
@@ -1609,11 +1509,7 @@ export default class WaveSurfer extends util.Observer {
       // function, and assume downloads in the 1-3 MB range.
       percentComplete = e.loaded / (e.loaded + 1000000);
     }
-    this.fireEvent(
-      "loading",
-      Math.round(percentComplete * 100),
-      e.target
-    );
+    this.fireEvent("loading", Math.round(percentComplete * 100), e.target);
   }
 
   /**
@@ -1642,8 +1538,7 @@ export default class WaveSurfer extends util.Observer {
 
       if (!noWindow) {
         window.open(
-          "data:application/json;charset=utf-8," +
-            encodeURIComponent(json)
+          "data:application/json;charset=utf-8," + encodeURIComponent(json)
         );
       }
       resolve(json);
@@ -1686,10 +1581,7 @@ export default class WaveSurfer extends util.Observer {
    * Cancel any fetch request currently in progress
    */
   cancelAjax() {
-    if (
-      this.currentRequest &&
-      this.currentRequest.controller
-    ) {
+    if (this.currentRequest && this.currentRequest.controller) {
       this.currentRequest.controller.abort();
       this.currentRequest = null;
     }
@@ -1717,10 +1609,7 @@ export default class WaveSurfer extends util.Observer {
     // empty drawer
     this.drawer.progress(0);
     this.drawer.setWidth(0);
-    this.drawer.drawPeaks(
-      { length: this.drawer.getWidth() },
-      0
-    );
+    this.drawer.drawPeaks({ length: this.drawer.getWidth() }, 0);
   }
 
   /**
@@ -1735,16 +1624,8 @@ export default class WaveSurfer extends util.Observer {
     this.clearTmpEvents();
     this.unAll();
     if (this.params.responsive !== false) {
-      window.removeEventListener(
-        "resize",
-        this._onResize,
-        true
-      );
-      window.removeEventListener(
-        "orientationchange",
-        this._onResize,
-        true
-      );
+      window.removeEventListener("resize", this._onResize, true);
+      window.removeEventListener("orientationchange", this._onResize, true);
     }
     if (this.backend) {
       this.backend.destroy();

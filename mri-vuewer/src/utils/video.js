@@ -64,41 +64,27 @@ const info = (buff, callback) => {
               item.videoStream.codec_name = detail[0];
               item.videoStream.pix_fmt = detail[1];
               item.videoStream.bitrate = Number(
-                detail
-                  .filter(x => x.match(/kb\/s/))[0]
-                  .split(" ")[0]
+                detail.filter(x => x.match(/kb\/s/))[0].split(" ")[0]
               );
               item.videoStream.fps = Number(
-                detail
-                  .filter(x => x.match(/fps/))[0]
-                  .split(" ")[0]
+                detail.filter(x => x.match(/fps/))[0].split(" ")[0]
               );
               item.videoStream.tbr = Number(
-                detail
-                  .filter(x => x.match(/tbr/))[0]
-                  .split(" ")[0]
+                detail.filter(x => x.match(/tbr/))[0].split(" ")[0]
               );
               item.videoStream.tbn = Number(
-                detail
-                  .filter(x => x.match(/tbn/))[0]
-                  .split(" ")[0]
+                detail.filter(x => x.match(/tbn/))[0].split(" ")[0]
               );
               item.videoStream.tbc = Number(
-                detail
-                  .filter(x => x.match(/tbc/))[0]
-                  .split(" ")[0]
+                detail.filter(x => x.match(/tbc/))[0].split(" ")[0]
               );
             } else {
               item.audioStream = {};
               item.audioStream.codec_name = detail[0];
-              item.audioStream.sample_rate = Number(
-                detail[1].split(" ")[0]
-              );
+              item.audioStream.sample_rate = Number(detail[1].split(" ")[0]);
               item.audioStream.channel_layout = detail[2];
               item.audioStream.sample_fmt = detail[3];
-              item.audioStream.bitrate = Number(
-                detail[4].split(" ")[0]
-              );
+              item.audioStream.bitrate = Number(detail[4].split(" ")[0]);
             }
           }
         }
@@ -115,13 +101,7 @@ const getFrames = buff => {
   const video = new Uint8Array(buff);
   const result = ffmpeg({
     MEMFS: [{ name: "data.mp4", data: video }],
-    arguments: [
-      "-i",
-      "data.mp4",
-      "-vcodec",
-      "mjpeg",
-      "image_%03d.jpg"
-    ],
+    arguments: ["-i", "data.mp4", "-vcodec", "mjpeg", "image_%03d.jpg"],
     print: function(data) {
       stdout += data + "\n";
     },
