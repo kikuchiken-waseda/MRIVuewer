@@ -1,6 +1,6 @@
 <template>
   <v-container class="home">
-    <v-card>
+    <v-card flat>
       <div v-if="!$vuetify.breakpoint.smAndDown">
         <h3 class="display-3">{{ name }} ver.{{ version }}</h3>
         <div class="subheading">

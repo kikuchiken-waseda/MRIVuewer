@@ -5,33 +5,33 @@
     </v-toolbar-title>
     <v-spacer />
     <m-info-menu />
-    <m-setting-menu :ws="ws" v-on:updateFiler="onUpdateFiler" />
-    <v-btn icon>
-      <v-icon>mdi-dots-vertical</v-icon>
-    </v-btn>
+    <slot name="setting"></slot>
+    <v-menu left bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on">
+          <v-icon>mdi-dots-vertical</v-icon>
+        </v-btn>
+      </template>
+      <m-func-list title="メニュー" :items="menuFuncs" />
+    </v-menu>
   </v-toolbar>
 </template>
 
 <script>
 import MInfoMenu from "@/components/MovieAnnotaion/MInfoMenu.vue";
-import MSettingMenu from "@/components/MovieAnnotaion/MSettingMenu.vue";
+import MFuncList from "@/components/util/MFuncList.vue";
 export default {
   name: "movie-annotaion-tool-bar",
   components: {
     MInfoMenu,
-    MSettingMenu
+    MFuncList
   },
   props: {
-    ws: Object
-  },
-  computed: {
     fileName: {
-      get: function() {
-        return this.$store.state.current.name;
-      },
-      set: function(val) {
-        this.$store.dispatch("current/setName", val);
-      }
+      type: String
+    },
+    menuFuncs: {
+      type: Array
     }
   },
   methods: {

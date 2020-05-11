@@ -111,11 +111,14 @@ export default {
     ]
   }),
   props: {
+    value: {
+      type: Object,
+      requested: true
+    },
     icon: {
       type: String,
       default: "mdi-cog"
-    },
-    ws: Object
+    }
   },
   watch: {
     eqs: {
@@ -133,11 +136,6 @@ export default {
     }
   },
   methods: {
-    play: function() {
-      if (this.ws) {
-        this.ws.play();
-      }
-    },
     setFilters: function() {
       if (this.ws) {
         const tag = `${this.$options.name}:setFilters`;
@@ -152,12 +150,9 @@ export default {
         });
         console.log(tag, filters);
         this.$emit("updateFiler", filters);
-        // this.ws.backend.setFilters(filters);
       }
     }
   },
-  mounted: function() {
-    this.funcs.push({ title: "play", icon: "mdi-play", callback: this.play });
-  }
+  mounted: function() {}
 };
 </script>

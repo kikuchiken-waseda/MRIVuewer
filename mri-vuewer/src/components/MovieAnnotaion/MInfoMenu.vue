@@ -56,7 +56,7 @@ export default {
       };
       if (id) {
         const file = File.find(id);
-        console.log(tag, file);
+        this.log(tag, file);
         const v = VideoStream.find(file.videoStream_id);
         if (v) {
           result.videoStream = [
