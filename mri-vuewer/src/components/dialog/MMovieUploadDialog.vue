@@ -57,7 +57,7 @@ export default {
     MMovieInput
   },
   data: () => ({
-    debug: false,
+    debug: true,
     dialog: false,
     video: {
       loading: false,
@@ -92,7 +92,7 @@ export default {
         }
       };
       this.log(tag + ":inserteItem", item);
-      File.insertOrUpdate({ data: item }).then(() => {
+      File.$create({ data: item }).then(() => {
         const file = File.query().last();
         this.log(tag + ":insertedItem", file);
         this.$refs.form.reset();
@@ -100,7 +100,7 @@ export default {
       });
     }
   },
-  mounted() {
+  async mounted() {
     this.fpsRules = [
       v => !!v || this.$vuetify.lang.t("$vuetify.validate.required"),
       v => {
@@ -120,6 +120,7 @@ export default {
         (v && v.length < nameMaxSize) ||
         this.$vuetify.lang.t("$vuetify.validate.lessThen", nameMaxSize)
     ];
+    await File.$fetch();
   }
 };
 </script>

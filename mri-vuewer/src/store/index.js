@@ -1,8 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
-// import VuexPersistence from "vuex-persist";
 import VuexORM from "@vuex-orm/core";
-// import createPersistedState from "vuex-persistedstate";
+import VuexORMLocalForage from "vuex-orm-localforage";
 
 import File from "@/models/file.js";
 import AudioStream from "@/models/audioStream.js";
@@ -17,6 +16,10 @@ database.register(AudioStream);
 database.register(VideoStream);
 database.register(VideoSize);
 
+VuexORM.use(VuexORMLocalForage, {
+  database
+});
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -27,8 +30,5 @@ export default new Vuex.Store({
   mutations: {},
   actions: {},
   modules: { current },
-  plugins: [
-    VuexORM.install(database)
-    //createPersistedState()
-  ]
+  plugins: [VuexORM.install(database)]
 });
