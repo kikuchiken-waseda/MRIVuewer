@@ -1,5 +1,11 @@
-const STORAGENEME = "vuex";
+import * as localforage from "localforage";
+// const STORE = localforage.createInstance({
+//   name: process.env.VUE_APP_LOCAlFORAGE_NAME,
+//   version: process.env.VUE_APP_LOCAlFORAGE_VERSION
+// });
+
 const STORAGE = window.localStorage;
+const STORAGENEME = process.env.VUE_APP_LOCAlFORAGE_NAME;
 
 const getCache = function() {
   return JSON.parse(STORAGE.getItem(STORAGENEME));
@@ -9,10 +15,9 @@ const setCache = function(payload) {
   STORAGE.setItem(STORAGENEME, json);
   return getCache();
 };
-const destroyCache = function() {
-  return STORAGE.removeItem(STORAGENEME);
+const destroyCache = async function() {
+  return await localforage.clear();
 };
-
 export default {
   get: getCache,
   set: setCache,

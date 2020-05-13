@@ -123,11 +123,6 @@ export default {
     search: {
       key: "",
       label: "search"
-    },
-    current: {
-      movie: {
-        id: 1
-      }
     }
   }),
   watch: {
@@ -161,11 +156,13 @@ export default {
       this.log(tag, item.id);
       this.$router.push({ name: "MovieAnnotation", params: { id: item.id } });
     },
-    clearCache: function() {
+    clearCache: async function() {
       const tag = `${this.$options.name}`;
-      File.deleteAll();
-      this.$router.push({ name: "Home" });
+      await Cache.destroy();
       this.log(tag, "clearCache");
+      if (this.$route.name != "Home") {
+        this.$router.push({ name: "Home" });
+      }
     },
     importCache: function() {
       const tag = `${this.$options.name}`;
@@ -210,6 +207,9 @@ export default {
       this.log(tag, files);
       return files;
     }
+  },
+  async mounted() {
+    await File.$fetch();
   }
 };
 </script>
