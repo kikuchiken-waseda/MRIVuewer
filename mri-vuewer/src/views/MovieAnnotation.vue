@@ -403,9 +403,10 @@ export default {
       this.setVideoHeight();
     }
   },
-  mounted: function() {
+  async mounted() {
     const tag = `${this.$options.name}:mounted`;
     this.log(tag);
+    await File.$fetch();
     if (!this.item) {
       this.$router.push({ name: "Home" });
     } else {
