@@ -19,8 +19,7 @@ database.register(VideoSize);
 VuexORM.use(VuexORMLocalForage, {
   database,
   localforage: {
-    name: process.env.VUE_APP_LOCAlFORAGE_NAME,
-    version: process.env.VUE_APP_LOCAlFORAGE_VERSION
+    name: process.env.VUE_APP_LOCAlFORAGE_NAME
   }
 });
 

@@ -106,7 +106,7 @@
 <script>
 import File from "@/models/file.js";
 import MMovieUploadDialog from "@/components/dialog/MMovieUploadDialog.vue";
-import Cache from "@/utils/cache.js";
+// import Cache from "@/utils/cache.js";
 export default {
   name: "MSideBar",
   components: {
@@ -114,7 +114,7 @@ export default {
   },
   data: () => ({
     name: "MSideBar",
-    debug: true,
+    debug: false,
     mini: true,
     menu: {
       icon: "mdi-playlist-play",
@@ -156,9 +156,9 @@ export default {
       this.log(tag, item.id);
       this.$router.push({ name: "MovieAnnotation", params: { id: item.id } });
     },
-    clearCache: async function() {
+    clearCache: function() {
       const tag = `${this.$options.name}`;
-      await Cache.destroy();
+      // await Cache.destroy();
       this.log(tag, "clearCache");
       if (this.$route.name != "Home") {
         this.$router.push({ name: "Home" });
@@ -170,16 +170,16 @@ export default {
     },
     exportCache: function() {
       const tag = `${this.$options.name}:exportCache`;
-      const cache = Cache.get();
-      const json = JSON.stringify(cache);
-      const blob = new Blob([json], {
-        type: "application/json"
-      });
-      const link = document.createElement("a");
-      link.href = window.URL.createObjectURL(blob);
-      link.download = "Cache.json";
-      link.click();
-      this.log(tag, cache);
+      // const cache = Cache.get();
+      // const json = JSON.stringify(cache);
+      // const blob = new Blob([json], {
+      //   type: "application/json"
+      // });
+      // const link = document.createElement("a");
+      // link.href = window.URL.createObjectURL(blob);
+      // link.download = "Cache.json";
+      // link.click();
+      this.log(tag, "");
     }
   },
   computed: {
@@ -207,9 +207,6 @@ export default {
       this.log(tag, files);
       return files;
     }
-  },
-  async mounted() {
-    await File.$fetch();
   }
 };
 </script>
