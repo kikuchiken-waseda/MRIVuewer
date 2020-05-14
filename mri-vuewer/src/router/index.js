@@ -42,6 +42,10 @@ const routes = [
     name: "ComponentDebug",
     component: ComponentDebug,
     props: true
+  },
+  {
+    path: "*",
+    redirect: { path: "/" }
   }
 ];
 
