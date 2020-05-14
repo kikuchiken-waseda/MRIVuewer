@@ -18,11 +18,11 @@
               />
               <v-card>
                 <v-card-actions>
-                  <v-btn icon>
-                    <v-icon>mdi-skip-previous</v-icon>
-                  </v-btn>
-                  <v-btn icon>
+                  <v-btn icon @click="skip(-1 * skipConf.long)">
                     <v-icon>mdi-skip-backward</v-icon>
+                  </v-btn>
+                  <v-btn icon @click="skip(-1 * skipConf.short)">
+                    <v-icon>mdi-skip-previous</v-icon>
                   </v-btn>
                   <v-spacer></v-spacer>
                   <v-btn fab dark small color="accent" @click="play">
@@ -32,10 +32,10 @@
                     <v-icon> mdi-pause </v-icon>
                   </v-btn>
                   <v-spacer></v-spacer>
-                  <v-btn icon>
+                  <v-btn icon @click="skip(skipConf.short)">
                     <v-icon>mdi-skip-next</v-icon>
                   </v-btn>
-                  <v-btn icon>
+                  <v-btn icon @click="skip(skipConf.long)">
                     <v-icon>mdi-skip-forward</v-icon>
                   </v-btn>
                 </v-card-actions>
@@ -108,7 +108,11 @@ export default {
   },
   data: () => ({
     // 設定
-    frameOffset: 1,
+    frameOffset: 1, // 前後動画のフレーム差
+    skipConf: {
+      short: 1, // スキップボタンのフレーム数(短い方)
+      long: 5 // スキップボタンのフレーム数(長い方)
+    },
     options: {
       waveColor: colors.grey.base,
       progressColor: colors.grey.darken4,
@@ -269,11 +273,17 @@ export default {
     getCurrentTime: function() {
       return this.ws.getCurrentTime();
     },
-    setCurrentTime: function(time) {
-      this.ws.seekTo(time / this.getDuration());
-    },
     getDuration: function() {
       return this.ws.getDuration();
+    },
+    setCurrentTime: function(time) {
+      const duration = this.getDuration();
+      const val = time < 0 ? 0 : time < duration ? time : duration;
+      this.ws.seekTo(val / this.getDuration());
+    },
+    skip: function(frame_num) {
+      const time = this.getCurrentTime() + frame_num * (1 / this.item.fps);
+      this.setCurrentTime(time);
     },
     // イベント管理
     onLoadeddata: function(payload) {
