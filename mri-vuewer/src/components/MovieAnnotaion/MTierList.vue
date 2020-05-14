@@ -9,28 +9,17 @@
     <v-tabs-items v-model="tab">
       <v-tab-item v-for="item in items" :key="item.name">
         <v-card flat>
-          <v-simple-table>
-            <template v-slot:default>
-              <tbody v-if="item.tierType == 'interval'">
-                <tr v-for="(x, idx) in item.items" :key="idx">
-                  <td>{{ x.text }}</td>
-                  <td>{{ x.time }}</td>
-                  <td v-if="idx == item.items.length - 1">
-                    {{ ws.getDuration() }}
-                  </td>
-                  <td v-else>
-                    {{ item.items[Number(idx + 1)].time }}
-                  </td>
-                </tr>
-              </tbody>
-              <tbody v-else>
-                <tr v-for="(x, key) in item.items" :key="key">
-                  <td>{{ x.text }}</td>
-                  <td>{{ x.time }}</td>
-                </tr>
-              </tbody>
-            </template>
-          </v-simple-table>
+          <m-interval-tier-table
+            v-if="item.tierType == 'interval'"
+            :ws="ws"
+            :value="item.items"
+            :actions="actions.interval"
+          />
+          <m-point-tier-table
+            v-else
+            :value="item.items"
+            :actions="actions.point"
+          />
         </v-card>
       </v-tab-item>
     </v-tabs-items>
@@ -38,7 +27,14 @@
 </template>
 
 <script>
+import MIntervalTierTable from "./MIntervalTierTable.vue";
+import MPointTierTable from "./MPointTierTable.vue";
 export default {
+  name: "MTierList",
+  components: {
+    MIntervalTierTable,
+    MPointTierTable
+  },
   data: () => ({
     tab: null
   }),
@@ -50,6 +46,9 @@ export default {
       type: Number
     },
     ws: {
+      type: Object
+    },
+    actions: {
       type: Object
     }
   },
@@ -63,5 +62,4 @@ export default {
   }
 };
 </script>
-
 <style scoped></style>

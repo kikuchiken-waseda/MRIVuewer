@@ -45,6 +45,7 @@
           <v-col cols="5" class="flex-grow-1 flex-shrink-1 d-none d-sm-flex">
             <m-tier-list
               v-if="tiers"
+              :actions="tierActions"
               :items="tiers"
               :ws="ws"
               :max-height="videoHeight"
@@ -132,14 +133,17 @@ export default {
       {
         name: "Interval",
         tierType: "interval",
-        items: []
+        items: [{ time: 0, text: "" }]
       },
       {
-        name: "Point",
+        name: "Frame",
         tierType: "point",
         items: []
       }
-    ]
+    ],
+    tierActions: {
+      point: []
+    }
   }),
   computed: {
     item: {
@@ -244,7 +248,7 @@ export default {
       this.tiers.push({
         name: name,
         tierType: type,
-        items: []
+        items: [{ time: 0, text: "" }]
       });
       const tier = MultilinePlugin.create({
         name: this.tiers[this.tiers.length - 1].name,
@@ -264,6 +268,9 @@ export default {
     // 時間管理
     getCurrentTime: function() {
       return this.ws.getCurrentTime();
+    },
+    setCurrentTime: function(time) {
+      this.ws.seekTo(time / this.getDuration());
     },
     getDuration: function() {
       return this.ws.getDuration();
@@ -290,7 +297,11 @@ export default {
       // 動画の読み込みが終了したタイミング
       const tag = `${this.$options.name}:onRedy`;
       const vm = this;
+
+      // 動画コンポーネントとTextGridコンポーネントの高さを合わせる
       this.setVideoHeight();
+
+      // メニューバーの関数を決定
       this.menuFuncs = [
         {
           title: "Add Interval Tier",
@@ -307,6 +318,63 @@ export default {
           }
         }
       ];
+
+      // フレーム層にそれぞれのフレーム時刻を追加
+      const frame_size = Math.round(this.getDuration() * this.item.fps);
+      const frame_rate = 1 / this.item.fps;
+      for (let step = 0; step < frame_size; step++) {
+        this.tiers[1].items.push({
+          time: frame_rate * step,
+          text: `frame_${step + 1}`
+        });
+      }
+
+      // インターバルアクションを追加
+      this.tierActions.interval = [
+        {
+          name: "play",
+          icon: "mdi-play",
+          callback: item => {
+            this.ws.play(item.startTime, item.endTime);
+          }
+        },
+        {
+          name: "skip",
+          icon: "mdi-image-filter-center-focus",
+          callback: item => {
+            this.setCurrentTime(item.startTime);
+          }
+        },
+        {
+          name: "delete",
+          icon: "mdi-delete",
+          color: "pink",
+          callback: () => {}
+        }
+      ];
+      this.tierActions.point = [
+        {
+          name: "edit",
+          icon: "mdi-square-edit-outline",
+          callback: item => {
+            this.setCurrentTime(item.time);
+          }
+        },
+        {
+          name: "skip",
+          icon: "mdi-image-filter-center-focus",
+          callback: item => {
+            this.setCurrentTime(item.time);
+          }
+        },
+        {
+          name: "delete",
+          icon: "mdi-delete",
+          color: "pink",
+          callback: () => {}
+        }
+      ];
+
       this.log(tag);
       this.isLoading = false;
     },
