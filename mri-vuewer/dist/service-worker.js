@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.cc99c84150ded83f62a1d94a8ec28a1a.js"
+  "/precache-manifest.fd043c61d21788722a385b41078be15d.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "mri-vuewer"});

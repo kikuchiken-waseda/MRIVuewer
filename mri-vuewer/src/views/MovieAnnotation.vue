@@ -160,6 +160,13 @@ export default {
       return data;
     }
   },
+  watch: {
+    "item.dataUrl": function(val) {
+      if (val) {
+        this.initWs();
+      }
+    }
+  },
   methods: {
     // ユーティリティ関数
     log: function(tag, msg) {
