@@ -5,56 +5,17 @@
         <m-setting-menu :menuFuncs="menuFuncs" />
       </template>
     </m-tool-bar>
-    <v-card :color="background">
+    <v-card color="background">
       <v-container v-if="item">
         <v-row>
           <v-col class="flex-grow-1 flex-shrink-1">
-            <v-card ref="videoCard" flat :color="background">
-              <v-container fluid class="pa-0">
-                <v-row class="py-0">
-                  <v-col cols="4" class="py-0">
-                    <v-card flat :color="background">
-                      <v-system-bar dark color="accent">
-                        {{ frameOffset }}フレーム前の画像
-                      </v-system-bar>
-                      <video
-                        v-if="item.dataUrl"
-                        muted
-                        ref="videoPre"
-                        :style="videoStyle"
-                        :src="item.dataUrl"
-                      />
-                    </v-card>
-                  </v-col>
-                  <v-col cols="4" class="py-0">
-                    <v-card flat :color="background">
-                      <v-system-bar dark color="accent">
-                        現在画像
-                      </v-system-bar>
-                      <video
-                        v-if="item.dataUrl"
-                        ref="video"
-                        :style="videoStyle"
-                        :src="item.dataUrl"
-                      />
-                    </v-card>
-                  </v-col>
-                  <v-col cols="4" class="py-0">
-                    <v-card flat :color="background">
-                      <v-system-bar dark color="accent">
-                        {{ frameOffset }}フレーム後の画像
-                      </v-system-bar>
-                      <video
-                        muted
-                        v-if="item.dataUrl"
-                        ref="videoPos"
-                        :style="videoStyle"
-                        :src="item.dataUrl"
-                      />
-                    </v-card>
-                  </v-col>
-                </v-row>
-              </v-container>
+            <v-card ref="videoCard" flat color="background">
+              <m-video-array
+                :src="item.dataUrl"
+                :frameOffset="frameOffset"
+                :fps="item.fps"
+                @loadeddata="onLoadeddata"
+              />
               <v-card>
                 <v-card-actions>
                   <v-btn icon>
@@ -117,7 +78,7 @@
     </v-card>
     <v-card v-if="debug">
       <v-container v-if="item">
-        <pre>{{ tiers }}</pre>
+        <pre>{{ debugItem }}</pre>
       </v-container>
     </v-card>
   </v-container>
@@ -129,6 +90,7 @@ import colors from "vuetify/lib/util/colors";
 import MToolBar from "@/components/MovieAnnotaion/MToolBar.vue";
 import MSettingMenu from "@/components/MovieAnnotaion/MSettingMenu.vue";
 import MTierList from "@/components/MovieAnnotaion/MTierList.vue";
+import MVideoArray from "@/components/MovieAnnotaion/MVideoArray.vue";
 import WaveSurfer from "@/components/wavesurfer/wavesurfer.js";
 import SpectrogramPlugin from "@/components/wavesurfer/plugin/spectrogram.js";
 import TimelinePlugin from "@/components/wavesurfer/plugin/timeline.js";
@@ -140,18 +102,32 @@ export default {
   components: {
     MToolBar,
     MTierList,
-    MSettingMenu
+    MSettingMenu,
+    MVideoArray
   },
   data: () => ({
+    // 設定
+    frameOffset: 1,
+    options: {
+      waveColor: colors.grey.base,
+      progressColor: colors.grey.darken4,
+      loaderColor: colors.grey.darken4,
+      cursorColor: colors.teal.base,
+      minPxPerSec: 100,
+      height: 70,
+      scrollParent: true,
+      normalize: true
+    },
+    // 状態
     debug: false,
     ws: null,
+    isVideoLoaded: false,
     isLoading: true,
-    background: "grey lighten-3",
-    frameOffset: 1,
+    videoHeight: 0,
+    menuFuncs: [],
     text: "",
     currentTier: null,
     currentIdx: null,
-    menuFuncs: [],
     tiers: [
       {
         name: "Interval",
@@ -163,22 +139,7 @@ export default {
         tierType: "point",
         items: []
       }
-    ],
-    videoHeight: 0,
-    videoStyle: {
-      width: "100%",
-      height: "auto"
-    },
-    options: {
-      waveColor: colors.grey.base,
-      progressColor: colors.grey.darken4,
-      loaderColor: colors.grey.darken4,
-      cursorColor: colors.teal.base,
-      minPxPerSec: 100,
-      height: 70,
-      scrollParent: true,
-      normalize: true
-    }
+    ]
   }),
   computed: {
     item: {
@@ -195,19 +156,15 @@ export default {
     debugItem: function() {
       const data = {};
       data.item = this.item;
-      data.isLoading = this.isLoading;
+      data.this = this.tiers;
       return data;
-    },
-    frameRate: function() {
-      return 1 / this.item.fps;
     }
   },
   watch: {
-    "item.dataUrl": function() {
-      this.$nextTick(() => {
-        // this.initWs();
-        this.load();
-      });
+    "item.dataUrl": function(val) {
+      if (val) {
+        this.initWs();
+      }
     }
   },
   methods: {
@@ -218,12 +175,15 @@ export default {
       }
     },
     // 状態設定
-    load() {
+    load(payload) {
       const tag = `${this.$options.name}:load`;
-      const elm = this.$refs.video;
-      if (this.$refs.video) {
+      if (payload) {
         if (this.ws) {
-          this.ws.load(elm);
+          this.log(tag, payload);
+          if (!this.isVideoLoaded) {
+            this.ws.load(payload);
+            this.isVideoLoaded = true;
+          }
         } else {
           this.log(tag, "no ws");
         }
@@ -265,7 +225,6 @@ export default {
         });
         this.ws.addPlugin(tier).initPlugin("multiline");
       }
-      this.ws.on("interaction", this.syncVideos);
       this.ws.on("ready", this.onRedy);
       this.ws.on("destroy", this.onDestroy);
       this.ws.on("error", this.onError);
@@ -297,44 +256,10 @@ export default {
     },
     // メディア操作
     play: function() {
-      this.syncVideos();
-      this.$refs.videoPre.play();
-      this.$refs.videoPos.play();
       this.ws.play();
     },
     pause: function() {
-      this.$refs.videoPre.pause();
-      this.$refs.videoPos.pause();
       this.ws.pause();
-      this.syncVideos();
-    },
-    // 同期
-    syncVideos: function() {
-      const tag = `${this.$options.name}:syncVideos`;
-      const currentTime = this.getCurrentTime();
-      const offsetTime = this.frameOffset * this.frameRate;
-      this.log(tag, currentTime);
-      if (currentTime - offsetTime > 0) {
-        const time = currentTime - offsetTime;
-        this.$refs.videoPre.currentTime = time;
-      } else {
-        this.$refs.videoPre.currentTime = 0;
-        this.log(
-          tag + "video-pre: setCurrentTime",
-          `${currentTime - offsetTime} is less than 0`
-        );
-      }
-      if (offsetTime + currentTime < this.getDuration()) {
-        this.log(tag, "video-pos: setCurrentTime");
-        const time = currentTime + offsetTime;
-        this.$refs.videoPos.currentTime = time;
-      } else {
-        this.$refs.videoPos.currentTime = this.getDuration();
-        this.log(
-          tag + "video-pos: setCurrentTime",
-          `${currentTime + offsetTime} is more than ${this.getDuration()}`
-        );
-      }
     },
     // 時間管理
     getCurrentTime: function() {
@@ -344,6 +269,13 @@ export default {
       return this.ws.getDuration();
     },
     // イベント管理
+    onLoadeddata: function(payload) {
+      const tag = `${this.$options.name}:onLoadeddata`;
+      if (payload) {
+        this.log(tag, payload);
+        this.load(payload);
+      }
+    },
     onChangeText: function(val) {
       if (this.currentTier) {
         this.currentTier.putText(this.currentIdx, val);
@@ -403,17 +335,14 @@ export default {
       this.setVideoHeight();
     }
   },
-  async mounted() {
+  mounted() {
     const tag = `${this.$options.name}:mounted`;
     this.log(tag);
-    await File.$fetch();
     if (!this.item) {
       this.$router.push({ name: "Home" });
     } else {
       this.initWs();
-      this.load();
     }
-    this.$nextTick(() => {});
   }
 };
 </script>

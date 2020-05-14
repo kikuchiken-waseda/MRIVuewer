@@ -11,6 +11,9 @@
 <script>
 export default {
   name: "MAppBar",
+  data: () => ({
+    debug: false
+  }),
   computed: {
     name: {
       get() {
@@ -24,9 +27,14 @@ export default {
     }
   },
   methods: {
+    log: function(tag, msg) {
+      if (this.debug) {
+        console.info(tag, msg);
+      }
+    },
     to: function(payload) {
       const tag = `${this.$options.name}:to`;
-      console.info(tag, payload);
+      this.log(tag, payload);
       this.$router.push(payload);
     }
   }
