@@ -11,10 +11,12 @@
           <v-col class="flex-grow-1 flex-shrink-1">
             <v-card ref="videoCard" flat color="background">
               <m-video-array
+                ref="videoArray"
                 :src="item.dataUrl"
                 :frameOffset="frameOffset"
                 :fps="item.fps"
                 @loadeddata="onLoadeddata"
+                @syncCanvas="onSyncCanvas"
               />
               <v-card>
                 <v-card-actions>
@@ -126,6 +128,7 @@ export default {
     // 状態
     debug: false,
     ws: null,
+    frame: null,
     isVideoLoaded: false,
     isLoading: true,
     videoHeight: 0,
@@ -286,6 +289,11 @@ export default {
       this.setCurrentTime(time);
     },
     // イベント管理
+    onSyncCanvas(payload) {
+      const tag = `${this.$options.name}:onSyncCanvas`;
+      this.frame = payload;
+      this.log(tag, payload);
+    },
     onLoadeddata: function(payload) {
       const tag = `${this.$options.name}:onLoadeddata`;
       if (payload) {
@@ -362,12 +370,15 @@ export default {
           callback: () => {}
         }
       ];
+      // ポイントアクションを追加
       this.tierActions.point = [
         {
           name: "edit",
           icon: "mdi-square-edit-outline",
           callback: item => {
             this.setCurrentTime(item.time);
+            item.frame = this.$refs.videoArray.getFrame();
+            console.log("tierActions.point.edit", item);
           }
         },
         {

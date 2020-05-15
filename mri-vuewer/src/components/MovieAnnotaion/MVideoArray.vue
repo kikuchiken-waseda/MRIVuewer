@@ -28,6 +28,7 @@
             :style="videoStyle"
             :src="src"
           />
+          <canvas ref="canvas" v-show="false" :style="videoStyle" />
         </v-card>
       </v-col>
       <v-col cols="4" class="py-0">
@@ -88,6 +89,7 @@ export default {
     },
     syncVideos: function(currentTime) {
       const tag = `${this.$options.name}:syncVideos`;
+      this.syncCanvas();
       const offsetTime = this.frameOffset * this.frameRate;
       this.log(tag, `currentTime:${currentTime} offsetTime:${offsetTime}`);
       if (currentTime - offsetTime > 0) {
@@ -101,18 +103,44 @@ export default {
         this.$refs.videoPos.currentTime = time;
       }
     },
+    syncCanvas: function() {
+      const tag = `${this.$options.name}:syncCanvas`;
+      const video = this.$refs.video;
+      const canvas = this.$refs.canvas;
+      canvas.width = video.clientWidth;
+      canvas.height = video.clientWidth;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0);
+      const dataUrl = canvas.toDataURL();
+      this.log(tag, dataUrl);
+      this.$emit("syncCanvas", dataUrl);
+    },
+    getFrame: function() {
+      const tag = `${this.$options.name}:getFrame`;
+      const video = this.$refs.video;
+      const canvas = document.createElement("canvas");
+      canvas.width = video.clientWidth;
+      canvas.height = video.clientWidth;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0);
+      const dataUrl = canvas.toDataURL();
+      this.log(tag, dataUrl);
+      return dataUrl;
+    },
     getDuration: function() {
       return this.$refs.video.duration;
     },
     getCurrentTime: function() {
-      return this.$refs.video.currentTime;
+      if (this.$refs.video) {
+        return this.$refs.video.currentTime;
+      }
     },
     // イベント発火
     onLoadeddata() {
       const tag = `${this.$options.name}:onLoadeddata`;
-      this.el = this.$refs.video;
-      this.log(tag, this.el);
-      this.$emit("loadeddata", this.el);
+      const video = this.$refs.video;
+      this.log(tag, video);
+      this.$emit("loadeddata", video);
     },
     onTimeupdate: function() {
       const tag = `${this.$options.name}:onTimeupdate`;
