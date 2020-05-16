@@ -52,20 +52,24 @@ export default {
   computed: {
     items: {
       get() {
-        let idx = -1;
         const vm = this;
-        return this.value.map(function(item) {
-          idx++;
-          const endTime =
-            idx == vm.value.length - 1
-              ? vm.ws.getDuration()
-              : vm.value[idx + 1].time;
-          return {
-            text: item.text ? item.text : "",
-            startTime: item.time,
-            endTime: endTime
-          };
-        });
+        let idx = -1;
+        if (this.value) {
+          return this.value.map(function(item) {
+            idx++;
+            const endTime =
+              idx == vm.value.length - 1
+                ? vm.ws.getDuration()
+                : vm.value[idx + 1].time;
+            return {
+              text: item.text ? item.text : "",
+              startTime: item.time,
+              endTime: endTime
+            };
+          });
+        } else {
+          return [];
+        }
       },
       set(diff) {
         this.$emit("input", { ...this.value, ...diff });

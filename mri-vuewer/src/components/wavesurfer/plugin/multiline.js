@@ -354,7 +354,14 @@ export default class MultilinePlugin {
     this.tiers = TIERS;
     this.tiers[this.name] = this;
 
-    this.items = params.items;
+    this.items = [];
+    if (params.items) {
+      for (const item of params.items) {
+        if (item.time) {
+          this.items.push(item);
+        }
+      }
+    }
     this.wavesurfer.fireEvent("multiline-update-tiers");
 
     /** @private */
@@ -493,14 +500,16 @@ export default class MultilinePlugin {
     });
   }
   addItem(item) {
-    this.items.push(item);
-    this.items = this.items.sort((a, b) => {
-      return a.time - b.time;
-    });
-    this.wavesurfer.fireEvent("multiline-update-tiers");
-    this.updateCanvases();
-    this.updateCanvasesPositioning();
-    this.renderCanvases();
+    if (item.time) {
+      this.items.push(item);
+      this.items = this.items.sort((a, b) => {
+        return a.time - b.time;
+      });
+      this.wavesurfer.fireEvent("multiline-update-tiers");
+      this.updateCanvases();
+      this.updateCanvasesPositioning();
+      this.renderCanvases();
+    }
   }
   deleteItem(idx) {
     this.items.splice(idx, 1);
@@ -689,7 +698,8 @@ export default class MultilinePlugin {
 
     // render items
     this.fillLine(0, 0, 1, height);
-    this.items.forEach((item, i) => {
+    for (const i in this.items) {
+      const item = this.items[i];
       const curPixel = this.pixelsPerSecond * item.time;
       if (this.tierType == "interval") {
         if (item.color) {
@@ -727,7 +737,7 @@ export default class MultilinePlugin {
           }
         }
       }
-    });
+    }
     this.fillLine(width, 0, 1, height);
   }
 

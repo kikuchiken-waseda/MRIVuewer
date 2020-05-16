@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app color="primary" dark>
+  <v-app-bar app color="primary" dark style="z-index:99">
     <v-toolbar-title>{{ name }} ver. {{ version }}</v-toolbar-title>
     <v-spacer></v-spacer>
     <v-btn icon @click="to({ name: 'Home' })">

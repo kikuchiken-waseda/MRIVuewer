@@ -32,7 +32,7 @@ const routes = [
     props: true
   },
   {
-    path: "/movies/:id",
+    path: "/imeges/:id",
     name: "ImageAnnotation",
     component: ImageAnnotation,
     props: true

@@ -46,6 +46,7 @@ export default {
       this.video.dataUrl = null;
       this.video.name = null;
       this.video.fps = null;
+      this.video.duration = null;
       this.video.size = {
         width: null,
         height: null
@@ -76,6 +77,10 @@ export default {
           const buff = await e.arrayBuffer();
           VideoUtil.info(buff, res => {
             this.video.size = res.size;
+            if (res.duration) {
+              this.log(tag + ":set duration", res.duration);
+              this.video.duration = res.duration;
+            }
             if (res.videoStream) {
               this.log(tag + ":set video", res.videoStream);
               this.video.fps = res.videoStream.fps

@@ -1,5 +1,5 @@
 import { Model } from "@vuex-orm/core";
-import Point from "./point.js";
+import Item from "./item.js";
 export default class Tier extends Model {
   static entity = "tiers";
   static fields() {
@@ -8,7 +8,7 @@ export default class Tier extends Model {
       file_id: this.attr(null),
       name: this.attr(""),
       tierType: this.attr(""),
-      points: this.hasMany(Point, "tier_id")
+      items: this.hasMany(Item, "tier_id")
     };
   }
 }

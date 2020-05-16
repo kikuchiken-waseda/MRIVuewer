@@ -7,13 +7,13 @@ import File from "@/models/file.js";
 import AudioStream from "@/models/audioStream.js";
 import VideoStream from "@/models/videoStream.js";
 import VideoSize from "@/models/videoSize.js";
-import Point from "@/models/point.js";
+import Item from "@/models/item.js";
 import Tier from "@/models/tier.js";
 
 import { current } from "./current.js";
 
 const database = new VuexORM.Database();
-database.register(Point);
+database.register(Item);
 database.register(Tier);
 database.register(AudioStream);
 database.register(VideoStream);

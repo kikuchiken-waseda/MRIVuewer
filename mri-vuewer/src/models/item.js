@@ -1,6 +1,6 @@
 import { Model } from "@vuex-orm/core";
-export default class Point extends Model {
-  static entity = "points";
+export default class Item extends Model {
+  static entity = "items";
   static fields() {
     return {
       id: this.attr(null),

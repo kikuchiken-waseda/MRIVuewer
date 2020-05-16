@@ -76,14 +76,25 @@ export default {
     },
     onValid: function() {
       const tag = `${this.$options.name}:onValid`;
+      const frameRate = 1 / this.video.fps;
+      let time = 0;
+      const frames = [];
+      for (let step = 0; time <= this.video.duration; step++) {
+        time = step * frameRate;
+        frames.push({
+          time: time,
+          text: `frame_${step}`
+        });
+      }
       const item = {
         name: this.video.name,
         fileSize: this.video.file.size,
         fileType: this.video.file.type,
         fps: this.video.fps,
+        frameRate: frameRate,
         dataUrl: this.video.dataUrl,
         lastModifiedDate: this.video.file.lastModifiedDate,
-        currentTime: 0,
+        duration: this.video.duration,
         audioStream: this.video.audioStream,
         videoStream: this.video.videoStream,
         size: {
@@ -91,7 +102,18 @@ export default {
           height: this.video.size.height
         }
       };
-      this.log(tag + ":inserteItem", item);
+      item.tiers = [
+        {
+          name: "Interval",
+          tierType: "interval",
+          items: [{ time: 0, text: "" }]
+        },
+        {
+          name: "Frame",
+          tierType: "point",
+          items: frames
+        }
+      ];
       File.$create({ data: item }).then(() => {
         const file = File.query().last();
         this.log(tag + ":insertedItem", file);
