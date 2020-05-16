@@ -128,7 +128,7 @@ export default {
       normalize: true
     },
     // 状態
-    debug: true,
+    debug: false,
     ws: null,
     frame: null,
     isVideoLoaded: false,

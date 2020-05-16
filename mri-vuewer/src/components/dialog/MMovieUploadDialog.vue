@@ -57,7 +57,7 @@ export default {
     MMovieInput
   },
   data: () => ({
-    debug: true,
+    debug: false,
     dialog: false,
     video: {
       loading: false,
