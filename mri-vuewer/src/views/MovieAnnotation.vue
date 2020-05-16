@@ -11,10 +11,12 @@
           <v-col class="flex-grow-1 flex-shrink-1">
             <v-card ref="videoCard" flat color="background">
               <m-video-array
+                ref="videoArray"
                 :src="item.dataUrl"
                 :frameOffset="frameOffset"
                 :fps="item.fps"
                 @loadeddata="onLoadeddata"
+                @syncCanvas="onSyncCanvas"
               />
               <v-card>
                 <v-card-actions>
@@ -87,6 +89,8 @@
 
 <script>
 import File from "@/models/file.js";
+import Tier from "@/models/tier.js";
+import Item from "@/models/item.js";
 import colors from "vuetify/lib/util/colors";
 import MToolBar from "@/components/MovieAnnotaion/MToolBar.vue";
 import MSettingMenu from "@/components/MovieAnnotaion/MSettingMenu.vue";
@@ -124,8 +128,9 @@ export default {
       normalize: true
     },
     // 状態
-    debug: false,
+    debug: true,
     ws: null,
+    frame: null,
     isVideoLoaded: false,
     isLoading: true,
     videoHeight: 0,
@@ -133,18 +138,6 @@ export default {
     text: "",
     currentTier: null,
     currentIdx: null,
-    tiers: [
-      {
-        name: "Interval",
-        tierType: "interval",
-        items: [{ time: 0, text: "" }]
-      },
-      {
-        name: "Frame",
-        tierType: "point",
-        items: []
-      }
-    ],
     tierActions: {
       point: []
     }
@@ -161,18 +154,42 @@ export default {
         });
       }
     },
+    tiers: {
+      get: function() {
+        const tag = `${this.$options.name}:computed:tiers:get`;
+
+        const tiers = [];
+        for (const tier of Tier.query()
+          .where("file_id", this.item.id)
+          .get()) {
+          const items = [];
+          for (const item of Item.query()
+            .where("tier_id", tier.id)
+            .orderBy("time")
+            .get()) {
+            items.push({
+              id: item.id,
+              text: item.text,
+              time: item.time,
+              dataUrl: item.dataUrl
+            });
+          }
+          tier.items = items;
+          tiers.push(tier);
+        }
+        this.log(tag, tiers);
+        return tiers;
+      },
+      set: function(payload) {
+        const tag = `${this.$options.name}:computed:tiers:set`;
+        console.log(tag, payload);
+      }
+    },
     debugItem: function() {
       const data = {};
       data.item = this.item;
-      data.this = this.tiers;
+      data.tiers = this.tiers;
       return data;
-    }
-  },
-  watch: {
-    "item.dataUrl": function(val) {
-      if (val) {
-        this.initWs();
-      }
     }
   },
   methods: {
@@ -249,18 +266,25 @@ export default {
       });
     },
     addTier(name, type) {
-      this.tiers.push({
-        name: name,
-        tierType: type,
-        items: [{ time: 0, text: "" }]
+      const tag = `${this.$options.name}:addTier`;
+      Tier.$create({
+        data: {
+          name: name,
+          tierType: type,
+          file_id: this.item.id,
+          items: [{ time: 0, text: "" }]
+        }
+      }).then(datas => {
+        const data = datas[datas.length - 1];
+        const tier = MultilinePlugin.create({
+          name: data.name,
+          container: "#wave-multiline",
+          tierType: data.tierType,
+          items: data.items
+        });
+        this.ws.addPlugin(tier).initPlugin("multiline");
+        this.log(tag, data);
       });
-      const tier = MultilinePlugin.create({
-        name: this.tiers[this.tiers.length - 1].name,
-        container: "#wave-multiline",
-        tierType: this.tiers[this.tiers.length - 1].tierType,
-        items: this.tiers[this.tiers.length - 1].items
-      });
-      this.ws.addPlugin(tier).initPlugin("multiline");
     },
     // メディア操作
     play: function() {
@@ -286,6 +310,11 @@ export default {
       this.setCurrentTime(time);
     },
     // イベント管理
+    onSyncCanvas(payload) {
+      // const tag = `${this.$options.name}:onSyncCanvas`;
+      this.frame = payload;
+      // this.log(tag, payload);
+    },
     onLoadeddata: function(payload) {
       const tag = `${this.$options.name}:onLoadeddata`;
       if (payload) {
@@ -307,7 +336,6 @@ export default {
       // 動画の読み込みが終了したタイミング
       const tag = `${this.$options.name}:onRedy`;
       const vm = this;
-
       // 動画コンポーネントとTextGridコンポーネントの高さを合わせる
       this.setVideoHeight();
 
@@ -328,16 +356,6 @@ export default {
           }
         }
       ];
-
-      // フレーム層にそれぞれのフレーム時刻を追加
-      const frame_size = Math.round(this.getDuration() * this.item.fps);
-      const frame_rate = 1 / this.item.fps;
-      for (let step = 0; step < frame_size; step++) {
-        this.tiers[1].items.push({
-          time: frame_rate * step,
-          text: `frame_${step + 1}`
-        });
-      }
 
       // インターバルアクションを追加
       this.tierActions.interval = [
@@ -362,12 +380,26 @@ export default {
           callback: () => {}
         }
       ];
+      // ポイントアクションを追加
       this.tierActions.point = [
         {
           name: "edit",
           icon: "mdi-square-edit-outline",
           callback: item => {
             this.setCurrentTime(item.time);
+            // item.frame = this.$refs.videoArray.getFrame();
+            Item.$update({
+              where: item.id,
+              data: {
+                dataUrl: this.$refs.videoArray.getFrame()
+              }
+            }).then(() => {
+              console.log("tierActions.point.edit", item);
+              this.$router.push({
+                name: "ImageAnnotation",
+                params: { id: item.id }
+              });
+            });
           }
         },
         {
@@ -384,13 +416,12 @@ export default {
           callback: () => {}
         }
       ];
-
-      this.log(tag);
+      this.log(tag, "finish");
       this.isLoading = false;
     },
-    onDestroy(val) {
+    onDestroy() {
       const tag = `${this.$options.name}:onDestroy`;
-      this.log(tag, val);
+      this.log(tag, "finish");
     },
     onError(val) {
       const tag = `${this.$options.name}:onError`;
@@ -413,14 +444,19 @@ export default {
       this.setVideoHeight();
     }
   },
-  mounted() {
+  async mounted() {
     const tag = `${this.$options.name}:mounted`;
-    this.log(tag);
-    if (!this.item) {
-      this.$router.push({ name: "Home" });
-    } else {
-      this.initWs();
-    }
+    this.$nextTick(() => {
+      if (!this.item) {
+        this.$router.push({ name: "Home" });
+      } else {
+        this.log(tag, "initWs");
+        this.initWs();
+      }
+    });
+    await File.$fetch();
+    await Tier.$fetch();
+    await Item.$fetch();
   }
 };
 </script>

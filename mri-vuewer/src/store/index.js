@@ -7,14 +7,18 @@ import File from "@/models/file.js";
 import AudioStream from "@/models/audioStream.js";
 import VideoStream from "@/models/videoStream.js";
 import VideoSize from "@/models/videoSize.js";
+import Item from "@/models/item.js";
+import Tier from "@/models/tier.js";
 
 import { current } from "./current.js";
 
 const database = new VuexORM.Database();
-database.register(File);
+database.register(Item);
+database.register(Tier);
 database.register(AudioStream);
 database.register(VideoStream);
 database.register(VideoSize);
+database.register(File);
 
 VuexORM.use(VuexORMLocalForage, {
   database,
@@ -22,7 +26,6 @@ VuexORM.use(VuexORMLocalForage, {
     name: process.env.VUE_APP_LOCAlFORAGE_NAME
   }
 });
-
 Vue.use(Vuex);
 
 export default new Vuex.Store({

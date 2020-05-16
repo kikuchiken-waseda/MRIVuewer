@@ -382,7 +382,7 @@ export default class SpectrogramPlugin {
       this.drawer.style(labelsEl, {
         left: 0,
         position: "absolute",
-        zIndex: 9,
+        zIndex: 5,
         height: `${this.height / this.pixelRatio}px`,
         width: `${55 / this.pixelRatio}px`
       });

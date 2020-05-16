@@ -41,6 +41,17 @@ const info = (buff, callback) => {
     onExit: function() {
       let item = {};
       for (const line of stdout.split("\n")) {
+        if (~line.indexOf("Duration")) {
+          const timeInfo = line
+            .split(",")[0]
+            .split(": ")[1]
+            .split(":")
+            .map(val => {
+              return Number(val);
+            });
+          item.duration =
+            timeInfo[0] * 60 * 60 + timeInfo[1] * 60 + timeInfo[2];
+        }
         if (~line.indexOf("Stream")) {
           const info = line.split(": ");
           if (info.length == 3) {

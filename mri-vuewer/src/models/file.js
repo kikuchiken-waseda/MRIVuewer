@@ -8,6 +8,7 @@ import { Model } from "@vuex-orm/core";
 import AudioStream from "./audioStream.js";
 import VideoStream from "./videoStream.js";
 import VideoSize from "./videoSize.js";
+import Tier from "./tier.js";
 
 export default class File extends Model {
   static entity = "files";
@@ -18,6 +19,7 @@ export default class File extends Model {
       videoStream_id: this.attr(null),
       videoSize_id: this.attr(null),
       name: this.attr(""),
+      duration: this.attr(0),
       fileSize: this.attr(""),
       fileType: this.attr(""),
       fps: this.number(0),
@@ -26,7 +28,8 @@ export default class File extends Model {
       currentTime: this.number(0),
       audioStream: this.belongsTo(AudioStream, "audioStream_id"),
       videoStream: this.belongsTo(VideoStream, "videoStream_id"),
-      size: this.belongsTo(VideoSize, "videoSize_id")
+      size: this.belongsTo(VideoSize, "videoSize_id"),
+      tiers: this.hasMany(Tier, "file_id")
     };
   }
 }
