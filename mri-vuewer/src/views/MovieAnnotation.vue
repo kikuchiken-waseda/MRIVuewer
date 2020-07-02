@@ -157,7 +157,6 @@ export default {
     tiers: {
       get: function() {
         const tag = `${this.$options.name}:computed:tiers:get`;
-
         const tiers = [];
         for (const tier of Tier.query()
           .where("file_id", this.item.id)
