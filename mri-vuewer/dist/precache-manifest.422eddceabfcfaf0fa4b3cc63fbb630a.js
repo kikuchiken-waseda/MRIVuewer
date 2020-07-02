@@ -4,12 +4,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/mri-vuewer/css/chunk-vendors.39de431d.css"
   },
   {
-    "revision": "29e6077603cdbb2da6827c7a9e1703bc",
+    "revision": "643e9a480e9014aa7e1c2c9643ab7658",
     "url": "/mri-vuewer/index.html"
   },
   {
-    "revision": "6153878e5c350f92a751",
-    "url": "/mri-vuewer/js/app.7f2888be.js"
+    "revision": "237a1a52c76217f99636",
+    "url": "/mri-vuewer/js/app.0e8a2f9e.js"
   },
   {
     "revision": "1caaac79b90256981296",
