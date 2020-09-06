@@ -1,5 +1,6 @@
 # MRIViewer
 
+
 このアプリケーションは MRI 動画を始めとする調音運動系動画のアノテーションツールです.
 類似のアプリケーションとしては Praat や ELAN などが存在しますが,
 動画を前提とし, 音声のスペクトルグラムをうまく表示できる適当なツールが存在しないため,
@@ -8,6 +9,11 @@
 2018 年度秋期音響学会で発表を行いました
 
 - demo: https://kikuchiken-waseda.github.io/MRIVuewer/
+
+## 注意
+**この版は一旦開発を凍結しています.新版を利用してください**
+- 2系: https://kikuchiken-waseda.github.io/mri-vuewer.ver2/
+- 開発版: https://github.com/qh73xe/mri-vuewer.dev
 
 ## 機能
 
